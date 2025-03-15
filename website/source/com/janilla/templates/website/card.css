@@ -1,0 +1,20 @@
+card-element {
+  article {
+    background: rgb(10, 10, 10);
+    border: 1px solid rgba(38, 38, 38, 0.8);
+    border-radius: 0.2rem;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  div {
+    padding: 1rem;
+  }
+}

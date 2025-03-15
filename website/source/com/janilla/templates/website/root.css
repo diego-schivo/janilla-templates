@@ -1,0 +1,85 @@
+root-element {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+
+  > header,
+  > footer {
+    a {
+      text-decoration: none;
+    }
+  }
+
+  > header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 20;
+
+    a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+
+    img {
+      height: 34px;
+    }
+
+    nav {
+      align-items: center;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    lucide-icon {
+      width: 1.25rem;
+    }
+  }
+
+  > footer {
+    border-top: 1px solid rgba(38, 38, 38, 0.8);
+    margin-top: 3rem;
+    padding: 2rem 1rem;
+
+    &,
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    img {
+      height: 34px;
+    }
+
+    div:has(select) {
+      align-self: start;
+      position: relative;
+
+      lucide-icon {
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      svg {
+        display: block;
+        opacity: 0.5;
+        width: 1rem;
+      }
+    }
+
+    select {
+      appearance: none;
+      background: transparent;
+      border: none;
+      font-size: 1rem;
+      padding-right: 1rem;
+    }
+  }
+}

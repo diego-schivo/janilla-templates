@@ -1,0 +1,68 @@
+hero-component {
+  article,
+  section,
+  ul {
+    display: flex;
+  }
+
+  article,
+  section {
+    flex-direction: column;
+  }
+
+  article,
+  ul {
+    gap: 1rem;
+  }
+
+  article {
+    background: no-repeat top center / 1280px 80vh;
+    justify-content: center;
+    margin: -12.5rem -1rem -2.5rem;
+    min-height: 80vh;
+    padding: 1rem;
+    position: relative;
+  }
+
+  section {
+    gap: 1.5rem;
+	transform: translateY(-2rem);
+  }
+
+  h1 {
+    font-weight: normal;
+    font-size: 2.25em;
+    line-height: 1.1111111;
+  }
+
+  p {
+    a {
+      font-weight: 500;
+      text-decoration: underline;
+    }
+  }
+
+  ul {
+    a {
+      border: 1px solid rgba(38, 38, 38, 0.8);
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+      display: inline-block;
+      font-size: 0.875rem;
+      height: 2.5rem;
+      line-height: 1.25rem;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+
+      &.default {
+        background: rgb(248, 250, 252);
+        color: rgb(15, 23, 42);
+      }
+
+      &.outline {
+        background: rgb(0, 0, 0);
+        color: rgb(255, 255, 255);
+      }
+    }
+  }
+}

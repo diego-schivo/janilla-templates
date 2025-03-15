@@ -1,0 +1,33 @@
+<article>
+  <!--${intro}-->
+  <!--${form}-->
+  <!--${confirmation}-->
+</article>
+<template id="intro">
+  <section>
+    <!--${introContent}-->
+  </section>
+</template>
+<template id="form">
+  <form>
+    <!--${fields}-->
+    <button>Submit</button>
+  </form>
+</template>
+<template id="field">
+  <label>
+    ${label}
+    <!--${control}-->
+  </label>
+</template>
+<template id="input-control">
+  <input type="${type}" name="${name}" />
+</template>
+<template id="textarea-control">
+  <textarea name="${name}" rows="3"></textarea>
+</template>
+<template id="confirmation">
+  <section class="confirmation">
+    <!--${confirmationMessage}-->
+  </section>
+</template>

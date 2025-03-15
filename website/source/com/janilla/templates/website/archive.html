@@ -1,0 +1,19 @@
+<article>
+  <section>
+    <!--${introContent}-->
+  </section>
+  <section>
+    <!--${articles}-->
+  </section>
+  <template id="article">
+    <article>
+      <a href="/posts/${slug}">
+        <img src="${meta.image}" loading="lazy" />
+        <div>
+          <h3>${meta.title}</h3>
+          <p>${meta.description}</p>
+        </div>
+      </a>
+    </article>
+  </template>
+</article>

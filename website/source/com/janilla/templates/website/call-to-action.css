@@ -1,0 +1,40 @@
+call-to-action {
+  article,
+  section {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  article {
+    background: rgb(10, 10, 10);
+    border: 1px solid rgba(38, 38, 38, 0.8);
+    border-radius: 0.2rem;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  p {
+    color: rgb(209, 213, 219);
+
+    a {
+      color: rgb(255, 255, 255);
+    }
+  }
+
+  section {
+    > a {
+      background: rgb(248, 250, 252);
+      border: 1px solid rgba(38, 38, 38, 0.8);
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+      color: rgb(15, 23, 42);
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.75rem;
+      line-height: 1.25rem;
+      padding: 0.5rem;
+      text-align: center;
+      text-decoration: none;
+    }
+  }
+}

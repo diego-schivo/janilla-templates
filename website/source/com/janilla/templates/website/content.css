@@ -1,0 +1,11 @@
+content-component {
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  h2 {
+    font-weight: 700;
+  }
+}

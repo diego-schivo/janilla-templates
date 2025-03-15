@@ -1,0 +1,22 @@
+search-element {
+  > article {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  form,
+  input {
+    width: 100%;
+  }
+
+  form {
+    display: flex;
+  }
+}

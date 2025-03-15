@@ -1,0 +1,39 @@
+posts-element {
+  main,
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+    margin-bottom: 3rem;
+
+    & + p {
+      color: rgb(248, 250, 252);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+  }
+
+  article {
+    background: rgb(10, 10, 10);
+    border: 1px solid rgba(38, 38, 38, 0.8);
+    border-radius: 0.2rem;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  div {
+    padding: 1rem;
+  }
+}

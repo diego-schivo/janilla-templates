@@ -1,0 +1,102 @@
+@font-face {
+  font-family: Geist;
+  src: url("/Geist-v1.4.01/webfonts/Geist-Regular.woff2");
+}
+
+a,
+strong {
+  color: rgb(255, 255, 255);
+}
+
+body {
+  background: rgb(0, 0, 0);
+  color: rgb(209, 213, 219);
+  font-family: Geist;
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
+button {
+  background: rgb(248, 250, 252);
+  border: none;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  color: rgb(15, 23, 42);
+  cursor: pointer;
+  font-weight: 500;
+  height: 2.5rem;
+  padding: 0.5rem 1rem;
+}
+
+dd,
+dl,
+h1,
+h2,
+h3,
+ol,
+p,
+ul {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  color: rgb(255, 255, 255);
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+input:not([type]),
+select,
+textarea {
+  background: transparent;
+  border: 1px solid rgba(38, 38, 38, 0.8);
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  font-family: Geist;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+
+  &:focus {
+    outline: 2px solid rgb(255, 255, 255);
+  }
+}
+
+input {
+  height: 2.5rem;
+}
+
+ol,
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+strong {
+  font-weight: 600;
+}
+
+textarea {
+  resize: none;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
