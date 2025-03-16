@@ -67,15 +67,11 @@ export default class Root extends UpdatableHTMLElement {
 				return;
 			}
 		const m = location.pathname.match(/^\/admin(\/.*)?$/);
+		const nn = m[1]?.substring(1)?.split("/")?.map(x => x.split("-").map((y, i) => i ? y.charAt(0).toUpperCase() + y.substring(1) : y).join(""));
 		this.appendChild(this.interpolateDom(m ? {
 			$template: "admin",
-			path: (() => {
-				if (m[1]?.startsWith("/collections/") || m[1]?.startsWith("/globals/")) {
-					const s = m[1].substring(1);
-					return s.split("/").map(x => x.split("-").map((y, i) => i ? y.charAt(0).toUpperCase() + y.substring(1) : y).join("")).join(".");
-				}
-				return null;
-			})()
+			path: ["collections", "globals"].includes(nn[0]) ? nn.slice(0, nn[0] === "collections" ? 3 : 2).join(".") : null,
+			documentView: ["collections", "globals"].includes(nn[0]) ? nn[nn[0] === "collections" ? 3 : 2] : null
 		} : {
 			$template: "",
 			header: {

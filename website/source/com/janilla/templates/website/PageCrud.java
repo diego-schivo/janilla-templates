@@ -34,7 +34,7 @@ public class PageCrud extends Crud<Page> {
 			var p = supplier.get();
 			var l = ss.perform(n, s -> s.create(x -> {
 				var v = Reflection.copy(new Entity(x), new Version<>(null, p));
-				System.out.println("PageCrud.update, v=" + v);
+//				System.out.println("PageCrud.update, v=" + v);
 				return format(v);
 			}));
 			ii.perform(n + ".entity", i -> {

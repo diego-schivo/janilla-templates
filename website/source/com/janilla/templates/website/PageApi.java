@@ -26,11 +26,16 @@ package com.janilla.templates.website;
 import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.json.Converter;
+import com.janilla.json.Json;
+import com.janilla.json.MapAndType;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/pages")
 public class PageApi extends CollectionApi<Page> {
+
+	public MapAndType.TypeResolver typeResolver;
 
 	public PageApi() {
 		super(Page.class);
@@ -39,5 +44,22 @@ public class PageApi extends CollectionApi<Page> {
 	@Handle(method = "GET")
 	public Stream<Page> read(@Bind("slug") String slug) {
 		return crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
+	}
+
+	@Handle(method = "GET", path = "(\\d+)/versions")
+	public Stream<Version<Page>> versions(long id) {
+		var n = Version.class.getSimpleName() + "<" + Page.class.getSimpleName() + ">";
+		return persistence.database().perform((ss, ii) -> {
+			var ll = ii.perform(n + ".entity", i -> i.list(id).mapToLong(x -> (long) x));
+			var c = new Converter(typeResolver);
+			var vv = ss.perform(n, s -> ll.mapToObj(x -> {
+				var o = s.read(x);
+				var s2 = Json.parse((String) o);
+				@SuppressWarnings("unchecked")
+				var v = (Version<Page>) c.convert(s2, Version.class);
+				return v;
+			}));
+			return vv;
+		}, false);
 	}
 }

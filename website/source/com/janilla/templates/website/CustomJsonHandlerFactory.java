@@ -94,9 +94,8 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 			var kkvv = super.entries(class0);
 			if (object instanceof Page p) {
 				var n = Version.class.getSimpleName() + "<" + Page.class.getSimpleName() + ">.entity";
-				var ll = persistence.database().perform(
-						(_, ii) -> ii.perform(n, i -> i.list(p.id()).mapToLong(x -> (long) x).toArray()), false);
-				var kv = Map.entry("versions", (Object) ll);
+				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(p.id())), false);
+				var kv = Map.entry("versionCount", (Object) vc);
 				kkvv = Stream.concat(kkvv, Stream.of(kv));
 			}
 			return kkvv;

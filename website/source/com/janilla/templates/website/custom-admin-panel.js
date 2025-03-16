@@ -26,7 +26,7 @@ import AdminPanel from "./admin-panel.js";
 export default class CustomAdminPanel extends AdminPanel {
 
 	static get observedAttributes() {
-		return ["data-path"];
+		return ["data-document-view", "data-path"];
 	}
 
 	static get templateName() {
