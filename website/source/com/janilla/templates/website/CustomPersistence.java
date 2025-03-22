@@ -1,5 +1,6 @@
 package com.janilla.templates.website;
 
+import com.janilla.cms.Version;
 import com.janilla.database.BTree;
 import com.janilla.database.Database;
 import com.janilla.database.Index;
@@ -41,9 +42,10 @@ public class CustomPersistence extends Persistence {
 	public <K, V> Index<K, V> newIndex(NameAndData nameAndData) {
 		if (nameAndData.name().equals(Version.class.getSimpleName() + "<" + Page.class.getSimpleName() + ">.entity")) {
 			@SuppressWarnings("unchecked")
-			var z = (Index<K, V>) new Index<Long, Long>(new BTree<>(database.bTreeOrder(), database.channel(),
-					database.memory(), KeyAndData.getByteConverter(ByteConverter.LONG), nameAndData.bTree()),
-					ByteConverter.LONG);
+			var z = (Index<K, V>) new Index<Long, Object[]>(
+					new BTree<>(database.bTreeOrder(), database.channel(), database.memory(),
+							KeyAndData.getByteConverter(ByteConverter.LONG), nameAndData.bTree()),
+					ByteConverter.of(Version.class, "-updatedAt", "id"));
 			return z;
 		}
 		return super.newIndex(nameAndData);

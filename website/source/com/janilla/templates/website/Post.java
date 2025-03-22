@@ -26,6 +26,7 @@ package com.janilla.templates.website;
 import java.time.Instant;
 import java.util.List;
 
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
@@ -33,14 +34,12 @@ import com.janilla.persistence.Store;
 @Index(sort = "-createdAt")
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, Content2.class, MediaBlock.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
-		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug, Instant createdAt){
+		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug, Instant createdAt,
+		Instant updatedAt, Status status) implements Entity{
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {
-		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt);
-	}
-
-	public Post withCreatedAt(Instant createdAt) {
-		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt);
+		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt, updatedAt,
+				status);
 	}
 
 	public record Meta(String title, @Types(Media.class) Long image, String description) {

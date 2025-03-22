@@ -34,12 +34,14 @@ export default class Root extends UpdatableHTMLElement {
 	}
 
 	connectedCallback() {
+		super.connectedCallback();
 		this.addEventListener("click", this.handleClick);
 		addEventListener("popstate", this.handlePopState);
 		dispatchEvent(new CustomEvent("popstate"));
 	}
 
 	disconnectedCallback() {
+		super.disconnectedCallback();
 		this.removeEventListener("click", this.handleClick);
 		removeEventListener("popstate", this.handlePopState);
 	}
@@ -60,18 +62,29 @@ export default class Root extends UpdatableHTMLElement {
 	}
 
 	async updateDisplay() {
-		for (const r of await (await fetch("/api/redirects")).json())
+		const s = this.state;
+		s.redirects ??= await (await fetch("/api/redirects")).json();
+		for (const r of s.redirects)
 			if (r.from === location.pathname) {
 				history.pushState(undefined, "", r.to);
 				dispatchEvent(new CustomEvent("popstate"));
 				return;
 			}
 		const m = location.pathname.match(/^\/admin(\/.*)?$/);
+		/*
 		const nn = m[1]?.substring(1)?.split("/")?.map(x => x.split("-").map((y, i) => i ? y.charAt(0).toUpperCase() + y.substring(1) : y).join(""));
+		const ep = ["collections", "globals"].includes(nn?.[0]) ? nn.slice(0, nn[0] === "collections" ? 3 : 2).join(".") : null;
+		const dv = ep ? nn[nn[0] === "collections" ? 3 : 2] ?? "edit" : null;
+		const vi = dv === "versions" ? nn[nn[0] === "collections" ? 4 : 3] : null;
+		*/
 		this.appendChild(this.interpolateDom(m ? {
 			$template: "admin",
-			path: ["collections", "globals"].includes(nn[0]) ? nn.slice(0, nn[0] === "collections" ? 3 : 2).join(".") : null,
-			documentView: ["collections", "globals"].includes(nn[0]) ? nn[nn[0] === "collections" ? 3 : 2] : null
+			/*
+			entityPath: ep,
+			documentView: dv,
+			versionId: vi
+			*/
+			path: m[1] ?? "/"
 		} : {
 			$template: "",
 			header: {

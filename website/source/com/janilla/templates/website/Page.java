@@ -23,13 +23,15 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
 public record Page(Long id, String title, Hero hero, List<@Types( {
 		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
-		@Index String slug){
+		@Index String slug, Instant createdAt, Instant updatedAt, Status status) implements Entity{
 }

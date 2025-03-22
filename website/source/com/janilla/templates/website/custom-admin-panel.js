@@ -26,7 +26,8 @@ import AdminPanel from "./admin-panel.js";
 export default class CustomAdminPanel extends AdminPanel {
 
 	static get observedAttributes() {
-		return ["data-document-view", "data-path"];
+		//return ["data-document-view", "data-entity-path", "data-version-id"];
+		return ["data-path"];
 	}
 
 	static get templateName() {
@@ -50,7 +51,7 @@ export default class CustomAdminPanel extends AdminPanel {
 		switch (entitySlug) {
 			case "pages":
 			case "posts":
-				return ["title", "slug"];
+				return ["title", "slug", "updatedAt"];
 			case "redirects":
 				return ["from"];
 		}

@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.net.ssl.SSLContext;
@@ -145,11 +146,12 @@ public class WebsiteTemplate {
 		var q = new ArrayDeque<Class<?>>();
 		q.add(Data.class);
 		Function<Class<?>, String> f = x -> x.getName().substring(x.getPackageName().length() + 1).replace('$', '.');
+		var skip = Set.of("createdAt", "updatedAt", "status");
 		do {
 			var c = q.remove();
 //			System.out.println("WebsiteTemplate.schema, c=" + c);
 			var m2 = new LinkedHashMap<String, Map<String, Object>>();
-			Reflection.properties(c).forEach(x -> {
+			Reflection.properties(c).filter(x -> !skip.contains(x.name())).forEach(x -> {
 //				System.out.println("WebsiteTemplate.schema, x=" + x);
 				var m3 = new LinkedHashMap<String, Object>();
 				m3.put("type", f.apply(x.type().isEnum() ? String.class : x.type()));
