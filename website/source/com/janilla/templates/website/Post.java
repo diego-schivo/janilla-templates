@@ -27,15 +27,17 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Entity;
+import com.janilla.cms.Versions;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
 @Index(sort = "-createdAt")
+@Versions(drafts = true)
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, Content2.class, MediaBlock.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug, Instant createdAt,
-		Instant updatedAt, Status status) implements Entity{
+		Instant updatedAt, Entity.Status status) implements Entity{
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {
 		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt, updatedAt,

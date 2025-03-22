@@ -23,9 +23,13 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
+
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-public record Redirect(Long id, @Index String from, String to) {
+public record Redirect(Long id, @Index String from, String to, Instant createdAt, Instant updatedAt,
+		Entity.Status status) implements Entity {
 }

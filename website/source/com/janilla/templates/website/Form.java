@@ -23,13 +23,16 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Store;
 
 @Store
 public record Form(Long id, String title, List<Field> fields, String submitButtonLabel,
-		ConfirmationType confirmationType, String confirmationMessage, String redirect, List<Email> emails) {
+		ConfirmationType confirmationType, String confirmationMessage, String redirect, List<Email> emails,
+		Instant createdAt, Instant updatedAt, Entity.Status status) implements Entity {
 
 	public enum ConfirmationType {
 

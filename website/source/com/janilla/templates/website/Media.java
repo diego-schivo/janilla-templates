@@ -23,10 +23,14 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
+
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Store;
 
 @Store
-public record Media(Long id, File file, String alt, String caption) {
+public record Media(Long id, File file, String alt, String caption, Instant createdAt, Instant updatedAt,
+		Entity.Status status) implements Entity {
 
 	public String url() {
 		return file != null ? ("/images/" + file.name()) : null;

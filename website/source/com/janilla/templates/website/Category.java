@@ -23,9 +23,13 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
+
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-public record Category(Long id, String title, @Index String slug) {
+public record Category(Long id, String title, @Index String slug, Instant createdAt, Instant updatedAt,
+		Entity.Status status) implements Entity {
 }

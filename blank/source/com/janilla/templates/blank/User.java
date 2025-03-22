@@ -23,9 +23,13 @@
  */
 package com.janilla.templates.blank;
 
+import java.time.Instant;
+
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-public record User(Long id, String name, @Index String email, String password) {
+public record User(Long id, String name, @Index String email, String password, Instant createdAt, Instant updatedAt,
+		Entity.Status status) implements Entity {
 }

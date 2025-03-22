@@ -23,10 +23,13 @@
  */
 package com.janilla.templates.website;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.janilla.cms.Entity;
 import com.janilla.persistence.Store;
 
 @Store
-public record FormSubmission(Long id, @Types(Form.class) Long form, List<SubmissionDatum> submissionData) {
+public record FormSubmission(Long id, @Types(Form.class) Long form, List<SubmissionDatum> submissionData,
+		Instant createdAt, Instant updatedAt, Entity.Status status) implements Entity {
 }

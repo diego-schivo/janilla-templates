@@ -28,16 +28,4 @@ import java.util.List;
 public record SeedData(List<Page> pages, List<Post> posts, List<Media> media, List<Category> categories,
 		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
 		Header header, Footer footer) {
-
-//	public static SeedData INSTANCE;
-//
-//	static {
-//		try (var is = SeedData.class.getResourceAsStream("seed-data.json")) {
-//			var c = new Converter();
-//			c.setResolver(new TypeResolver());
-//			INSTANCE = (SeedData) c.convert(Json.parse(new String(is.readAllBytes())), SeedData.class);
-//		} catch (IOException e) {
-//			throw new UncheckedIOException(e);
-//		}
-//	}
 }

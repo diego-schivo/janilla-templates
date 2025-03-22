@@ -29,7 +29,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import com.janilla.cms.Entity;
 import com.janilla.cms.Version;
+import com.janilla.cms.Versions;
 import com.janilla.http.HttpExchange;
 import com.janilla.json.JsonToken;
 import com.janilla.json.ReflectionJsonIterator;
@@ -93,9 +95,13 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 		@Override
 		protected Stream<Entry<String, Object>> entries(Class<?> class0) {
 			var kkvv = super.entries(class0);
-			if (object instanceof Page p) {
-				var n = Version.class.getSimpleName() + "<" + Page.class.getSimpleName() + ">.entity";
-				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(p.id())), false);
+			var v = class0.getAnnotation(Versions.class);
+			if (v == null || !v.drafts())
+				kkvv = kkvv.filter(kv -> kv.getKey() != "status");
+			if (v != null) {
+				var n = Version.class.getSimpleName() + "<" + class0.getSimpleName() + ">.entity";
+				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(((Entity) object).id())),
+						false);
 				var kv = Map.entry("versionCount", (Object) vc);
 				kkvv = Stream.concat(kkvv, Stream.of(kv));
 			}
