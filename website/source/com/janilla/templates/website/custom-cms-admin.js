@@ -21,17 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import AdminPanel from "./admin-panel.js";
+import CmsAdmin from "./cms-admin.js";
 
-export default class CustomAdminPanel extends AdminPanel {
+export default class CustomCmsAdmin extends CmsAdmin {
 
 	static get observedAttributes() {
-		//return ["data-document-view", "data-entity-path", "data-version-id"];
+		//return ["data-cms-document", "data-entity-path", "data-version-id"];
 		return ["data-path"];
 	}
 
 	static get templateName() {
-		return "admin-panel";
+		return "cms-admin";
 	}
 
 	constructor() {
@@ -64,11 +64,11 @@ export default class CustomAdminPanel extends AdminPanel {
 				case "confirmationMessage":
 				case "contentx":
 				case "message":
-				case "richTextx":
-					return "rich-text-control";
+				case "richText":
+					return "cms-rich-text";
 				case "appearance":
 				case "type":
-					return "select-control";
+					return "cms-select";
 			}
 		return super.controlTemplate(field);
 	}

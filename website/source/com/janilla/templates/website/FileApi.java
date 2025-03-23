@@ -37,38 +37,38 @@ import com.janilla.net.Net;
 import com.janilla.util.Util;
 import com.janilla.web.Handle;
 
-@Handle(path = "/api/upload")
-public class UploadApi {
+@Handle(path = "/api/files")
+public class FileApi {
 
 	public Properties configuration;
 
-	@Handle(method = "POST")
-	public Path create(HttpRequest request) throws IOException {
-		byte[] bb;
+	@Handle(method = "POST", path = "upload")
+	public void create(HttpRequest request) throws IOException {
+		byte[][] bbb;
 		{
-			var b = request.getHeaders().stream().filter(x -> x.name().equals("content-type"))
-					.map(x -> x.value().split(";")[1].trim().substring("boundary=".length())).findFirst().orElse(null);
+			var b = request.getHeaderValue("content-type").split(";")[1].trim().substring("boundary=".length());
 			var ch = (ReadableByteChannel) request.getBody();
-			var cc = Channels.newInputStream(ch).readAllBytes();
+			var bb = Channels.newInputStream(ch).readAllBytes();
 			var s = ("--" + b).getBytes();
-			var ii = Util.findIndexes(cc, s);
-			bb = IntStream.range(0, ii.length - 1)
-					.mapToObj(i -> Arrays.copyOfRange(cc, ii[i] + s.length + 2, ii[i + 1] - 2)).findFirst()
-					.orElse(null);
+			var ii = Util.findIndexes(bb, s);
+			bbb = IntStream.range(0, ii.length - 1)
+					.mapToObj(i -> Arrays.copyOfRange(bb, ii[i] + s.length + 2, ii[i + 1] - 2)).toArray(byte[][]::new);
 		}
-		var i = Util.findIndexes(bb, "\r\n\r\n".getBytes(), 1)[0];
-		var hh = Net.parseEntryList(new String(bb, 0, i), "\r\n", ":");
-		var n = Arrays.stream(hh.get("Content-Disposition").split(";")).map(String::trim)
-				.filter(x -> x.startsWith("filename=")).map(x -> x.substring(x.indexOf('=') + 1))
-				.map(x -> x.startsWith("\"") && x.endsWith("\"") ? x.substring(1, x.length() - 1) : x).findFirst()
-				.orElseThrow();
-		bb = Arrays.copyOfRange(bb, i + 4, bb.length);
-		var ud = configuration.getProperty("website-template.upload.directory");
-		if (ud.startsWith("~"))
-			ud = System.getProperty("user.home") + ud.substring(1);
-		var p = Path.of(ud);
-		if (!Files.exists(p))
-			Files.createDirectories(p);
-		return Files.write(p.resolve(n), bb);
+		for (var bb : bbb) {
+			var i = Util.findIndexes(bb, "\r\n\r\n".getBytes(), 1)[0];
+			var hh = Net.parseEntryList(new String(bb, 0, i), "\r\n", ":");
+			var n = Arrays.stream(hh.get("Content-Disposition").split(";")).map(String::trim)
+					.filter(x -> x.startsWith("filename=")).map(x -> x.substring(x.indexOf('=') + 1))
+					.map(x -> x.startsWith("\"") && x.endsWith("\"") ? x.substring(1, x.length() - 1) : x).findFirst()
+					.orElseThrow();
+			bb = Arrays.copyOfRange(bb, i + 4, bb.length);
+			var ud = configuration.getProperty("website-template.upload.directory");
+			if (ud.startsWith("~"))
+				ud = System.getProperty("user.home") + ud.substring(1);
+			var p = Path.of(ud);
+			if (!Files.exists(p))
+				Files.createDirectories(p);
+			Files.write(p.resolve(n), bb);
+		}
 	}
 }
