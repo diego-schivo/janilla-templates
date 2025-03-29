@@ -26,10 +26,10 @@ package com.janilla.templates.website;
 import java.time.Instant;
 import java.util.List;
 
-import com.janilla.cms.Entity;
+import com.janilla.cms.Document;
 import com.janilla.persistence.Store;
 
 @Store
-public record Header(Long id, List<Link> navItems, Instant createdAt, Instant updatedAt, Entity.Status status)
-		implements Entity {
+public record Header(Long id, List<Link> navItems, Instant createdAt, Instant updatedAt, Document.Status status,
+		Instant publishedAt) implements Document {
 }

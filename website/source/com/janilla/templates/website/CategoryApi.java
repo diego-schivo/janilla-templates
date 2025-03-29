@@ -25,11 +25,10 @@ package com.janilla.templates.website;
 
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/categories")
-public class CategoryApi extends CollectionApi<Category> {
+public class CategoryApi extends CustomCollectionApi<Category> {
 
 	public CategoryApi() {
 		super(Category.class);

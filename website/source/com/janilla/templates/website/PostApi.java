@@ -26,12 +26,11 @@ package com.janilla.templates.website;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/posts")
-public class PostApi extends CollectionApi<Post> {
+public class PostApi extends CustomCollectionApi<Post> {
 
 	public PostApi() {
 		super(Post.class);

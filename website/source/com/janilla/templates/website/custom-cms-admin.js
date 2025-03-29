@@ -26,8 +26,7 @@ import CmsAdmin from "./cms-admin.js";
 export default class CustomCmsAdmin extends CmsAdmin {
 
 	static get observedAttributes() {
-		//return ["data-cms-document", "data-entity-path", "data-version-id"];
-		return ["data-path"];
+		return ["data-email", "data-path"];
 	}
 
 	static get templateName() {
@@ -108,5 +107,11 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				return `/posts/${entity.slug}`;
 		}
 		return super.preview(entity);
+	}
+
+	sidebar(type) {
+		if (["Page", "Post"].includes(type))
+			return ["publishedAt", "slug"];
+		return super.sidebar(type);
 	}
 }

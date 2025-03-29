@@ -25,11 +25,10 @@ package com.janilla.templates.website;
 
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/form-submissions")
-public class FormSubmissionApi extends CollectionApi<FormSubmission> {
+public class FormSubmissionApi extends CustomCollectionApi<FormSubmission> {
 
 	public FormSubmissionApi() {
 		super(FormSubmission.class);

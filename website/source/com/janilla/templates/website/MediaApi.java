@@ -27,12 +27,11 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpResponse;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/media")
-public class MediaApi extends CollectionApi<Media> {
+public class MediaApi extends CustomCollectionApi<Media> {
 
 	public Properties configuration;
 

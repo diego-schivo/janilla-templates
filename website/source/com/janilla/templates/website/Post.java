@@ -26,7 +26,7 @@ package com.janilla.templates.website;
 import java.time.Instant;
 import java.util.List;
 
-import com.janilla.cms.Entity;
+import com.janilla.cms.Document;
 import com.janilla.cms.Versions;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
@@ -37,11 +37,11 @@ import com.janilla.persistence.Store;
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, Content2.class, MediaBlock.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug, Instant createdAt,
-		Instant updatedAt, Entity.Status status) implements Entity{
+		Instant updatedAt, Document.Status status, Instant publishedAt) implements Document{
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {
 		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt, updatedAt,
-				status);
+				status, publishedAt);
 	}
 
 	public record Meta(String title, @Types(Media.class) Long image, String description) {

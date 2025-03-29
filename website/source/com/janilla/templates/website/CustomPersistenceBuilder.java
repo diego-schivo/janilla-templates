@@ -51,52 +51,51 @@ public class CustomPersistenceBuilder extends ApplicationPersistenceBuilder {
 	public Persistence build() {
 		var fe = Files.exists(databaseFile);
 		var p = super.build();
-		if (!fe)
-			try {
-				var sd = seedData();
-				for (var x : sd.pages())
-					p.crud(Page.class).create(x);
-				for (var x : sd.posts())
-					p.crud(Post.class).create(x);
-				for (var x : sd.media())
-					p.crud(Media.class).create(x);
-				for (var x : sd.categories())
-					p.crud(Category.class).create(x);
-				for (var x : sd.users())
-					p.crud(User.class).create(x);
-				for (var x : sd.redirects())
-					p.crud(Redirect.class).create(x);
-				for (var x : sd.forms())
-					p.crud(Form.class).create(x);
-				for (var x : sd.formSubmissions())
-					p.crud(FormSubmission.class).create(x);
-				p.crud(Header.class).create(sd.header());
-				p.crud(Footer.class).create(sd.footer());
-
-				var r = getClass().getResource("seed-data.zip");
-				URI u;
-				try {
-					u = r.toURI();
-				} catch (URISyntaxException e) {
-					throw new RuntimeException(e);
-				}
-				if (!u.toString().startsWith("jar:"))
-					u = URI.create("jar:" + u);
-				var s = IO.zipFileSystem(u).getPath("/");
-				var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
-				Files.walkFileTree(s, new SimpleFileVisitor<>() {
-
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-//						System.out.println("file=" + file);
-						var t = d.resolve(s.relativize(file).toString());
-						Files.copy(file, t, StandardCopyOption.REPLACE_EXISTING);
-						return FileVisitResult.CONTINUE;
-					}
-				});
-			} catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
+//		if (!fe)
+//			try {
+//				var sd = seedData();
+//				for (var x : sd.pages())
+//					p.crud(Page.class).create(x);
+//				for (var x : sd.posts())
+//					p.crud(Post.class).create(x);
+//				for (var x : sd.media())
+//					p.crud(Media.class).create(x);
+//				for (var x : sd.categories())
+//					p.crud(Category.class).create(x);
+//				for (var x : sd.users())
+//					p.crud(User.class).create(x);
+//				for (var x : sd.redirects())
+//					p.crud(Redirect.class).create(x);
+//				for (var x : sd.forms())
+//					p.crud(Form.class).create(x);
+//				for (var x : sd.formSubmissions())
+//					p.crud(FormSubmission.class).create(x);
+//				p.crud(Header.class).create(sd.header());
+//				p.crud(Footer.class).create(sd.footer());
+//
+//				var r = getClass().getResource("seed-data.zip");
+//				URI u;
+//				try {
+//					u = r.toURI();
+//				} catch (URISyntaxException e) {
+//					throw new RuntimeException(e);
+//				}
+//				if (!u.toString().startsWith("jar:"))
+//					u = URI.create("jar:" + u);
+//				var s = IO.zipFileSystem(u).getPath("/");
+//				var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
+//				Files.walkFileTree(s, new SimpleFileVisitor<>() {
+//
+//					@Override
+//					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+//						var t = d.resolve(s.relativize(file).toString());
+//						Files.copy(file, t, StandardCopyOption.REPLACE_EXISTING);
+//						return FileVisitResult.CONTINUE;
+//					}
+//				});
+//			} catch (IOException e) {
+//				throw new UncheckedIOException(e);
+//			}
 		return p;
 	}
 

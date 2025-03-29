@@ -71,19 +71,9 @@ export default class Root extends UpdatableHTMLElement {
 				return;
 			}
 		const m = location.pathname.match(/^\/admin(\/.*)?$/);
-		/*
-		const nn = m[1]?.substring(1)?.split("/")?.map(x => x.split("-").map((y, i) => i ? y.charAt(0).toUpperCase() + y.substring(1) : y).join(""));
-		const ep = ["collections", "globals"].includes(nn?.[0]) ? nn.slice(0, nn[0] === "collections" ? 3 : 2).join(".") : null;
-		const dv = ep ? nn[nn[0] === "collections" ? 3 : 2] ?? "edit" : null;
-		const vi = dv === "versions" ? nn[nn[0] === "collections" ? 4 : 3] : null;
-		*/
 		this.appendChild(this.interpolateDom(m ? {
 			$template: "admin",
-			/*
-			entityPath: ep,
-			documentView: dv,
-			versionId: vi
-			*/
+			email: this.querySelector("cms-admin")?.state?.me?.email,
 			path: m[1] ?? "/"
 		} : {
 			$template: "",

@@ -40,12 +40,13 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 	@Override
 	protected void handle(Invocation invocation, HttpExchange exchange) {
 		var rq = exchange.getRequest();
+		var s = Set.of("/api/users/first-register", "/api/users/forgot-password", "/api/users/login",
+				"/api/users/reset-password");
 		if (Boolean.parseBoolean(configuration.getProperty("website-template.live-demo")))
-			if (!rq.getMethod().equals("GET") && !rq.getPath().equals("/api/users/login"))
+			if (!rq.getMethod().equals("GET") && !s.contains(rq.getPath()))
 				throw new HandleException(new MethodBlockedException());
 //		if (rq.getPath().startsWith("/api") && !Set.of("/api/users/login", "/api/users/me").contains(rq.getPath()))
-		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")
-				&& !Set.of("/api/users/login").contains(rq.getPath()))
+		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET") && !s.contains(rq.getPath()))
 			((CustomHttpExchange) exchange).requireSessionEmail();
 
 //		if (rq.getPath().startsWith("/api"))

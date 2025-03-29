@@ -25,19 +25,21 @@ package com.janilla.templates.website;
 
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/pages")
-public class PageApi extends CollectionApi<Page> {
+public class PageApi extends CustomCollectionApi<Page> {
 
 	public PageApi() {
 		super(Page.class);
 	}
 
 	@Handle(method = "GET")
-	public Stream<Page> read(@Bind("slug") String slug) {
-		return crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
+	public Stream<Page> read(@Bind("slug") String slug, HttpExchange exchange) {
+		var d = drafts(exchange);
+		return crud().read(
+				slug != null && !slug.isBlank() ? crud().filter(d ? "slugDraft" : "slug", slug) : crud().list(), d);
 	}
 }

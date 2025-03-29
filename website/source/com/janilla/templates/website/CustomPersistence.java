@@ -23,66 +23,13 @@
  */
 package com.janilla.templates.website;
 
-import java.lang.reflect.Modifier;
-
-import com.janilla.cms.Entity;
-import com.janilla.cms.EntityCrud;
-import com.janilla.cms.Version;
-import com.janilla.cms.Versions;
-import com.janilla.database.BTree;
+import com.janilla.cms.VersionsPersistence;
 import com.janilla.database.Database;
-import com.janilla.database.Index;
-import com.janilla.database.KeyAndData;
-import com.janilla.database.NameAndData;
-import com.janilla.io.ByteConverter;
 import com.janilla.json.MapAndType.TypeResolver;
-import com.janilla.persistence.Crud;
-import com.janilla.persistence.Persistence;
-import com.janilla.persistence.Store;
 
-public class CustomPersistence extends Persistence {
+public class CustomPersistence extends VersionsPersistence {
 
 	public CustomPersistence(Database database, Iterable<Class<?>> types, TypeResolver typeResolver) {
 		super(database, types, typeResolver);
-	}
-
-	@Override
-	protected void createStoresAndIndexes() {
-		super.createStoresAndIndexes();
-		for (var t : configuration.cruds().keySet())
-			if (t.isAnnotationPresent(Versions.class))
-				database.perform((ss, ii) -> {
-					var n = Version.class.getSimpleName() + "<" + t.getSimpleName() + ">";
-					ss.create(n);
-					ii.create(n + ".entity");
-					return null;
-				}, true);
-	}
-
-	@Override
-	protected <E> Crud<E> newCrud(Class<E> type) {
-		if (!Modifier.isInterface(type.getModifiers()) && !Modifier.isAbstract(type.getModifiers())
-				&& type.isAnnotationPresent(Store.class)) {
-			@SuppressWarnings("unchecked")
-			var t = (Class<? extends Entity>) type;
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			var c = (Crud<E>) new EntityCrud(t, this, type.isAnnotationPresent(Versions.class));
-			return c;
-		}
-		return null;
-	}
-
-	@Override
-	public <K, V> Index<K, V> newIndex(NameAndData nameAndData) {
-		if (nameAndData.name().startsWith(Version.class.getSimpleName() + "<")
-				&& nameAndData.name().endsWith(">.entity")) {
-			@SuppressWarnings("unchecked")
-			var i = (Index<K, V>) new Index<Long, Object[]>(
-					new BTree<>(database.bTreeOrder(), database.channel(), database.memory(),
-							KeyAndData.getByteConverter(ByteConverter.LONG), nameAndData.bTree()),
-					ByteConverter.of(Version.class, "-updatedAt", "id"));
-			return i;
-		}
-		return super.newIndex(nameAndData);
 	}
 }

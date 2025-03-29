@@ -1,7 +1,11 @@
-<template id="admin">
-  <cms-admin data-path="${path}"></cms-admin>
-</template>
 <!--${header}-->
+<!--${content}-->
+<!--${footer}-->
+
+<template id="admin">
+  <cms-admin data-email="${email}" data-path="${path}"></cms-admin>
+</template>
+
 <template id="header">
   <header>
     <a href="/">
@@ -16,23 +20,27 @@
     </nav>
   </header>
 </template>
+
 <template id="link">
   <a href="${url}">${label}</a>
 </template>
-<!--${content}-->
+
 <template id="page">
   <page-element data-slug="${slug}"></page-element>
 </template>
+
 <template id="posts">
   <posts-element></posts-element>
 </template>
+
 <template id="post">
   <post-element data-slug="${slug}"></post-element>
 </template>
+
 <template id="search">
   <search-element data-query="${query}"></search-element>
 </template>
-<!--${footer}-->
+
 <template id="footer">
   <footer>
     <a href="/">

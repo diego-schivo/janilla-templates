@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
-import com.janilla.cms.Entity;
+import com.janilla.cms.Document;
 import com.janilla.cms.Version;
 import com.janilla.cms.Versions;
 import com.janilla.http.HttpExchange;
@@ -99,8 +99,8 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 			if (v == null || !v.drafts())
 				kkvv = kkvv.filter(kv -> kv.getKey() != "status");
 			if (v != null) {
-				var n = Version.class.getSimpleName() + "<" + class0.getSimpleName() + ">.entity";
-				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(((Entity) object).id())),
+				var n = Version.class.getSimpleName() + "<" + class0.getSimpleName() + ">.document";
+				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(((Document) object).id())),
 						false);
 				var kv = Map.entry("versionCount", (Object) vc);
 				kkvv = Stream.concat(kkvv, Stream.of(kv));

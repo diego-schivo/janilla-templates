@@ -52,6 +52,7 @@ import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerBuilder;
 import com.janilla.web.Handle;
 import com.janilla.web.Render;
+import com.janilla.web.RenderableFactory;
 
 public class WebsiteTemplate {
 
@@ -96,6 +97,8 @@ public class WebsiteTemplate {
 
 	public Persistence persistence;
 
+	public RenderableFactory renderableFactory;
+
 	public HttpHandler handler;
 
 	public WebsiteTemplate(Properties configuration) {
@@ -110,6 +113,7 @@ public class WebsiteTemplate {
 			var pb = factory.create(ApplicationPersistenceBuilder.class, Map.of("databaseFile", Path.of(p)));
 			persistence = pb.build();
 		}
+		renderableFactory = new RenderableFactory();
 		handler = factory.create(ApplicationHandlerBuilder.class).build();
 	}
 

@@ -75,7 +75,8 @@
 					]
 				}
 			],
-			"slug": "home"
+			"slug": "home",
+			"status": "PUBLISHED"
 		},
 		{
 			"$type": "Page",
@@ -96,7 +97,8 @@
 					"enableIntro": "true"
 				}
 			],
-			"slug": "contact"
+			"slug": "contact",
+			"status": "PUBLISHED"
 		}
 	],
 	"posts": [
@@ -144,7 +146,8 @@
 				"description": "Dive into the marvels of modern innovation, where the only constant is change. A journey where pixels and data converge to craft the future."
 			},
 			"slug": "digital-horizons-a-glimpse-into-tomorrow",
-			"createdAt": "2025-02-16T09:07:44.965918Z"
+			"createdAt": "2025-02-16T09:07:44.965918Z",
+			"status": "PUBLISHED"
 		},
 		{
 			"$type": "Post",
@@ -190,7 +193,8 @@
 				"description": "Explore the untold and overlooked. A magnified view into the corners of the world, where every story deserves its spotlight."
 			},
 			"slug": "global-gaze-beyond-the-headlines",
-			"createdAt": "2025-02-16T09:08:44.965918Z"
+			"createdAt": "2025-02-16T09:08:44.965918Z",
+			"status": "PUBLISHED"
 		},
 		{
 			"$type": "Post",
@@ -232,7 +236,8 @@
 				"description": "Money isn't just currency; it's a language. Dive deep into its nuances, where strategy meets intuition in the vast sea of finance."
 			},
 			"slug": "dollar-and-sense-the-financial-forecast",
-			"createdAt": "2025-02-16T09:09:44.965918Z"
+			"createdAt": "2025-02-16T09:09:44.965918Z",
+			"status": "PUBLISHED"
 		}
 	],
 	"media": [
@@ -321,7 +326,8 @@
 			"id": 1,
 			"name": "Demo Author",
 			"email": "demo-author@example.com",
-			"password": "password"
+			"salt": "16c13790d6698b7627936913e93397af",
+			"hash": "0638a17a8c549052c0272768378ed9b8aab97d5b7bd36ec41a30a346932914c52d0a864d777062e6b60610e84bdafb68a7e3e60c50ba1e3758912099777d295f"
 		}
 	],
 	"redirects": [],

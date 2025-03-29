@@ -25,11 +25,10 @@ package com.janilla.templates.website;
 
 import java.util.stream.Stream;
 
-import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/redirects")
-public class RedirectApi extends CollectionApi<Redirect> {
+public class RedirectApi extends CustomCollectionApi<Redirect> {
 
 	public RedirectApi() {
 		super(Redirect.class);
