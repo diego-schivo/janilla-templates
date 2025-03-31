@@ -23,7 +23,7 @@
  */
 package com.janilla.templates.website;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.web.Bind;
@@ -37,7 +37,7 @@ public class PageApi extends CustomCollectionApi<Page> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<Page> read(@Bind("slug") String slug, HttpExchange exchange) {
+	public List<Page> read(@Bind("slug") String slug, HttpExchange exchange) {
 		var d = drafts(exchange);
 		return crud().read(
 				slug != null && !slug.isBlank() ? crud().filter(d ? "slugDraft" : "slug", slug) : crud().list(), d);

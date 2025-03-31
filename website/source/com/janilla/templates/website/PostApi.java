@@ -23,6 +23,7 @@
  */
 package com.janilla.templates.website;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,13 +38,13 @@ public class PostApi extends CustomCollectionApi<Post> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<Post> read(@Bind("slug") String slug, @Bind("query") String query) {
+	public List<Post> read(@Bind("slug") String slug, @Bind("query") String query) {
 		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
-		return query != null && !query.isBlank() ? pp.filter(x -> {
+		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
 			var m = x.meta();
 			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
 					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
 			return s.contains(query);
-		}) : pp;
+		}).toList() : pp;
 	}
 }

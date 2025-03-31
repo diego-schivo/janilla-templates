@@ -37,12 +37,12 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
@@ -63,7 +63,7 @@ public class UserApi extends CustomCollectionApi<User> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<User> read() {
+	public List<User> read() {
 		return crud().read(crud().list());
 	}
 

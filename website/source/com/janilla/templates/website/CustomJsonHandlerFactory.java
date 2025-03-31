@@ -72,13 +72,13 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 				case "relatedPosts":
 					if (object instanceof List<?> oo && !oo.isEmpty() && oo.getFirst() instanceof Long) {
 						var ll = oo.stream().mapToLong(x -> (long) x).toArray();
-						object = persistence.crud(Post.class).read(ll).map(x -> x.withRelatedPosts(null)).toList();
+						object = persistence.crud(Post.class).read(ll).stream().map(x -> x.withRelatedPosts(null))
+								.toList();
 					}
 					break;
 				case "categories":
 					if (object instanceof List<?> l && !l.isEmpty() && l.getFirst() instanceof Long)
-						object = persistence.crud(Category.class).read(l.stream().mapToLong(x -> (long) x).toArray())
-								.toList();
+						object = persistence.crud(Category.class).read(l.stream().mapToLong(x -> (long) x).toArray());
 					break;
 				}
 			}
@@ -100,8 +100,8 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 				kkvv = kkvv.filter(kv -> kv.getKey() != "status");
 			if (v != null) {
 				var n = Version.class.getSimpleName() + "<" + class0.getSimpleName() + ">.document";
-				var vc = persistence.database().perform((_, ii) -> ii.perform(n, i -> i.count(((Document) object).id())),
-						false);
+				var vc = persistence.database()
+						.perform((_, ii) -> ii.perform(n, i -> i.count(((Document) object).id())), false);
 				var kv = Map.entry("versionCount", (Object) vc);
 				kkvv = Stream.concat(kkvv, Stream.of(kv));
 			}

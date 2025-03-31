@@ -23,7 +23,7 @@
  */
 package com.janilla.templates.website;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import com.janilla.web.Handle;
 
@@ -35,7 +35,7 @@ public class RedirectApi extends CustomCollectionApi<Redirect> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<Redirect> read() {
+	public List<Redirect> read() {
 		return crud().read(crud().list());
 	}
 }

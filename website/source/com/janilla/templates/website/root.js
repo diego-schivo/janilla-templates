@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { UpdatableHTMLElement } from "./updatable-html-element.js";
+import { WebComponent } from "./web-component.js";
 
-export default class Root extends UpdatableHTMLElement {
+export default class Root extends WebComponent {
 
 	static get templateName() {
 		return "root";
@@ -58,7 +58,7 @@ export default class Root extends UpdatableHTMLElement {
 	}
 
 	handlePopState = () => {
-		this.requestUpdate();
+		this.requestDisplay();
 	}
 
 	async updateDisplay() {

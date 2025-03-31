@@ -23,11 +23,18 @@
  */
 package com.janilla.templates.website;
 
+import java.io.IOException;
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -41,6 +48,9 @@ import javax.net.ssl.SSLContext;
 
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpProtocol;
+import com.janilla.io.IO;
+import com.janilla.json.Converter;
+import com.janilla.json.Json;
 import com.janilla.json.MapAndType;
 import com.janilla.net.Net;
 import com.janilla.net.Server;
@@ -89,17 +99,19 @@ public class WebsiteTemplate {
 
 	public Properties configuration;
 
-	public Iterable<Class<?>> types;
+	public Path databaseFile;
 
 	public Factory factory;
 
-	public MapAndType.TypeResolver typeResolver;
+	public HttpHandler handler;
 
 	public Persistence persistence;
 
 	public RenderableFactory renderableFactory;
 
-	public HttpHandler handler;
+	public MapAndType.TypeResolver typeResolver;
+
+	public Iterable<Class<?>> types;
 
 	public WebsiteTemplate(Properties configuration) {
 		this.configuration = configuration;
@@ -110,7 +122,8 @@ public class WebsiteTemplate {
 			var p = configuration.getProperty("website-template.database.file");
 			if (p.startsWith("~"))
 				p = System.getProperty("user.home") + p.substring(1);
-			var pb = factory.create(ApplicationPersistenceBuilder.class, Map.of("databaseFile", Path.of(p)));
+			databaseFile = Path.of(p);
+			var pb = factory.create(ApplicationPersistenceBuilder.class); // , Map.of("databaseFile", Path.of(p)));
 			persistence = pb.build();
 		}
 		renderableFactory = new RenderableFactory();
@@ -195,6 +208,60 @@ public class WebsiteTemplate {
 			m1.put(f.apply(c), m2);
 		} while (!q.isEmpty());
 		return m1;
+	}
+
+	@Handle(method = "POST", path = "/api/seed")
+	public void seed() throws IOException {
+		for (var t : new Class<?>[] { Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
+				Form.class, FormSubmission.class, Header.class, Footer.class })
+			persistence.crud(t).delete(persistence.crud(t).list()).forEach(_ -> {
+			});
+
+		SeedData sd;
+		try (var is = getClass().getResourceAsStream("seed-data.json")) {
+			var s = new String(is.readAllBytes());
+			var o = Json.parse(s);
+			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
+		}
+		for (var x : sd.pages())
+			persistence.crud(Page.class).create(x);
+		for (var x : sd.posts())
+			persistence.crud(Post.class).create(x);
+		for (var x : sd.media())
+			persistence.crud(Media.class).create(x);
+		for (var x : sd.categories())
+			persistence.crud(Category.class).create(x);
+		for (var x : sd.users())
+			persistence.crud(User.class).create(x);
+		for (var x : sd.redirects())
+			persistence.crud(Redirect.class).create(x);
+		for (var x : sd.forms())
+			persistence.crud(Form.class).create(x);
+		for (var x : sd.formSubmissions())
+			persistence.crud(FormSubmission.class).create(x);
+		persistence.crud(Header.class).create(sd.header());
+		persistence.crud(Footer.class).create(sd.footer());
+
+		var r = getClass().getResource("seed-data.zip");
+		URI u;
+		try {
+			u = r.toURI();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		if (!u.toString().startsWith("jar:"))
+			u = URI.create("jar:" + u);
+		var s = IO.zipFileSystem(u).getPath("/");
+		var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
+		Files.walkFileTree(s, new SimpleFileVisitor<>() {
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				var t = d.resolve(s.relativize(file).toString());
+				Files.copy(file, t, StandardCopyOption.REPLACE_EXISTING);
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 
 	@Render(template = "index.html")

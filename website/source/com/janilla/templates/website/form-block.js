@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { UpdatableHTMLElement } from "./updatable-html-element.js";
+import { WebComponent } from "./web-component.js";
 
-export default class FormBlock extends UpdatableHTMLElement {
+export default class FormBlock extends WebComponent {
 
 	static get templateName() {
 		return "form-block";
@@ -58,7 +58,7 @@ export default class FormBlock extends UpdatableHTMLElement {
 				}))
 			})
 		})).json();
-		this.requestUpdate();
+		this.requestDisplay();
 	}
 
 	async updateDisplay() {

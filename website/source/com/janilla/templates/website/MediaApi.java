@@ -24,8 +24,8 @@
 package com.janilla.templates.website;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 import com.janilla.http.HttpResponse;
 import com.janilla.web.Handle;
@@ -40,7 +40,7 @@ public class MediaApi extends CustomCollectionApi<Media> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<Media> read() {
+	public List<Media> read() {
 		return crud().read(crud().list());
 	}
 

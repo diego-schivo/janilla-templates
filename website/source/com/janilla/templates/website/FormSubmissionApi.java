@@ -23,7 +23,7 @@
  */
 package com.janilla.templates.website;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import com.janilla.web.Handle;
 
@@ -35,7 +35,7 @@ public class FormSubmissionApi extends CustomCollectionApi<FormSubmission> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<FormSubmission> read() {
+	public List<FormSubmission> read() {
 		return crud().read(crud().list());
 	}
 }

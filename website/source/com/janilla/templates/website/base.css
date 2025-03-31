@@ -73,7 +73,7 @@ textarea {
   }
 }
 
-input {
+input:not([type]) {
   height: 2.5rem;
 }
 

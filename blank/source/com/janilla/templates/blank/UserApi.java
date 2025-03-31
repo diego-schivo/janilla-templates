@@ -23,9 +23,9 @@
  */
 package com.janilla.templates.blank;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpExchange;
@@ -42,7 +42,7 @@ public class UserApi extends CollectionApi<User> {
 	}
 
 	@Handle(method = "GET")
-	public Stream<User> read() {
+	public List<User> read() {
 		return crud().read(crud().list());
 	}
 
