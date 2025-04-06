@@ -71,6 +71,9 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 						object = persistence.crud(Post.class).read(l);
 						break;
 					}
+				else if (object instanceof Document.Reference<?> dr) {
+					object = persistence.crud(dr.type()).read(dr.id());
+				}
 				switch (n) {
 				case "relatedPosts":
 					if (object instanceof List<?> oo && !oo.isEmpty() && oo.getFirst() instanceof Long) {
@@ -93,6 +96,13 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 
 		public CustomReflectionValueIterator(TokenIterationContext context, Object object) {
 			super(context, object);
+		}
+
+		@Override
+		protected Iterator<JsonToken<?>> newIterator() {
+			return object instanceof Class<?> c
+					? context.newStringIterator(c.getName().substring(c.getPackageName().length() + 1))
+					: super.newIterator();
 		}
 
 		@Override

@@ -30,7 +30,7 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-public record SearchResult(Long id, @Index Document.@Types(Post.class) Reference<?> document, String title, String slug,
-		Meta meta, Instant createdAt, Instant updatedAt, Document.Status status, Instant publishedAt)
-		implements Document {
+public record SearchResult(Long id, @Index Document.@Types( {
+		Page.class, Post.class }) Reference<?> document, String title, String slug, Meta meta, Instant createdAt,
+		Instant updatedAt, Document.Status status, Instant publishedAt) implements Document{
 }

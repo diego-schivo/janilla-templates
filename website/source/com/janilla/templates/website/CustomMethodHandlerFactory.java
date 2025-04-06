@@ -46,12 +46,12 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 	@Override
 	protected void handle(Invocation invocation, HttpExchange exchange) {
 		var rq = exchange.getRequest();
-		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
-			if (rq.getPath().startsWith("/api/search-results"))
-				throw new ForbiddenException("Forbidden");
-			else if (!FORM_SUBMISSION_POST.contains(rq.getPath()) && !USER_POST.contains(rq.getPath()))
-				((CustomHttpExchange) exchange).requireSessionEmail();
-		}
+//		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
+//			if (rq.getPath().startsWith("/api/search-results"))
+//				throw new ForbiddenException("Forbidden");
+//			else if (!FORM_SUBMISSION_POST.contains(rq.getPath()) && !USER_POST.contains(rq.getPath()))
+//				((CustomHttpExchange) exchange).requireSessionEmail();
+//		}
 
 		if (Boolean.parseBoolean(configuration.getProperty("website-template.live-demo")))
 			if (!rq.getMethod().equals("GET") && !USER_POST.contains(rq.getPath()))

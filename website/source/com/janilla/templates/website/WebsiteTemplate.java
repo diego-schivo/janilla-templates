@@ -37,6 +37,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +45,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
+import com.janilla.cms.Document;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpProtocol;
@@ -171,7 +174,7 @@ public class WebsiteTemplate {
 
 	@Handle(method = "GET", path = "/api/schema")
 	public Map<String, Map<String, Map<String, Object>>> schema() {
-		var m1 = new LinkedHashMap<String, Map<String, Map<String, Object>>>();
+		var m1 = new HashMap<String, Map<String, Map<String, Object>>>();
 		var q = new ArrayDeque<Class<?>>();
 		q.add(Data.class);
 		Function<Class<?>, String> f = x -> x.getName().substring(x.getPackageName().length() + 1).replace('$', '.');
@@ -206,6 +209,11 @@ public class WebsiteTemplate {
 							m3.put("referenceType", f.apply(ta.value()[0]));
 					}
 					cc = List.of();
+				} else if (x.type() == Document.Reference.class) {
+					var ta = x.annotatedType().getAnnotation(Types.class);
+					if (ta != null)
+						m3.put("referenceTypes", Arrays.stream(ta.value()).map(f).toList());
+					cc = List.of();
 				} else if (x.type().isEnum()) {
 					m3.put("options",
 							Arrays.stream(x.type().getEnumConstants()).map(y -> ((Enum<?>) y).name()).toList());
@@ -219,7 +227,8 @@ public class WebsiteTemplate {
 			});
 			m1.put(f.apply(c), m2);
 		} while (!q.isEmpty());
-		return m1;
+		return m1.entrySet().stream().sorted(Map.Entry.comparingByKey())
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (x, _) -> x, LinkedHashMap::new));
 	}
 
 	@Handle(method = "POST", path = "/api/seed")
