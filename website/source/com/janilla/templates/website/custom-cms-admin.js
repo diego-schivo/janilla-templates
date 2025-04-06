@@ -61,25 +61,12 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		if (field.type === "String")
 			switch (field.name) {
 				case "confirmationMessage":
-				case "contentx":
+				case "content":
 				case "message":
 				case "richText":
 					return "cms-rich-text";
-				case "appearance":
-				case "type":
-					return "cms-select";
 			}
 		return super.controlTemplate(field);
-	}
-
-	options(field) {
-		switch (field.name) {
-			case "appearance":
-				return ["default", "outline"];
-			case "type":
-				return ["none", "highImpact", "mediumImpact", "lowImpact"];
-		}
-		return super.options(field);
 	}
 
 	tabs(type) {
@@ -112,6 +99,12 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	sidebar(type) {
 		if (["Page", "Post"].includes(type))
 			return ["publishedAt", "slug"];
+		if (type === "SearchResult")
+			return ["document"];
 		return super.sidebar(type);
+	}
+
+	isReadOnly(type) {
+		return type === "SearchResult";
 	}
 }

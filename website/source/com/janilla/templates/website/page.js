@@ -37,14 +37,21 @@ export default class Page extends WebComponent {
 		super();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		while (this.firstChild)
+			this.removeChild(this.lastChild);
+	}
+
 	async updateDisplay() {
 		const u = new URL("/api/pages", location.href);
 		u.searchParams.append("slug", this.dataset.slug);
 		const s = this.state;
 		s.page = (await (await fetch(u)).json())[0];
+		console.log("s.page", s.page);
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			hero: s.page.hero.type === "none" ? null : {
+			hero: s.page.hero.type === "NONE" ? null : {
 				$template: "hero",
 				path: "hero"
 			},
@@ -56,6 +63,11 @@ export default class Page extends WebComponent {
 	}
 
 	data(path) {
-		return path.split(".").reduce((x, n) => x[Array.isArray(x) ? parseInt(n) : n], this.state.page);
+		console.log("this.state.page", this.state.page, "path", path);
+		return path.split(".").reduce((x, n) => Array.isArray(x)
+			? x[parseInt(n)]
+			: typeof x === "object" && x !== null
+				? x[n]
+				: null, this.state.page);
 	}
 }

@@ -6,20 +6,20 @@
 			"title": "Home",
 			"hero": {
 				"$type": "Hero",
-				"type": "highImpact",
+				"type": "HIGH_IMPACT",
 				"richText": "<h1>Payload Website Template</h1><p><a href=\"/admin\">Visit the admin dashboard</a> to begin managing this site's content. The code for this template is completely open-source and can be found <a href=\"https://github.com/payloadcms/payload/tree/main/templates/website\" rel=\"noopener noreferrer\" target=\"_blank\">on our Github</a>. </p>",
 				"links": [
 					{
 						"$type": "Link",
 						"url": "/posts",
 						"label": "All posts",
-						"appearance": "default"
+						"appearance": "DEFAULT"
 					},
 					{
 						"$type": "Link",
 						"url": "/contact",
 						"label": "Contact",
-						"appearance": "outline"
+						"appearance": "OUTLINE"
 					}
 				],
 				"media": 4
@@ -30,26 +30,32 @@
 					"columns": [
 						{
 							"$type": "Column",
+							"size": "FULL",
 							"richText": "<h2>Core features</h2>"
 						},
 						{
 							"$type": "Column",
+							"size": "ONE_THIRD",
 							"richText": "<h3>Admin Dashboard</h3><p>Manage this site's pages and posts from the <a href=\"/admin\">admin dashboard</a>.</p>"
 						},
 						{
 							"$type": "Column",
+							"size": "ONE_THIRD",
 							"richText": "<h3>Preview</h3><p>Using versions, drafts, and preview, editors can review and share their changes before publishing them.</p>"
 						},
 						{
 							"$type": "Column",
+							"size": "ONE_THIRD",
 							"richText": "<h3>Page Builder</h3><p>Custom page builder allows you to create unique page, post, and project layouts for any type of content.</p>"
 						},
 						{
 							"$type": "Column",
+							"size": "ONE_THIRD",
 							"richText": "<h3>SEO</h3><p>Editors have complete control over SEO data and site content directly from the <a href=\"/admin\">admin dashboard</a>.</p>"
 						},
 						{
 							"$type": "Column",
+							"size": "ONE_THIRD",
 							"richText": "<h3>Dark Mode</h3><p>Users will experience this site in their preferred color scheme and each block can be inverted.</p>"
 						}
 					]
@@ -70,7 +76,7 @@
 							"$type": "Link",
 							"url": "/posts",
 							"label": "All posts",
-							"appearance": "default"
+							"appearance": "DEFAULT"
 						}
 					]
 				}
@@ -84,10 +90,9 @@
 			"title": "Contact",
 			"hero": {
 				"$type": "Hero",
-				"type": "none",
+				"type": "NONE",
 				"richText": "",
-				"links": [],
-				"media": null
+				"links": []
 			},
 			"layout": [
 				{
@@ -342,7 +347,6 @@
 					"name": "full-name",
 					"label": "Full Name",
 					"width": 100,
-					"defaultValue": null,
 					"required": true
 				},
 				{
@@ -350,7 +354,6 @@
 					"name": "email",
 					"label": "Email",
 					"width": 100,
-					"defaultValue": null,
 					"required": true
 				},
 				{
@@ -358,7 +361,6 @@
 					"name": "phone",
 					"label": "Phone",
 					"width": 100,
-					"defaultValue": null,
 					"required": false
 				},
 				{
@@ -366,7 +368,6 @@
 					"name": "message",
 					"label": "Message",
 					"width": 100,
-					"defaultValue": null,
 					"required": true
 				}
 			],
@@ -376,18 +377,19 @@
 			"emails": [
 				{
 					"$type": "Email",
-					"emailTo": "{{email}}",
+					"emailTo": "${email}",
 					"cc": "",
 					"bcc": "",
 					"replyTo": "",
-					"emailFrom": "\"Janilla\" <demo@cms.janilla.com>",
+					"emailFrom": "\"Janilla\" <diego.schivo@janilla.com>",
 					"subject": "You've received a new message.",
-					"message": "<p>Your contact form submission was successfully received.</p>"
+					"message": "Your contact form submission was successfully received."
 				}
 			]
 		}
 	],
 	"formSubmissions": [],
+	"searchResults": [],
 	"header": {
 		"$type": "Header",
 		"id": 1,
@@ -395,14 +397,12 @@
 			{
 				"$type": "Link",
 				"url": "/posts",
-				"label": "Posts",
-				"appearance": null
+				"label": "Posts"
 			},
 			{
 				"$type": "Link",
 				"url": "/contact",
-				"label": "Contact",
-				"appearance": null
+				"label": "Contact"
 			}
 		]
 	},
@@ -413,20 +413,17 @@
 			{
 				"$type": "Link",
 				"url": "/admin",
-				"label": "Admin",
-				"appearance": null
+				"label": "Admin"
 			},
 			{
 				"$type": "Link",
 				"url": "https://github.com/diego-schivo/website-template",
-				"label": "Source Code",
-				"appearance": null
+				"label": "Source Code"
 			},
 			{
 				"$type": "Link",
 				"url": "https://janilla.com/",
-				"label": "Janilla",
-				"appearance": null
+				"label": "Janilla"
 			}
 		]
 	}

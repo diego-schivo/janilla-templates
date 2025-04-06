@@ -45,6 +45,8 @@ export default class Search extends WebComponent {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		this.removeEventListener("input", this.handleInput);
+		while (this.firstChild)
+			this.removeChild(this.lastChild);
 	}
 
 	handleInput = async event => {
@@ -53,20 +55,21 @@ export default class Search extends WebComponent {
 			return;
 		event.stopPropagation();
 		const u = new URL(location.pathname, location.href);
-		u.searchParams.append("query", el.value);
+		if (el.value)
+			u.searchParams.append("query", el.value);
 		history.pushState(undefined, "", u.pathname + u.search);
 		dispatchEvent(new CustomEvent("popstate"));
 	}
 
 	async updateDisplay() {
-		const u = new URL("/api/posts", location.href);
+		const u = new URL("/api/search-results", location.href);
 		if (this.dataset.query)
 			u.searchParams.append("query", this.dataset.query);
 		const s = this.state;
-		s.posts = await (await fetch(u)).json();
+		s.results = await (await fetch(u)).json();
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			cards: s.posts.map(x => ({
+			cards: s.results.map(x => ({
 				$template: "card",
 				...x
 			}))

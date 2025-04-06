@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.janilla.cms.CollectionApi;
-import com.janilla.http.HttpExchange;
 import com.janilla.json.Jwt;
 import com.janilla.web.Handle;
 
@@ -38,7 +37,7 @@ public class UserApi extends CollectionApi<User> {
 	public Properties configuration;
 
 	public UserApi() {
-		super(User.class);
+		super(User.class, null);
 	}
 
 	@Handle(method = "GET")
@@ -76,11 +75,5 @@ public class UserApi extends CollectionApi<User> {
 		var t = Jwt.generateToken(h, p, configuration.getProperty("blank-template.jwt.key"));
 		exchange.setSessionCookie(t);
 		return u;
-	}
-
-	@Override
-	protected boolean drafts(HttpExchange exchange) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

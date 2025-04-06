@@ -1,22 +1,28 @@
 <main>
   <!--${hero}-->
-  <template id="hero">
-    <hero-component data-path="${path}"></hero-component>
-  </template>
   <!--${layout}-->
-  <template id="archive">
-    <archive-component data-path="${path}"></archive-component>
-  </template>
-  <template id="call-to-action">
-    <call-to-action data-path="${path}"></call-to-action>
-  </template>
-  <template id="content">
-    <content-component data-path="${path}"></content-component>
-  </template>
-  <template id="form-block">
-    <form-block data-path="${path}"></form-block>
-  </template>
-  <template id="media-block">
-    <media-block data-path="${path}"></media-block>
-  </template>
 </main>
+
+<template id="hero">
+  <hero-component data-path="${path}" class="hero"></hero-component>
+</template>
+
+<template id="archive">
+  <archive-component data-path="${path}"></archive-component>
+</template>
+
+<template id="call-to-action">
+  <call-to-action data-path="${path}"></call-to-action>
+</template>
+
+<template id="content">
+  <content-component data-path="${path}"></content-component>
+</template>
+
+<template id="form-block">
+  <form-block data-path="${path}"></form-block>
+</template>
+
+<template id="media-block">
+  <media-block data-path="${path}"></media-block>
+</template>

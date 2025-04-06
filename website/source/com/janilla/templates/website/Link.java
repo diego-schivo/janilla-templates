@@ -23,5 +23,10 @@
  */
 package com.janilla.templates.website;
 
-public record Link(String url, String label, String appearance) {
+public record Link(String url, String label, Appearance appearance) {
+
+	public enum Appearance {
+
+		DEFAULT, OUTLINE
+	}
 }

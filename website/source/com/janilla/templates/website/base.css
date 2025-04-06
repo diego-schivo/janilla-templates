@@ -22,16 +22,23 @@ textarea {
   color: inherit;
 }
 
-button {
+button,
+.button {
   background: rgb(248, 250, 252);
   border: none;
   border-radius: 0.25rem;
   box-sizing: border-box;
   color: rgb(15, 23, 42);
   cursor: pointer;
+  font-size: 0.875rem;
   font-weight: 500;
   height: 2.5rem;
   padding: 0.5rem 1rem;
+  text-decoration: none;
+
+  &:hover {
+    background: rgba(248, 250, 252, 0.9);
+  }
 }
 
 dd,
@@ -51,13 +58,22 @@ h3 {
   color: rgb(255, 255, 255);
 }
 
+h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
 h3 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
 }
 
-input:not([type]),
+img {
+  display: block;
+}
+
+input,
 select,
 textarea {
   background: transparent;
@@ -73,8 +89,12 @@ textarea {
   }
 }
 
-input:not([type]) {
+input {
   height: 2.5rem;
+}
+
+label:has([required]) span::after {
+  content: " *";
 }
 
 ol,

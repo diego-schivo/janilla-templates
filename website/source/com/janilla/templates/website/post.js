@@ -37,6 +37,12 @@ export default class Post extends WebComponent {
 		super();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		while (this.firstChild)
+			this.removeChild(this.lastChild);
+	}
+
 	async updateDisplay() {
 		const u = new URL("/api/posts", location.href);
 		u.searchParams.append("slug", this.dataset.slug);

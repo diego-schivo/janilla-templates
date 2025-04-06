@@ -25,13 +25,14 @@ package com.janilla.templates.website;
 
 import java.util.List;
 
+import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/categories")
-public class CategoryApi extends CustomCollectionApi<Category> {
+public class CategoryApi extends CollectionApi<Category> {
 
 	public CategoryApi() {
-		super(Category.class);
+		super(Category.class, WebsiteTemplate.DRAFTS);
 	}
 
 	@Handle(method = "GET")

@@ -67,6 +67,9 @@ public class CustomJsonHandlerFactory extends JsonHandlerFactory {
 					case "heroImage", "image", "media":
 						object = persistence.crud(Media.class).read(l);
 						break;
+					case "document":
+						object = persistence.crud(Post.class).read(l);
+						break;
 					}
 				switch (n) {
 				case "relatedPosts":

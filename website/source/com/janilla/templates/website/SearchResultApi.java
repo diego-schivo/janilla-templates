@@ -23,43 +23,29 @@
  */
 package com.janilla.templates.website;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
-import com.janilla.smtp.SmtpClient;
+import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
-@Handle(path = "/api/form-submissions")
-public class FormSubmissionApi extends CollectionApi<FormSubmission> {
+@Handle(path = "/api/search-results")
+public class SearchResultApi extends CollectionApi<SearchResult> {
 
-	public SmtpClient smtpClient;
-
-	public FormSubmissionApi(SmtpClient smtpClient) {
-		super(FormSubmission.class, WebsiteTemplate.DRAFTS);
-	}
-
-	private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(.*?)\\}");
-
-	@Override
-	@Handle(method = "POST")
-	public FormSubmission create(FormSubmission entity) {
-		var e = super.create(entity);
-		var m = entity.submissionData().stream()
-				.collect(Collectors.toMap(SubmissionDatum::field, SubmissionDatum::value));
-		var f = persistence.crud(Form.class).read(entity.form());
-		for (var x : f.emails()) {
-			var ss = List.of(x.emailFrom(), x.emailTo(), x.subject(), x.message()).stream()
-					.map(y -> PLACEHOLDER.matcher(y).replaceAll(z -> m.get(z.group(1)))).toList();
-			smtpClient.sendMail(OffsetDateTime.now(), ss.get(0), ss.get(1), ss.get(2), ss.get(3));
-		}
-		return e;
+	public SearchResultApi() {
+		super(SearchResult.class, WebsiteTemplate.DRAFTS);
 	}
 
 	@Handle(method = "GET")
-	public List<FormSubmission> read() {
-		return crud().read(crud().list());
+	public List<SearchResult> read(@Bind("slug") String slug, @Bind("query") String query) {
+		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
+		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
+			var m = x.meta();
+			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
+					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
+			return s.toLowerCase().contains(query.toLowerCase());
+		}).toList() : pp;
 	}
 }

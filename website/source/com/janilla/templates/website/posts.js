@@ -33,6 +33,12 @@ export default class Posts extends WebComponent {
 		super();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		while (this.firstChild)
+			this.removeChild(this.lastChild);
+	}
+
 	async updateDisplay() {
 		const s = this.state;
 		s.posts ??= await (await fetch("/api/posts")).json();

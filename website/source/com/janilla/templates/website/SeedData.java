@@ -27,5 +27,5 @@ import java.util.List;
 
 public record SeedData(List<Page> pages, List<Post> posts, List<Media> media, List<Category> categories,
 		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
-		Header header, Footer footer) {
+		List<SearchResult> searchResults, Header header, Footer footer) {
 }

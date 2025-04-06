@@ -24,27 +24,23 @@
 package com.janilla.templates.website;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/posts")
-public class PostApi extends CustomCollectionApi<Post> {
+public class PostApi extends CollectionApi<Post> {
 
 	public PostApi() {
-		super(Post.class);
+		super(Post.class, WebsiteTemplate.DRAFTS);
 	}
 
 	@Handle(method = "GET")
-	public List<Post> read(@Bind("slug") String slug, @Bind("query") String query) {
-		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
-		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
-			var m = x.meta();
-			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
-					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
-			return s.contains(query);
-		}).toList() : pp;
+	public List<Post> read(@Bind("slug") String slug, HttpExchange exchange) {
+		var d = drafts.test(exchange);
+		return crud().read(
+				slug != null && !slug.isBlank() ? crud().filter(d ? "slugDraft" : "slug", slug) : crud().list(), d);
 	}
 }

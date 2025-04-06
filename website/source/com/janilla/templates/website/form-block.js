@@ -62,6 +62,7 @@ export default class FormBlock extends WebComponent {
 	}
 
 	async updateDisplay() {
+		console.log("this.isConnected", this.isConnected);
 		const s = this.state;
 		const d = this.closest("page-element").data(this.dataset.path);
 		if (s.submission && d.form.confirmationType === "REDIRECT") {

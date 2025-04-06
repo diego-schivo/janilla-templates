@@ -43,9 +43,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.net.ssl.SSLContext;
 
+import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpProtocol;
 import com.janilla.io.IO;
@@ -58,6 +60,7 @@ import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
+import com.janilla.smtp.SmtpClient;
 import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerBuilder;
 import com.janilla.web.Handle;
@@ -65,6 +68,8 @@ import com.janilla.web.Render;
 import com.janilla.web.RenderableFactory;
 
 public class WebsiteTemplate {
+
+	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
 	public static void main(String[] args) {
 		try {
@@ -109,6 +114,8 @@ public class WebsiteTemplate {
 
 	public RenderableFactory renderableFactory;
 
+	public SmtpClient smtpClient;
+
 	public MapAndType.TypeResolver typeResolver;
 
 	public Iterable<Class<?>> types;
@@ -123,10 +130,15 @@ public class WebsiteTemplate {
 			if (p.startsWith("~"))
 				p = System.getProperty("user.home") + p.substring(1);
 			databaseFile = Path.of(p);
-			var pb = factory.create(ApplicationPersistenceBuilder.class); // , Map.of("databaseFile", Path.of(p)));
+			var pb = factory.create(ApplicationPersistenceBuilder.class);
 			persistence = pb.build();
 		}
 		renderableFactory = new RenderableFactory();
+		smtpClient = factory.create(SmtpClient.class,
+				Map.of("host", configuration.getProperty("website-template.mail.host"), "port",
+						Integer.parseInt(configuration.getProperty("website-template.mail.port")), "username",
+						configuration.getProperty("website-template.mail.username"), "password",
+						configuration.getProperty("website-template.mail.password")));
 		handler = factory.create(ApplicationHandlerBuilder.class).build();
 	}
 
@@ -154,7 +166,7 @@ public class WebsiteTemplate {
 				return null;
 			}
 		}
-		return new Index();
+		return new Index(path.startsWith("/admin") ? "/admin.css" : "/style.css");
 	}
 
 	@Handle(method = "GET", path = "/api/schema")
@@ -213,9 +225,18 @@ public class WebsiteTemplate {
 	@Handle(method = "POST", path = "/api/seed")
 	public void seed() throws IOException {
 		for (var t : new Class<?>[] { Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
-				Form.class, FormSubmission.class, Header.class, Footer.class })
-			persistence.crud(t).delete(persistence.crud(t).list()).forEach(_ -> {
-			});
+				Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class }) {
+			persistence.database().perform((ss, _) -> {
+				var c = persistence.crud(t);
+				c.delete(c.list()).forEach(_ -> {
+				});
+				ss.perform(t.getSimpleName(), s -> {
+					s.getAttributes().clear();
+					return null;
+				});
+				return null;
+			}, true);
+		}
 
 		SeedData sd;
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {
@@ -239,6 +260,8 @@ public class WebsiteTemplate {
 			persistence.crud(Form.class).create(x);
 		for (var x : sd.formSubmissions())
 			persistence.crud(FormSubmission.class).create(x);
+		for (var x : sd.searchResults())
+			persistence.crud(SearchResult.class).create(x);
 		persistence.crud(Header.class).create(sd.header());
 		persistence.crud(Footer.class).create(sd.footer());
 
@@ -265,6 +288,6 @@ public class WebsiteTemplate {
 	}
 
 	@Render(template = "index.html")
-	public record Index() {
+	public record Index(String href) {
 	}
 }

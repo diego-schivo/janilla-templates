@@ -43,7 +43,4 @@ public record Post(Long id, String title, @Types(Media.class) Long heroImage, Li
 		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt, updatedAt,
 				status, publishedAt);
 	}
-
-	public record Meta(String title, @Types(Media.class) Long image, String description) {
-	}
 }

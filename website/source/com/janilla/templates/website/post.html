@@ -1,34 +1,42 @@
 <main>
-  <article style='background-image: url("${heroImage.url}")'>
+  <article class="hero" style='background-image: url("${heroImage.url}")'>
     <div></div>
     <section>
-      <h1>${title}</h1>
-      <dl>
-        <div>
-          <dt>Author</dt>
-          <dd>Demo Author</dd>
-        </div>
-        <div>
-          <dt>Date Published</dt>
-          <dd>02/06/2025</dd>
-        </div>
-      </dl>
+      <div>
+        <h1>${title}</h1>
+        <dl>
+          <div>
+            <dt>Author</dt>
+            <dd>Demo Author</dd>
+          </div>
+          <div>
+            <dt>Date Published</dt>
+            <dd>02/06/2025</dd>
+          </div>
+        </dl>
+      </div>
     </section>
   </article>
   <div>
     <!--${content}-->
-    <template id="banner">
-      <banner-element data-path="${path}"></banner-element>
-    </template>
-    <template id="content2">
-      <content2-element data-path="${path}"></content2-element>
-    </template>
-    <template id="media-block">
-      <media-block data-path="${path}"></media-block>
-    </template>
-    <!--${cards}-->
-    <template id="card">
-      <card-element data-slug="${slug}"></card-element>
-    </template>
+    <div class="cards">
+      <!--${cards}-->
+    </div>
   </div>
 </main>
+
+<template id="banner">
+  <banner-element data-path="${path}"></banner-element>
+</template>
+
+<template id="content2">
+  <content2-element data-path="${path}"></content2-element>
+</template>
+
+<template id="media-block">
+  <media-block data-path="${path}"></media-block>
+</template>
+
+<template id="card">
+  <card-element data-slug="${slug}"></card-element>
+</template>

@@ -39,7 +39,11 @@ export default class Card extends WebComponent {
 
 	async updateDisplay() {
 		const el = this.closest("post-element, posts-element, search-element");
-		const pp = el.matches("post-element") ? el.state.post.relatedPosts : el.state.posts;
+		const pp = el.matches("post-element")
+			? el.state.post.relatedPosts
+			: el.matches("posts-element")
+				? el.state.posts
+				: el.state.results;
 		const p = pp.find(x => x.slug === this.dataset.slug);
 		this.appendChild(this.interpolateDom({
 			$template: "",

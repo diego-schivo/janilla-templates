@@ -1,5 +1,11 @@
 form-block {
   margin-top: 2.5rem;
+  max-width: 48rem !important;
+
+  @media (min-width: 1441px) {
+    margin-bottom: 4rem;
+    margin-top: 4rem;
+  }
 
   article,
   form,
@@ -21,6 +27,10 @@ form-block {
   form {
     gap: 1rem;
     padding: 1rem;
+
+    @media (min-width: 1441px) {
+      padding: 1.5rem;
+    }
   }
 
   label {

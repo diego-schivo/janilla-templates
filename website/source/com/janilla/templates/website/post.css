@@ -6,9 +6,15 @@ post-element {
       align-items: flex-end;
       background: no-repeat top center / 1280px 80vh;
       display: flex;
-      margin: -10.4rem -1rem 0;
+      margin-top: -10.4rem;
       min-height: 80vh;
       position: relative;
+
+      @media (min-width: 1441px) {
+        background: no-repeat center center / 100% auto;
+        /*justify-content: center;*/
+        margin-top: -11.5rem;
+      }
 
       > section {
         gap: 1.5rem;
@@ -17,9 +23,23 @@ post-element {
 
         &,
         dl,
-        div {
+        dl div {
           display: flex;
           flex-direction: column;
+        }
+
+        @media (min-width: 1441px) {
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: 1fr 48rem 1fr;
+          max-width: 86rem;
+          margin: 0 auto;
+          padding: 0 2rem;
+          width: 100%;
+        }
+
+        > div {
+          grid-column: 2 / span 2;
         }
       }
 
@@ -34,10 +54,21 @@ post-element {
       h1 {
         font-size: 1.875rem;
         line-height: 2.25rem;
+
+        @media (min-width: 1441px) {
+          font-size: 3.75rem;
+          font-weight: 400;
+          line-height: 1;
+          margin-bottom: 1.5rem;
+        }
       }
 
       dl {
         gap: 1rem;
+
+        @media (min-width: 1441px) {
+          flex-direction: row !important;
+        }
 
         div {
           gap: 0.25rem;
@@ -55,8 +86,22 @@ post-element {
       gap: 2rem;
       line-height: 1.75;
 
+      > :not(.cards) {
+        margin: 0 auto;
+        max-width: 48rem;
+      }
+
       h2 {
         line-height: 1.3333333;
+        margin-bottom: 1rem;
+      }
+    }
+
+    .cards {
+      @media (min-width: 1441px) {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   }

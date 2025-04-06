@@ -25,5 +25,10 @@ package com.janilla.templates.website;
 
 import java.util.List;
 
-public record Hero(String type, String richText, List<Link> links, @Types(Media.class) Long media) {
+public record Hero(Type type, String richText, List<Link> links, @Types(Media.class) Long media) {
+
+	public enum Type {
+
+		NONE, HIGH_IMPACT, MEDIUM_IMPACT, LOW_IMPACT
+	}
 }

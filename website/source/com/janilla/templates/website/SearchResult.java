@@ -23,10 +23,14 @@
  */
 package com.janilla.templates.website;
 
-public record Column(Size size, String richText) {
+import java.time.Instant;
 
-	public enum Size {
+import com.janilla.cms.Document;
+import com.janilla.persistence.Index;
+import com.janilla.persistence.Store;
 
-		ONE_THIRD, HALF, TWO_THIRDS, FULL
-	}
+@Store
+public record SearchResult(Long id, @Index Document.@Types(Post.class) Reference<?> document, String title, String slug,
+		Meta meta, Instant createdAt, Instant updatedAt, Document.Status status, Instant publishedAt)
+		implements Document {
 }

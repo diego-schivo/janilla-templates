@@ -11,6 +11,12 @@ call-to-action {
     border-radius: 0.2rem;
     gap: 1rem;
     padding: 1rem;
+
+    @media (min-width: 1441px) {
+      align-items: center;
+      flex-direction: row;
+      justify-content: space-between;
+    }
   }
 
   p {
@@ -22,7 +28,8 @@ call-to-action {
   }
 
   section {
-    > a {
+    > .button {
+      /*
       background: rgb(248, 250, 252);
       border: 1px solid rgba(38, 38, 38, 0.8);
       border-radius: 0.25rem;
@@ -35,6 +42,9 @@ call-to-action {
       padding: 0.5rem;
       text-align: center;
       text-decoration: none;
+      */
+      padding-left: 2rem;
+      padding-right: 2rem;
     }
   }
 }

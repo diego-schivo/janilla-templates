@@ -1,11 +1,7 @@
 archive-component {
-  > article,
-  section {
+  > article {
     display: flex;
     flex-direction: column;
-  }
-
-  > article {
     gap: 4rem;
 
     article {
@@ -16,7 +12,19 @@ archive-component {
   }
 
   section {
-    gap: 1rem;
+    &:first-child {
+      @media (min-width: 1441px) {
+        max-width: 48rem;
+      }
+    }
+
+    &:nth-child(2) {
+      @media (min-width: 1441px) {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
   }
 
   a {
