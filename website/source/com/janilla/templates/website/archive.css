@@ -1,4 +1,4 @@
-archive-component {
+archive-element {
   > article {
     display: flex;
     flex-direction: column;

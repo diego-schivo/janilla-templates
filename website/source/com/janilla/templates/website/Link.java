@@ -23,10 +23,19 @@
  */
 package com.janilla.templates.website;
 
-public record Link(String url, String label, Appearance appearance) {
+import com.janilla.cms.Document;
+import com.janilla.persistence.Index;
+
+public record Link(Type type, Boolean newTab, @Index Document.@Types( {
+		Page.class, Post.class }) Reference<?> reference, String url, String label, Appearance appearance){
 
 	public enum Appearance {
 
 		DEFAULT, OUTLINE
+	}
+
+	public enum Type {
+
+		REFERENCE, CUSTOM
 	}
 }

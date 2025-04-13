@@ -37,6 +37,11 @@ public class PageApi extends CollectionApi<Page> {
 		super(Page.class, WebsiteTemplate.DRAFTS);
 	}
 
+	@Override
+	public List<Page> read() {
+		throw new UnsupportedOperationException();
+	}
+
 	@Handle(method = "GET")
 	public List<Page> read(@Bind("slug") String slug, HttpExchange exchange) {
 		var d = drafts.test(exchange);

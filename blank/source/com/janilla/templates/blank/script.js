@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import CmsAdmin from "./cms-admin.js";
-import CheckboxControl from "./checkbox-control.js";
+import CmsCheckbox from "./cms-checkbox.js";
 import CmsCollection from "./cms-collection.js";
 import CmsFirstRegister from "./cms-first-register.js";
 import CmsDashboard from "./cms-dashboard.js";
@@ -31,18 +31,18 @@ import CmsArray from "./cms-array.js";
 import CmsLogin from "./login.js";
 import LucideIcon from "./lucide-icon.js";
 import CmsObject from "./cms-object.js";
-import RadioGroupControl from "./radio-group-control.js";
+import CmsRadio from "./cms-radio.js";
 import CmsReference from "./cms-reference.js";
-import ReferenceListControl from "./reference-list-control.js";
+import CmsReferenceArray from "./cms-reference-array.js";
 import CmsRichText from "./cms-rich-text.js";
 import Root from "./root.js";
 import CmsSelect from "./cms-select.js";
 import CmsTabsField from "./tabs-field.js";
-import TextareaControl from "./textarea-control.js";
+import CmsTextarea from "./cms-textarea.js";
 import CmsText from "./cms-text.js";
 
 customElements.define("cms-admin", CmsAdmin);
-customElements.define("checkbox-control", CheckboxControl);
+customElements.define("cms-checkbox", CmsCheckbox);
 customElements.define("cms-collection", CmsCollection);
 customElements.define("cms-first-register", CmsFirstRegister);
 customElements.define("cms-dashboard", CmsDashboard);
@@ -51,12 +51,12 @@ customElements.define("cms-array", CmsArray);
 customElements.define("cms-login", CmsLogin);
 customElements.define("lucide-icon", LucideIcon);
 customElements.define("cms-object", CmsObject);
-customElements.define("radio-group-control", RadioGroupControl);
+customElements.define("cms-radio", CmsRadio);
 customElements.define("cms-reference", CmsReference);
-customElements.define("reference-list-control", ReferenceListControl);
+customElements.define("cms-reference-array", CmsReferenceArray);
 customElements.define("cms-rich-text", CmsRichText);
 customElements.define("root-element", Root);
 customElements.define("cms-select", CmsSelect);
 customElements.define("tabs-field", CmsTabsField);
-customElements.define("textarea-control", TextareaControl);
+customElements.define("cms-textarea", CmsTextarea);
 customElements.define("cms-text", CmsText);

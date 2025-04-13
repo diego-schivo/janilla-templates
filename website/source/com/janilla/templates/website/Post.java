@@ -35,12 +35,13 @@ import com.janilla.persistence.Store;
 @Index(sort = "-createdAt")
 @Versions(drafts = true)
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
-		Banner.class, Content2.class, MediaBlock.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
-		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug, Instant createdAt,
-		Instant updatedAt, Document.Status status, Instant publishedAt) implements Document{
+		Banner.class, MediaBlock.class, RichText.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
+		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
+		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status status,
+		Instant publishedAt) implements Document{
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {
-		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, createdAt, updatedAt,
-				status, publishedAt);
+		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, authors, createdAt,
+				updatedAt, status, publishedAt);
 	}
 }

@@ -57,9 +57,4 @@ public class FormSubmissionApi extends CollectionApi<FormSubmission> {
 		}
 		return e;
 	}
-
-	@Handle(method = "GET")
-	public List<FormSubmission> read() {
-		return crud().read(crud().list());
-	}
 }

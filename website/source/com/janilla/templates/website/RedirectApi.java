@@ -23,8 +23,6 @@
  */
 package com.janilla.templates.website;
 
-import java.util.List;
-
 import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
@@ -33,10 +31,5 @@ public class RedirectApi extends CollectionApi<Redirect> {
 
 	public RedirectApi() {
 		super(Redirect.class, WebsiteTemplate.DRAFTS);
-	}
-
-	@Handle(method = "GET")
-	public List<Redirect> read() {
-		return crud().read(crud().list());
 	}
 }

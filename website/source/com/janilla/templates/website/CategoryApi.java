@@ -23,8 +23,6 @@
  */
 package com.janilla.templates.website;
 
-import java.util.List;
-
 import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
@@ -33,10 +31,5 @@ public class CategoryApi extends CollectionApi<Category> {
 
 	public CategoryApi() {
 		super(Category.class, WebsiteTemplate.DRAFTS);
-	}
-
-	@Handle(method = "GET")
-	public List<Category> read() {
-		return crud().read(crud().list());
 	}
 }

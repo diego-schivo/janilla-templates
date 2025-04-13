@@ -23,10 +23,12 @@
  */
 package com.janilla.templates.website;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.janilla.cms.Document;
 import com.janilla.cms.CmsPersistence;
+import com.janilla.cms.Document;
 import com.janilla.database.Database;
 import com.janilla.json.MapAndType.TypeResolver;
 import com.janilla.persistence.Crud;
@@ -44,37 +46,44 @@ public class CustomPersistence extends CmsPersistence {
 		if (searchObserver == null)
 			searchObserver = new Crud.Observer() {
 
+				private Set<Class<?>> types = Arrays.stream(Reflection.property(SearchResult.class, "document")
+						.annotatedType().getAnnotation(Types.class).value()).collect(Collectors.toSet());
+
 				@Override
 				public <E> void afterCreate(E entity) {
-					if (entity instanceof Post p && p.status() == Document.Status.PUBLISHED)
+					var d = (Document) entity;
+					var dc = d.getClass();
+					if (types.contains(dc) && d.status() == Document.Status.PUBLISHED)
 						crud(SearchResult.class)
-								.create(Reflection.copy(p,
-										new SearchResult(null, new Document.Reference<>(Post.class, p.id()), null, null,
+								.create(Reflection.copy(d,
+										new SearchResult(null, new Document.Reference<>(dc, d.id()), null, null, null,
 												null, null, null, null, null),
 										y -> !Set.of("id", "document").contains(y)));
 				}
 
 				@Override
 				public <E> void afterUpdate(E entity1, E entity2) {
-					if (entity1 instanceof Post p1) {
-						var p2 = (Post) entity2;
+					var d1 = (Document) entity1;
+					var d2 = (Document) entity2;
+					var dc = d1.getClass();
+					if (types.contains(dc)) {
 						var c = crud(SearchResult.class);
-						switch (p1.status()) {
+						switch (d1.status()) {
 						case DRAFT:
-							if (p2.status() == p1.status())
+							if (d2.status() == d1.status())
 								;
 							else
-								c.create(Reflection.copy(p2,
-										new SearchResult(null, new Document.Reference<>(Post.class, p2.id()), null,
-												null, null, null, null, null, null),
+								c.create(Reflection.copy(d2,
+										new SearchResult(null, new Document.Reference<>(dc, d2.id()), null, null, null,
+												null, null, null, null, null),
 										y -> !Set.of("id", "document").contains(y)));
 							break;
 						case PUBLISHED:
-							if (p2.status() == p1.status())
-								c.update(c.find("document", p2.id()),
-										x -> Reflection.copy(p2, x, y -> !Set.of("id", "document").contains(y)));
+							if (d2.status() == d1.status())
+								c.update(c.find("document", new Document.Reference<>(dc, d2.id())),
+										x -> Reflection.copy(d2, x, y -> !Set.of("id", "document").contains(y)));
 							else
-								c.delete(c.find("document", p2.id()));
+								c.delete(c.find("document", d2.id()));
 							break;
 						}
 					}
@@ -82,9 +91,11 @@ public class CustomPersistence extends CmsPersistence {
 
 				@Override
 				public <E> void afterDelete(E entity) {
-					if (entity instanceof Post p && p.status() == Document.Status.PUBLISHED) {
+					var d = (Document) entity;
+					var dc = d.getClass();
+					if (types.contains(dc) && d.status() == Document.Status.PUBLISHED) {
 						var c = crud(SearchResult.class);
-						c.delete(c.find("document", p.id()));
+						c.delete(c.find("document", new Document.Reference<>(dc, d.id())));
 					}
 				}
 			};

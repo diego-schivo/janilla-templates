@@ -38,6 +38,11 @@ public class SearchResultApi extends CollectionApi<SearchResult> {
 		super(SearchResult.class, WebsiteTemplate.DRAFTS);
 	}
 
+	@Override
+	public List<SearchResult> read() {
+		throw new UnsupportedOperationException();
+	}
+
 	@Handle(method = "GET")
 	public List<SearchResult> read(@Bind("slug") String slug, @Bind("query") String query) {
 		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());

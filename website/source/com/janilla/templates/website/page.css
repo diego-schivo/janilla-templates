@@ -7,7 +7,7 @@ page-element {
     gap: 4rem;
     line-height: 1.75;
 
-    > :not(hero-component) {
+    > :not(hero-element) {
       padding: 0 1rem;
 
       @media (min-width: 1441px) {

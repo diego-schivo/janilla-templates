@@ -43,19 +43,34 @@ export default class Post extends WebComponent {
 			this.removeChild(this.lastChild);
 	}
 
-	async updateDisplay() {
+	attributeChangedCallback(name, oldValue, newValue) {
+		const s = this.state;
+		if (newValue !== oldValue && s?.computeState)
+			delete s.computeState;
+		super.attributeChangedCallback(name, oldValue, newValue);
+	}
+
+	async computeState() {
+		const s = this.state;
+		delete s.post;
 		const u = new URL("/api/posts", location.href);
 		u.searchParams.append("slug", this.dataset.slug);
+		s.post = (await this.closest("root-element").fetchData(u.pathname + u.search))[0];
+		this.requestDisplay();
+	}
+
+	async updateDisplay() {
 		const s = this.state;
-		s.post = (await (await fetch(u)).json())[0];
+		s.computeState ??= this.computeState();
+		this.closest("root-element").updateSeo(s.post?.meta);
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			...s.post,
-			content: s.post.content?.map((x, i) => ({
+			content: s.post?.content?.map((x, i) => ({
 				$template: x.$type.split(/(?=[A-Z])/).map(x => x.toLowerCase()).join("-"),
 				path: `content.${i}`
 			})),
-			cards: s.post.relatedPosts?.map(x => ({
+			cards: s.post?.relatedPosts?.map(x => ({
 				$template: "card",
 				...x
 			}))

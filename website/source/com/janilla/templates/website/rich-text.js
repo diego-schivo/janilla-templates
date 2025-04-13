@@ -21,7 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+import { WebComponent } from "./web-component.js";
 
-public record Content2(String richText) {
+export default class RichText extends WebComponent {
+
+	static get templateName() {
+		return "rich-text";
+	}
+
+	constructor() {
+		super();
+	}
+
+	async updateDisplay() {
+		const d = this.closest("post-element").data(this.dataset.path);
+		this.appendChild(this.interpolateDom({
+			$template: "",
+			...d
+		}));
+	}
 }

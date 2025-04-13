@@ -23,8 +23,6 @@
  */
 package com.janilla.templates.website;
 
-import java.util.List;
-
 import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
@@ -33,10 +31,5 @@ public class FormApi extends CollectionApi<Form> {
 
 	public FormApi() {
 		super(Form.class, WebsiteTemplate.DRAFTS);
-	}
-
-	@Handle(method = "GET")
-	public List<Form> read() {
-		return crud().read(crud().list());
 	}
 }

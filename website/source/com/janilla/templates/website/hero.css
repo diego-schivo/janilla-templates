@@ -1,4 +1,4 @@
-hero-component {
+hero-element {
   article,
   section,
   ul {
@@ -15,7 +15,7 @@ hero-component {
     gap: 1rem;
   }
 
-  article {
+  article[style] {
     background: no-repeat top center / 1280px 80vh;
 	justify-content: center;
     margin-bottom: -2.5rem;

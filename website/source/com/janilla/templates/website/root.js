@@ -29,15 +29,21 @@ export default class Root extends WebComponent {
 		return "root";
 	}
 
+	#serverData;
+
 	constructor() {
 		super();
 	}
 
 	connectedCallback() {
+		const el = this.querySelector("#server-data");
+		if (el) {
+			el.remove();
+			this.#serverData = JSON.parse(el.text);
+		}
 		super.connectedCallback();
 		this.addEventListener("click", this.handleClick);
 		addEventListener("popstate", this.handlePopState);
-		dispatchEvent(new CustomEvent("popstate"));
 	}
 
 	disconnectedCallback() {
@@ -61,29 +67,67 @@ export default class Root extends WebComponent {
 		this.requestDisplay();
 	}
 
-	async updateDisplay() {
+	async computeState() {
 		const s = this.state;
-		s.redirects ??= await (await fetch("/api/redirects")).json();
-		for (const r of s.redirects)
-			if (r.from === location.pathname) {
-				history.pushState(undefined, "", r.to);
-				dispatchEvent(new CustomEvent("popstate"));
-				return;
-			}
+		const nn = ["header", "footer", "redirects"];
+		nn.forEach(x => delete s[x]);
+		for (const [k, v] of await Promise.all(nn.map(x => {
+			const k = `/api/${x}`;
+			return this.fetchData(k).then(y => ([x, y]));
+		})))
+			s[k] = v;
+		this.requestDisplay();
+	}
+
+	async updateDisplay() {
 		const m = location.pathname.match(/^\/admin(\/.*)?$/);
-		this.appendChild(this.interpolateDom(m ? {
-			$template: "admin",
-			email: this.querySelector("cms-admin")?.state?.me?.email,
-			path: m[1] ?? "/"
-		} : {
+		if (m) {
+			this.appendChild(this.interpolateDom({
+				$template: "admin",
+				email: this.querySelector("cms-admin")?.state?.me?.email,
+				path: m[1] ?? "/"
+			}));
+			return;
+		}
+		const s = this.state;
+		s.computeState ??= this.computeState();
+		if (s.redirects)
+			for (const x of s.redirects)
+				if (x.from === location.pathname) {
+					history.pushState(undefined, "", x.to);
+					dispatchEvent(new CustomEvent("popstate"));
+					return;
+				}
+		const link = x => {
+			let h;
+			switch (x.type) {
+				case "REFERENCE":
+					switch (x.reference?.$type) {
+						case "Page":
+							h = `/${x.reference.slug}`;
+							break;
+						case "Post":
+							h = `/posts/${x.reference.slug}`;
+							break;
+					}
+					break;
+				case "CUSTOM":
+					h = x.url;
+					break;
+			}
+			return {
+				$template: "link",
+				href: h,
+				text: x.label,
+				target: x.newTab ? "_blank" : null
+			};
+		};
+		this.appendChild(this.interpolateDom({
 			$template: "",
-			header: {
+			header: s.header ? {
 				$template: "header",
-				navItems: (await (await fetch("/api/header")).json()).navItems?.map(x => ({
-					$template: "link",
-					...x
-				}))
-			},
+				navItems: s.header.navItems?.map(link)
+			} : null,
 			content: (() => {
 				const m2 = location.pathname.match(/^\/posts(\/.*)?$/);
 				if (m2)
@@ -96,16 +140,44 @@ export default class Root extends WebComponent {
 					query: new URLSearchParams(location.search).get("query")
 				} : {
 					$template: "page",
-					slug: location.pathname.substring(1) ?? "home"
+					slug: (() => {
+						const s2 = location.pathname.substring(1);
+						return s2 ? s2 : "home";
+					})()
 				};
 			})(),
-			footer: {
+			footer: s.footer ? {
 				$template: "footer",
-				navItems: (await (await fetch("/api/footer")).json()).navItems?.map(x => ({
-					$template: "link",
-					...x
-				}))
-			}
+				navItems: s.footer.navItems?.map(link)
+			} : null
 		}));
+	}
+
+	updateSeo(meta) {
+		const sn = "Janilla Website Template";
+		const t = [meta?.title && meta.title !== sn ? meta.title : null, sn].filter(x => x).join(" | ");
+		const d = meta?.description ?? "";
+		for (const [k, v] of Object.entries({
+			title: t,
+			description: d,
+			"og:title": t,
+			"og:description": d,
+			"og:url": location.href,
+			"og:site_name": sn,
+			"og:image": meta?.image?.url ? `${location.protocol}://${location.host}${meta.image.url}` : null,
+			"og:type": "website"
+		}))
+			if (k === "title")
+				document.title = v ?? "";
+			else
+				document.querySelector(`meta[name="${k}"]`).setAttribute("content", v ?? "");
+	}
+
+	async fetchData(key) {
+		if (!Object.hasOwn(this.#serverData, key))
+			return await (await fetch(key)).json();
+		const v = this.#serverData[key];
+		delete this.#serverData[key];
+		return v;
 	}
 }

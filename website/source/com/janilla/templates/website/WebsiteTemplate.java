@@ -35,21 +35,27 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentCrud;
+import com.janilla.cms.Versions;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpProtocol;
@@ -57,6 +63,7 @@ import com.janilla.io.IO;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.MapAndType;
+import com.janilla.json.ReflectionJsonIterator;
 import com.janilla.net.Net;
 import com.janilla.net.Server;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
@@ -69,10 +76,17 @@ import com.janilla.web.ApplicationHandlerBuilder;
 import com.janilla.web.Handle;
 import com.janilla.web.Render;
 import com.janilla.web.RenderableFactory;
+import com.janilla.web.Renderer;
 
 public class WebsiteTemplate {
 
+	public static WebsiteTemplate INSTANCE;
+
 	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
+
+	protected static final Pattern ADMIN = Pattern.compile("/admin(/.*)?");
+
+	protected static final Pattern POSTS = Pattern.compile("/posts(/.*)?");
 
 	public static void main(String[] args) {
 		try {
@@ -86,17 +100,17 @@ public class WebsiteTemplate {
 					pp.load(Files.newInputStream(Path.of(p)));
 				}
 			}
-			var wt = new WebsiteTemplate(pp);
+			INSTANCE = new WebsiteTemplate(pp);
 			Server s;
 			{
 				var a = new InetSocketAddress(
-						Integer.parseInt(wt.configuration.getProperty("website-template.server.port")));
+						Integer.parseInt(INSTANCE.configuration.getProperty("website-template.server.port")));
 				SSLContext sc;
 				try (var is = Net.class.getResourceAsStream("testkeys")) {
 					sc = Net.getSSLContext("JKS", is, "passphrase".toCharArray());
 				}
-				var p = wt.factory.create(HttpProtocol.class,
-						Map.of("handler", wt.handler, "sslContext", sc, "useClientMode", false));
+				var p = INSTANCE.factory.create(HttpProtocol.class,
+						Map.of("handler", INSTANCE.handler, "sslContext", sc, "useClientMode", false));
 				s = new Server(a, p);
 			}
 			s.serve();
@@ -169,7 +183,39 @@ public class WebsiteTemplate {
 				return null;
 			}
 		}
-		return new Index(path.startsWith("/admin") ? "/admin.css" : "/style.css");
+		var m = ADMIN.matcher(path);
+		if (m.matches())
+			return new Index("/admin.css", null, Map.of());
+		m = POSTS.matcher(path);
+		Meta m2;
+		Map<String, Object> m3 = new LinkedHashMap<>();
+		m3.put("/api/redirects", persistence.crud(Redirect.class).read(persistence.crud(Redirect.class).list()));
+		m3.put("/api/header", persistence.crud(Header.class).read(1));
+		if (m.matches()) {
+			var c = ((DocumentCrud<Post>) persistence.crud(Post.class));
+			var d = DRAFTS.test(exchange);
+			if (m.groupCount() == 1) {
+				var pp = c.read(c.list(), d);
+				m2 = null;
+				m3.put("/api/posts", pp);
+			} else {
+				var s = m.group(1).substring(1);
+				var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
+				m2 = pp.get(0).meta();
+				m3.put("/api/posts?slug=" + s, pp);
+			}
+		} else {
+			var c = ((DocumentCrud<Page>) persistence.crud(Page.class));
+			var d = DRAFTS.test(exchange);
+			var s = path.substring(1);
+			if (s.isEmpty())
+				s = "home";
+			var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
+			m2 = pp.get(0).meta();
+			m3.put("/api/pages?slug=" + s, pp);
+		}
+		m3.put("/api/footer", persistence.crud(Footer.class).read(1));
+		return new Index("/style.css", m2, m3);
 	}
 
 	@Handle(method = "GET", path = "/api/schema")
@@ -182,49 +228,53 @@ public class WebsiteTemplate {
 		do {
 			var c = q.remove();
 //			System.out.println("WebsiteTemplate.schema, c=" + c);
+			var v = c.getAnnotation(Versions.class);
+			var d = v != null && v.drafts();
 			var m2 = new LinkedHashMap<String, Map<String, Object>>();
-			Reflection.properties(c).filter(x -> !skip.contains(x.name())).forEach(x -> {
+			Reflection.properties(c).filter(x -> !(skip.contains(x.name()) || (x.name().equals("publishedAt") && !d)))
+					.forEach(x -> {
 //				System.out.println("WebsiteTemplate.schema, x=" + x);
-				var m3 = new LinkedHashMap<String, Object>();
-				m3.put("type", f.apply(x.type().isEnum() ? String.class : x.type()));
-				List<Class<?>> cc;
-				if (x.type() == List.class) {
-					var c2 = (Class<?>) ((ParameterizedType) x.genericType()).getActualTypeArguments()[0];
-					var apt = x.annotatedType() instanceof AnnotatedParameterizedType y ? y : null;
-					var ta = apt != null ? apt.getAnnotatedActualTypeArguments()[0].getAnnotation(Types.class) : null;
-					if (c2 == Long.class) {
-						cc = List.of();
-						m3.put("elementTypes", List.of(f.apply(c2)));
-						if (ta != null)
-							m3.put("referenceType", f.apply(ta.value()[0]));
-					} else {
-						cc = ta != null ? Arrays.asList(ta.value())
-								: c2.isInterface() ? Arrays.asList(c2.getPermittedSubclasses()) : List.of(c2);
-						m3.put("elementTypes", cc.stream().map(f).toList());
-					}
-				} else if (x.type().getPackageName().startsWith("java.")) {
-					if (x.type() == Long.class) {
-						var ta = x.annotatedType().getAnnotation(Types.class);
-						if (ta != null)
-							m3.put("referenceType", f.apply(ta.value()[0]));
-					}
-					cc = List.of();
-				} else if (x.type() == Document.Reference.class) {
-					var ta = x.annotatedType().getAnnotation(Types.class);
-					if (ta != null)
-						m3.put("referenceTypes", Arrays.stream(ta.value()).map(f).toList());
-					cc = List.of();
-				} else if (x.type().isEnum()) {
-					m3.put("options",
-							Arrays.stream(x.type().getEnumConstants()).map(y -> ((Enum<?>) y).name()).toList());
-					cc = List.of();
-				} else if (!m1.containsKey(f.apply(x.type())))
-					cc = List.of(x.type());
-				else
-					cc = List.of();
-				m2.put(x.name(), m3);
-				q.addAll(cc);
-			});
+						var m3 = new LinkedHashMap<String, Object>();
+						m3.put("type", f.apply(x.type().isEnum() ? String.class : x.type()));
+						List<Class<?>> cc;
+						if (x.type() == List.class) {
+							var c2 = (Class<?>) ((ParameterizedType) x.genericType()).getActualTypeArguments()[0];
+							var apt = x.annotatedType() instanceof AnnotatedParameterizedType y ? y : null;
+							var ta = apt != null ? apt.getAnnotatedActualTypeArguments()[0].getAnnotation(Types.class)
+									: null;
+							if (c2 == Long.class) {
+								cc = List.of();
+								m3.put("elementTypes", List.of(f.apply(c2)));
+								if (ta != null)
+									m3.put("referenceType", f.apply(ta.value()[0]));
+							} else {
+								cc = ta != null ? Arrays.asList(ta.value())
+										: c2.isInterface() ? Arrays.asList(c2.getPermittedSubclasses()) : List.of(c2);
+								m3.put("elementTypes", cc.stream().map(f).toList());
+							}
+						} else if (x.type().getPackageName().startsWith("java.")) {
+							if (x.type() == Long.class) {
+								var ta = x.annotatedType().getAnnotation(Types.class);
+								if (ta != null)
+									m3.put("referenceType", f.apply(ta.value()[0]));
+							}
+							cc = List.of();
+						} else if (x.type() == Document.Reference.class) {
+							var ta = x.annotatedType().getAnnotation(Types.class);
+							if (ta != null)
+								m3.put("referenceTypes", Arrays.stream(ta.value()).map(f).toList());
+							cc = List.of();
+						} else if (x.type().isEnum()) {
+							m3.put("options",
+									Arrays.stream(x.type().getEnumConstants()).map(y -> ((Enum<?>) y).name()).toList());
+							cc = List.of();
+						} else if (!m1.containsKey(f.apply(x.type())))
+							cc = List.of(x.type());
+						else
+							cc = List.of();
+						m2.put(x.name(), m3);
+						q.addAll(cc);
+					});
 			m1.put(f.apply(c), m2);
 		} while (!q.isEmpty());
 		return m1.entrySet().stream().sorted(Map.Entry.comparingByKey())
@@ -297,6 +347,38 @@ public class WebsiteTemplate {
 	}
 
 	@Render(template = "index.html")
-	public record Index(String href) {
+	public record Index(String href, Meta meta, @Render(renderer = DataRenderer.class) Map<String, Object> data) {
+
+		public static final String SITE_NAME = "Janilla Website Template";
+
+		public String title() {
+			return Stream.of(meta != null ? meta.title() : null, SITE_NAME).filter(x -> x != null && !x.isBlank())
+					.collect(Collectors.joining(" | "));
+		}
+
+		public Stream<Map.@Render(template = "meta") Entry<String, String>> metaEntries() {
+			var r = HttpProtocol.HTTP_EXCHANGE.get().getRequest();
+			var m = meta != null && meta.image() != null ? INSTANCE.persistence.crud(Media.class).read(meta.image())
+					: null;
+			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
+					"og:description", meta != null ? meta.description() : null, "og:url",
+					r.getScheme() + "://" + r.getAuthority() + r.getTarget(), "og:site_name", SITE_NAME, "og:image",
+					m != null ? r.getScheme() + "://" + r.getAuthority() + m.url() : null, "og:type", "website")
+					.iterator();
+			return Stream.<Map.Entry<String, String>>iterate(null,
+					_ -> ss.hasNext() ? new AbstractMap.SimpleEntry<>(ss.next(), ss.next()) : null).skip(1)
+					.takeWhile(Objects::nonNull);
+		}
+	}
+
+	public static class DataRenderer<T> extends Renderer<T> {
+
+		@Override
+		public String apply(T value) {
+			var tt = INSTANCE.factory.create(ReflectionJsonIterator.class);
+			tt.setObject(value);
+			tt.setIncludeType(true);
+			return Json.format(tt);
+		}
 	}
 }

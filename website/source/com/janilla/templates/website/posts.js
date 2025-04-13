@@ -39,13 +39,21 @@ export default class Posts extends WebComponent {
 			this.removeChild(this.lastChild);
 	}
 
+	async computeState() {
+		const s = this.state;
+		delete s.posts;
+		s.posts = await this.closest("root-element").fetchData("/api/posts");
+		this.requestDisplay();
+	}
+
 	async updateDisplay() {
 		const s = this.state;
-		s.posts ??= await (await fetch("/api/posts")).json();
+		s.computeState ??= this.computeState();
+		this.closest("root-element").updateSeo(null);
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			total: s.posts.length,
-			cards: s.posts.map(x => ({
+			total: s.posts?.length ?? 0,
+			cards: s.posts?.map(x => ({
 				$template: "card",
 				...x
 			}))

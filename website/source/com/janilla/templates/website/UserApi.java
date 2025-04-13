@@ -25,7 +25,6 @@ package com.janilla.templates.website;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -44,11 +43,6 @@ public class UserApi extends CollectionApi<User> {
 
 	public UserApi() {
 		super(User.class, WebsiteTemplate.DRAFTS);
-	}
-
-	@Handle(method = "GET")
-	public List<User> read() {
-		return crud().read(crud().list());
 	}
 
 	@Handle(method = "POST", path = "login")

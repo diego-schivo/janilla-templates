@@ -2,6 +2,7 @@ root-element {
   display: flex;
   flex-direction: column;
   gap: 4rem;
+  min-height: 100vh;
 
   > header,
   > footer > div {
@@ -74,7 +75,8 @@ root-element {
   > footer {
     background: rgb(10, 10, 10);
     border-top: 1px solid rgba(38, 38, 38, 0.8);
-    margin-top: 2rem;
+    /*margin-top: 2rem;*/
+    margin-top: auto;
     /*padding: 2rem 1rem 0;*/
 
     > div,

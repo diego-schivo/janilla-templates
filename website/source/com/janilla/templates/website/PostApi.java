@@ -37,6 +37,11 @@ public class PostApi extends CollectionApi<Post> {
 		super(Post.class, WebsiteTemplate.DRAFTS);
 	}
 
+	@Override
+	public List<Post> read() {
+		throw new UnsupportedOperationException();
+	}
+
 	@Handle(method = "GET")
 	public List<Post> read(@Bind("slug") String slug, HttpExchange exchange) {
 		var d = drafts.test(exchange);

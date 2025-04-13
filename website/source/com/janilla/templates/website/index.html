@@ -3,12 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Website Template</title>
+    <title>${title}</title>
+    <!--${metaEntries}-->
     <link href="/images/favicon.svg" rel="icon" />
     <link href="${href}" rel="stylesheet" />
     <script type="module" src="/script.js"></script>
   </head>
   <body>
-    <root-element></root-element>
+    <root-element>
+      <script id="server-data" type="application/json">${data}</script>
+    </root-element>
   </body>
+
+  <template id="meta">
+    <meta name="${key}" content="${value}" />
+  </template>
 </html>

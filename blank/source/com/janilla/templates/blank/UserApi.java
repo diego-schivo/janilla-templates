@@ -23,7 +23,6 @@
  */
 package com.janilla.templates.blank;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -38,11 +37,6 @@ public class UserApi extends CollectionApi<User> {
 
 	public UserApi() {
 		super(User.class, null);
-	}
-
-	@Handle(method = "GET")
-	public List<User> read() {
-		return crud().read(crud().list());
 	}
 
 	@Handle(method = "POST", path = "login")

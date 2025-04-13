@@ -62,7 +62,6 @@ export default class FormBlock extends WebComponent {
 	}
 
 	async updateDisplay() {
-		console.log("this.isConnected", this.isConnected);
 		const s = this.state;
 		const d = this.closest("page-element").data(this.dataset.path);
 		if (s.submission && d.form.confirmationType === "REDIRECT") {
@@ -84,7 +83,7 @@ export default class FormBlock extends WebComponent {
 					control: (() => {
 						const t = x.$type.split(".")[1].toLowerCase();
 						return {
-							$template: t === "textarea" ? "textarea-control" : "input-control",
+							$template: t === "textarea" ? "cms-textarea" : "input-control",
 							...x,
 							type: t !== "text" ? t : null
 						};

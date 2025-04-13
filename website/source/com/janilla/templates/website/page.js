@@ -43,19 +43,33 @@ export default class Page extends WebComponent {
 			this.removeChild(this.lastChild);
 	}
 
-	async updateDisplay() {
+	attributeChangedCallback(name, oldValue, newValue) {
+		const s = this.state;
+		if (newValue !== oldValue && s?.computeState)
+			delete s.computeState;
+		super.attributeChangedCallback(name, oldValue, newValue);
+	}
+
+	async computeState() {
+		const s = this.state;
+		delete s.page;
 		const u = new URL("/api/pages", location.href);
 		u.searchParams.append("slug", this.dataset.slug);
+		s.page = (await this.closest("root-element").fetchData(u.pathname + u.search))[0];
+		this.requestDisplay();
+	}
+
+	async updateDisplay() {
 		const s = this.state;
-		s.page = (await (await fetch(u)).json())[0];
-		console.log("s.page", s.page);
+		s.computeState ??= this.computeState();
+		this.closest("root-element").updateSeo(s.page?.meta);
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			hero: s.page.hero.type === "NONE" ? null : {
+			hero: s.page?.hero && s.page.hero.type !== "NONE" ? {
 				$template: "hero",
 				path: "hero"
-			},
-			layout: s.page.layout.map((x, i) => ({
+			} : null,
+			layout: s.page?.layout?.map((x, i) => ({
 				$template: x.$type.split(/(?=[A-Z])/).map(x => x.toLowerCase()).join("-"),
 				path: `layout.${i}`
 			}))
@@ -63,7 +77,7 @@ export default class Page extends WebComponent {
 	}
 
 	data(path) {
-		console.log("this.state.page", this.state.page, "path", path);
+		// console.log("this.state.page", this.state.page, "path", path);
 		return path.split(".").reduce((x, n) => Array.isArray(x)
 			? x[parseInt(n)]
 			: typeof x === "object" && x !== null

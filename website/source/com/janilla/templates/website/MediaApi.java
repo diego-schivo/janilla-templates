@@ -24,7 +24,6 @@
 package com.janilla.templates.website;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Properties;
 
 import com.janilla.cms.CollectionApi;
@@ -38,11 +37,6 @@ public class MediaApi extends CollectionApi<Media> {
 
 	public MediaApi() {
 		super(Media.class, WebsiteTemplate.DRAFTS);
-	}
-
-	@Handle(method = "GET")
-	public List<Media> read() {
-		return crud().read(crud().list());
 	}
 
 	@Handle(method = "GET", path = "file/(.+)")

@@ -38,12 +38,7 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	}
 
 	label(path) {
-		switch (path) {
-			case "hero":
-			case "hero.richText":
-				return null;
-		}
-		return super.label(path);
+		return ["hero", "hero.richText", "meta"].includes(path) ? null : super.label(path);
 	}
 
 	headers(entitySlug) {
@@ -65,6 +60,8 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				case "message":
 				case "richText":
 					return "cms-rich-text";
+				case "type":
+					return field.options.length <= 2 ? "radio" : "select";
 			}
 		return super.controlTemplate(field);
 	}
@@ -73,14 +70,15 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		switch (type) {
 			case "Page":
 				return {
-					hero: ["hero"],
-					content: ["layout"]
+					Hero: ["hero"],
+					Content: ["layout"],
+					SEO: ["meta"]
 				};
 			case "Post":
 				return {
-					content: ["heroImage", "content"],
-					meta: ["relatedPosts", "categories"],
-					seo: ["meta"]
+					Content: ["heroImage", "content"],
+					Meta: ["relatedPosts", "categories"],
+					SEO: ["meta"]
 				};
 		}
 		return super.tabs(type);
@@ -97,10 +95,14 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	}
 
 	sidebar(type) {
-		if (["Page", "Post"].includes(type))
-			return ["publishedAt", "slug"];
-		if (type === "SearchResult")
-			return ["document"];
+		switch (type) {
+			case "Page":
+				return ["publishedAt", "slug"];
+			case "Post":
+				return ["publishedAt", "slug", "authors"];
+			case "SearchResult":
+				return ["document"];
+		}
 		return super.sidebar(type);
 	}
 
