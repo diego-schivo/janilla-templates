@@ -14,7 +14,14 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.janilla.templates.blank.BlankTemplate</mainClass>
+					<executable>java</executable>
+					<arguments>
+						<argument>--enable-preview</argument>
+						<argument>-p</argument>
+						<modulepath/>
+						<argument>-m</argument>
+						<argument>com.janilla.templates.blank/com.janilla.templates.blank.BlankTemplate</argument>
+					</arguments>
 				</configuration>
 			</plugin>
 		</plugins>
