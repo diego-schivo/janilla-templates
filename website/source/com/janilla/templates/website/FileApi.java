@@ -24,17 +24,12 @@
 package com.janilla.templates.website;
 
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.IntStream;
 
+import com.janilla.cms.Cms;
 import com.janilla.http.HttpRequest;
-import com.janilla.net.Net;
-import com.janilla.util.Util;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/files")
@@ -44,31 +39,14 @@ public class FileApi {
 
 	@Handle(method = "POST", path = "upload")
 	public void create(HttpRequest request) throws IOException {
-		byte[][] bbb;
-		{
-			var b = request.getHeaderValue("content-type").split(";")[1].trim().substring("boundary=".length());
-			var ch = (ReadableByteChannel) request.getBody();
-			var bb = Channels.newInputStream(ch).readAllBytes();
-			var s = ("--" + b).getBytes();
-			var ii = Util.findIndexes(bb, s);
-			bbb = IntStream.range(0, ii.length - 1)
-					.mapToObj(i -> Arrays.copyOfRange(bb, ii[i] + s.length + 2, ii[i + 1] - 2)).toArray(byte[][]::new);
-		}
-		for (var bb : bbb) {
-			var i = Util.findIndexes(bb, "\r\n\r\n".getBytes(), 1)[0];
-			var hh = Net.parseEntryList(new String(bb, 0, i), "\r\n", ":");
-			var n = Arrays.stream(hh.get("Content-Disposition").split(";")).map(String::trim)
-					.filter(x -> x.startsWith("filename=")).map(x -> x.substring(x.indexOf('=') + 1))
-					.map(x -> x.startsWith("\"") && x.endsWith("\"") ? x.substring(1, x.length() - 1) : x).findFirst()
-					.orElseThrow();
-			bb = Arrays.copyOfRange(bb, i + 4, bb.length);
+		for (var kv : Cms.files(request).entrySet()) {
 			var ud = configuration.getProperty("website-template.upload.directory");
 			if (ud.startsWith("~"))
 				ud = System.getProperty("user.home") + ud.substring(1);
 			var p = Path.of(ud);
 			if (!Files.exists(p))
 				Files.createDirectories(p);
-			Files.write(p.resolve(n), bb);
+			Files.write(p.resolve(kv.getKey()), kv.getValue());
 		}
 	}
 }

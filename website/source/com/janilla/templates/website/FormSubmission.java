@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.Types;
 import com.janilla.persistence.Store;
 
 @Store

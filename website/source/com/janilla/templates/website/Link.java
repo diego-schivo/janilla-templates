@@ -24,6 +24,7 @@
 package com.janilla.templates.website;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.Types;
 import com.janilla.persistence.Index;
 
 public record Link(Type type, Boolean newTab, @Index Document.@Types( {

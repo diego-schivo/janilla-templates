@@ -1,5 +1,6 @@
 @charset "UTF-8";
 @import "base.css";
 
-@import "admin.css";
+@import "not-found.css";
+@import "page.css";
 @import "root.css";

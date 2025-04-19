@@ -55,8 +55,31 @@ export default class Page extends WebComponent {
 		delete s.page;
 		const u = new URL("/api/pages", location.href);
 		u.searchParams.append("slug", this.dataset.slug);
-		s.page = (await this.closest("root-element").fetchData(u.pathname + u.search))[0];
-		this.requestDisplay();
+		const r = this.closest("root-element");
+		s.page = (await r.fetchData(u.pathname + u.search))[0];
+		if (!s.page && this.dataset.slug === "home")
+			s.page = {
+				layout: [
+					{
+						$type: "Content",
+						columns: [
+							{
+								$type: "Column",
+								size: "FULL",
+								richText: `<h1>Janilla Website Template</h1>
+<p>
+  <a href="/admin">Visit the admin dashboard</a>
+  to make your account and seed content for your website.
+</p>`
+							}
+						]
+					}
+				]
+			};
+		if (s.page)
+			this.requestDisplay();
+		else
+			r.notFound();
 	}
 
 	async updateDisplay() {

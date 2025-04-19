@@ -23,6 +23,9 @@
  */
 import { WebComponent } from "./web-component.js";
 
+const adminRegex = /^\/admin(\/.*)?$/;
+const postsRegex = /^\/posts(\/.*)?$/;
+
 export default class Root extends WebComponent {
 
 	static get templateName() {
@@ -56,14 +59,17 @@ export default class Root extends WebComponent {
 		const a = event.target.closest("a");
 		if (!a?.href || event.defaultPrevented || a.target)
 			return;
-		event.preventDefault();
 		const u = new URL(a.href);
+		if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
+			return;
+		event.preventDefault();
 		history.pushState(undefined, "", u.pathname + u.search);
 		dispatchEvent(new CustomEvent("popstate"));
 		window.scrollTo(0, 0);
 	}
 
 	handlePopState = () => {
+		delete this.state.notFound;
 		this.requestDisplay();
 	}
 
@@ -80,16 +86,19 @@ export default class Root extends WebComponent {
 	}
 
 	async updateDisplay() {
-		const m = location.pathname.match(/^\/admin(\/.*)?$/);
+		const s = this.state;
+		const m = location.pathname.match(adminRegex);
 		if (m) {
 			this.appendChild(this.interpolateDom({
-				$template: "admin",
-				email: this.querySelector("cms-admin")?.state?.me?.email,
-				path: m[1] ?? "/"
+				$template: "",
+				admin: {
+					$template: "admin",
+					email: this.querySelector("cms-admin")?.state?.me?.email,
+					path: m[1] ?? "/"
+				}
 			}));
 			return;
 		}
-		const s = this.state;
 		s.computeState ??= this.computeState();
 		if (s.redirects)
 			for (const x of s.redirects)
@@ -128,8 +137,8 @@ export default class Root extends WebComponent {
 				$template: "header",
 				navItems: s.header.navItems?.map(link)
 			} : null,
-			content: (() => {
-				const m2 = location.pathname.match(/^\/posts(\/.*)?$/);
+			content: s.notFound ? { $template: "not-found" } : (() => {
+				const m2 = location.pathname.match(postsRegex);
 				if (m2)
 					return m2[1] ? {
 						$template: "post",
@@ -179,5 +188,10 @@ export default class Root extends WebComponent {
 		const v = this.#serverData[key];
 		delete this.#serverData[key];
 		return v;
+	}
+
+	notFound() {
+		this.state.notFound = true;
+		this.requestDisplay();
 	}
 }

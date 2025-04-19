@@ -21,22 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+import { WebComponent } from "./web-component.js";
 
-import java.time.Instant;
-import java.util.List;
+export default class Page extends WebComponent {
 
-import com.janilla.cms.Document;
-import com.janilla.cms.Types;
-import com.janilla.cms.Versions;
-import com.janilla.persistence.Index;
-import com.janilla.persistence.Store;
+	static get observedAttributes() {
+		return ["data-slug"];
+	}
 
-@Store
-@Index(sort = "-createdAt")
-@Versions(drafts = true)
-public record Page(Long id, String title, Hero hero, List<@Types( {
-		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
-		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status status,
-		Instant publishedAt) implements Document{
+	static get templateName() {
+		return "page";
+	}
+
+	constructor() {
+		super();
+	}
+
+	async updateDisplay() {
+		if (this.dataset.slug === "home")
+			this.appendChild(this.interpolateDom({ $template: "" }));
+		else
+			this.closest("root-element").notFound();
+	}
 }

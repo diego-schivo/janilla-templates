@@ -23,6 +23,8 @@
  */
 import { WebComponent } from "./web-component.js";
 
+const adminRegex = /^\/admin(\/.*)?$/;
+
 export default class Root extends WebComponent {
 
 	static get templateName() {
@@ -33,17 +35,64 @@ export default class Root extends WebComponent {
 		super();
 	}
 
+	connectedCallback() {
+		super.connectedCallback();
+		this.addEventListener("click", this.handleClick);
+		addEventListener("popstate", this.handlePopState);
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.removeEventListener("click", this.handleClick);
+		removeEventListener("popstate", this.handlePopState);
+	}
+
+	handleClick = event => {
+		const a = event.target.closest("a");
+		if (!a?.href || event.defaultPrevented || a.target)
+			return;
+		const u = new URL(a.href);
+		if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
+			return;
+		event.preventDefault();
+		history.pushState(undefined, "", u.pathname + u.search);
+		dispatchEvent(new CustomEvent("popstate"));
+		window.scrollTo(0, 0);
+	}
+
+	handlePopState = () => {
+		delete this.state.notFound;
+		this.requestDisplay();
+	}
+
 	async updateDisplay() {
-		const m = location.pathname.match(/^\/admin(\/.*)?$/);
-		this.appendChild(this.interpolateDom(m ? {
-			$template: "admin",
-			path: (() => {
-				if (m[1]?.startsWith("/collections/") || m[1]?.startsWith("/globals/")) {
-					const s = m[1].substring(1);
-					return s.split("/").map(x => x.split("-").map((y, i) => i ? y.charAt(0).toUpperCase() + y.substring(1) : y).join("")).join(".");
+		const s = this.state;
+		const m = location.pathname.match(adminRegex);
+		if (m) {
+			this.appendChild(this.interpolateDom({
+				$template: "",
+				admin: {
+					$template: "admin",
+					email: this.querySelector("cms-admin")?.state?.me?.email,
+					path: m[1] ?? "/"
 				}
-				return null;
-			})()
-		} : { $template: "" }));
+			}));
+			return;
+		}
+		this.appendChild(this.interpolateDom({
+			$template: "",
+			content: s.notFound ? { $template: "not-found" } : {
+				$template: "page",
+				slug: (() => {
+					const s2 = location.pathname.substring(1);
+					return s2 ? s2 : "home";
+				})()
+			}
+		}));
+	}
+
+	notFound() {
+		this.state.notFound = true;
+		this.requestDisplay();
 	}
 }

@@ -21,22 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
-import java.time.Instant;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-import com.janilla.cms.Document;
-import com.janilla.cms.Types;
-import com.janilla.cms.Versions;
-import com.janilla.persistence.Index;
-import com.janilla.persistence.Store;
+import com.janilla.web.ApplicationHandlerBuilder;
+import com.janilla.web.ResourceHandlerFactory;
+import com.janilla.web.WebHandlerFactory;
 
-@Store
-@Index(sort = "-createdAt")
-@Versions(drafts = true)
-public record Page(Long id, String title, Hero hero, List<@Types( {
-		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
-		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status status,
-		Instant publishedAt) implements Document{
+public class CustomApplicationHandlerBuilder extends ApplicationHandlerBuilder {
+
+	@Override
+	protected Stream<WebHandlerFactory> buildFactories() {
+		var ff = super.buildFactories().collect(Collectors.toCollection(ArrayList::new));
+		var i = IntStream.range(0, ff.size()).filter(x -> ff.get(x) instanceof ResourceHandlerFactory).findFirst()
+				.getAsInt();
+		ff.add(i, factory.create(CmsResourceHandlerFactory.class));
+		return ff.stream();
+	}
 }

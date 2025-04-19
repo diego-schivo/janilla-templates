@@ -21,22 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
-import java.time.Instant;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
-import com.janilla.cms.Document;
-import com.janilla.cms.Types;
-import com.janilla.cms.Versions;
-import com.janilla.persistence.Index;
-import com.janilla.persistence.Store;
+import com.janilla.cms.Cms;
+import com.janilla.http.HttpRequest;
+import com.janilla.web.Handle;
 
-@Store
-@Index(sort = "-createdAt")
-@Versions(drafts = true)
-public record Page(Long id, String title, Hero hero, List<@Types( {
-		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
-		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status status,
-		Instant publishedAt) implements Document{
+@Handle(path = "/api/files")
+public class FileApi {
+
+	public Properties configuration;
+
+	@Handle(method = "POST", path = "upload")
+	public void create(HttpRequest request) throws IOException {
+		for (var kv : Cms.files(request).entrySet()) {
+			var ud = configuration.getProperty("blank-template.upload.directory");
+			if (ud.startsWith("~"))
+				ud = System.getProperty("user.home") + ud.substring(1);
+			var p = Path.of(ud);
+			if (!Files.exists(p))
+				Files.createDirectories(p);
+			Files.write(p.resolve(kv.getKey()), kv.getValue());
+		}
+	}
 }

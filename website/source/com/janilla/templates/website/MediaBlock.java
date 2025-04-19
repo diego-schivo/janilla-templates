@@ -23,5 +23,7 @@
  */
 package com.janilla.templates.website;
 
+import com.janilla.cms.Types;
+
 public record MediaBlock(@Types(Media.class) Long media) {
 }

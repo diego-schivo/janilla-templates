@@ -21,20 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
 import java.util.Properties;
 import java.util.Set;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.json.MapAndType;
-import com.janilla.web.ForbiddenException;
 import com.janilla.web.HandleException;
 import com.janilla.web.MethodHandlerFactory;
 
 public class CustomMethodHandlerFactory extends MethodHandlerFactory {
-
-	protected static final Set<String> FORM_SUBMISSION_POST = Set.of("/api/form-submissions");
 
 	protected static final Set<String> USER_POST = Set.of("/api/users/first-register", "/api/users/forgot-password",
 			"/api/users/login", "/api/users/reset-password");
@@ -47,13 +44,11 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 	protected void handle(Invocation invocation, HttpExchange exchange) {
 		var rq = exchange.getRequest();
 		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
-			if (rq.getPath().startsWith("/api/search-results"))
-				throw new ForbiddenException("Forbidden");
-			else if (!FORM_SUBMISSION_POST.contains(rq.getPath()) && !USER_POST.contains(rq.getPath()))
+			if (!USER_POST.contains(rq.getPath()))
 				((CustomHttpExchange) exchange).requireSessionEmail();
 		}
 
-		if (Boolean.parseBoolean(configuration.getProperty("website-template.live-demo")))
+		if (Boolean.parseBoolean(configuration.getProperty("blank-template.live-demo")))
 			if (!rq.getMethod().equals("GET") && !USER_POST.contains(rq.getPath()))
 				throw new HandleException(new MethodBlockedException());
 

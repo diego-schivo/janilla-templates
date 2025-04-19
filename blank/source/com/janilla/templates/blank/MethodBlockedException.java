@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.janilla.web.Error;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE_USE })
-public @interface Types {
+@Error(code = 403, text = "Forbidden")
+public class MethodBlockedException extends RuntimeException {
 
-	Class<?>[] value();
+	private static final long serialVersionUID = 8550988927750553715L;
+
+	public MethodBlockedException() {
+		super("The requested action is disabled on this public server: please set up and run the application locally");
+	}
 }

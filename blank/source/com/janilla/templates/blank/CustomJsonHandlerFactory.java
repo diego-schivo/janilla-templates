@@ -21,22 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
-import java.time.Instant;
-import java.util.List;
+import java.util.Iterator;
 
-import com.janilla.cms.Document;
-import com.janilla.cms.Types;
-import com.janilla.cms.Versions;
-import com.janilla.persistence.Index;
-import com.janilla.persistence.Store;
+import com.janilla.http.HttpExchange;
+import com.janilla.json.JsonToken;
+import com.janilla.json.ReflectionJsonIterator;
+import com.janilla.reflect.Factory;
+import com.janilla.web.JsonHandlerFactory;
 
-@Store
-@Index(sort = "-createdAt")
-@Versions(drafts = true)
-public record Page(Long id, String title, Hero hero, List<@Types( {
-		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
-		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status status,
-		Instant publishedAt) implements Document{
+public class CustomJsonHandlerFactory extends JsonHandlerFactory {
+
+	public Factory factory;
+
+	@Override
+	protected Iterator<JsonToken<?>> buildJsonIterator(Object object, HttpExchange exchange) {
+		var x = factory.create(ReflectionJsonIterator.class);
+		x.setObject(object);
+		x.setIncludeType(true);
+		return x;
+	}
 }

@@ -23,5 +23,7 @@
  */
 package com.janilla.templates.website;
 
+import com.janilla.cms.Types;
+
 public record FormBlock(@Types(Form.class) Long form, Boolean enableIntro, String introContent) {
 }

@@ -23,14 +23,28 @@
  */
 package com.janilla.templates.blank;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.nio.file.Path;
+import java.util.Properties;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE_USE })
-public @interface Types {
+import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpResponse;
+import com.janilla.web.Handle;
 
-	Class<?>[] value();
+@Handle(path = "/api/media")
+public class MediaApi extends CollectionApi<Media> {
+
+	public Properties configuration;
+
+	public MediaApi() {
+		super(Media.class, BlankTemplate.DRAFTS);
+	}
+
+	@Handle(method = "GET", path = "file/(.+)")
+	public void file(Path path, HttpResponse response) {
+		var ud = configuration.getProperty("blank-template.upload.directory");
+		if (ud.startsWith("~"))
+			ud = System.getProperty("user.home") + ud.substring(1);
+		var f = Path.of(ud).resolve(path.getFileName());
+		CmsResourceHandlerFactory.handle(f, response);
+	}
 }

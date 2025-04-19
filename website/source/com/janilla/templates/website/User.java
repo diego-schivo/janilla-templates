@@ -35,12 +35,10 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import com.janilla.cms.Document;
-import com.janilla.cms.Versions;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Versions
 public record User(Long id, String name, @Index String email, String salt, String hash,
 		@Index String resetPasswordToken, Instant resetPasswordExpiration, Instant createdAt, Instant updatedAt,
 		Document.Status status, Instant publishedAt) implements Document {
