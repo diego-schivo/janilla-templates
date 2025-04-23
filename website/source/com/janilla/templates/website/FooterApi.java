@@ -30,6 +30,6 @@ import com.janilla.web.Handle;
 public class FooterApi extends GlobalApi<Footer> {
 
 	public FooterApi() {
-		super(Footer.class);
+		super(Footer.class, WebsiteTemplate.DRAFTS);
 	}
 }

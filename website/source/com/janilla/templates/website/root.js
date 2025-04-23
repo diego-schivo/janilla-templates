@@ -183,11 +183,12 @@ export default class Root extends WebComponent {
 	}
 
 	async fetchData(key) {
-		if (!Object.hasOwn(this.#serverData, key))
-			return await (await fetch(key)).json();
-		const v = this.#serverData[key];
-		delete this.#serverData[key];
-		return v;
+		if (Object.hasOwn(this.#serverData, key)) {
+			const v = this.#serverData[key];
+			delete this.#serverData[key];
+			return v;
+		}
+		return await (await fetch(key)).json();
 	}
 
 	notFound() {

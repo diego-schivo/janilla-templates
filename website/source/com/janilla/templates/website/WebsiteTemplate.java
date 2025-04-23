@@ -266,7 +266,11 @@ public class WebsiteTemplate {
 		if (!u.toString().startsWith("jar:"))
 			u = URI.create("jar:" + u);
 		var s = IO.zipFileSystem(u).getPath("/");
-		var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
+//		var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
+		var ud = configuration.getProperty("website-template.upload.directory");
+		if (ud.startsWith("~"))
+			ud = System.getProperty("user.home") + ud.substring(1);
+		var d = Files.createDirectories(Path.of(ud));
 		Files.walkFileTree(s, new SimpleFileVisitor<>() {
 
 			@Override

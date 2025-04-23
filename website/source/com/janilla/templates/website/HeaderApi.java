@@ -30,6 +30,6 @@ import com.janilla.web.Handle;
 public class HeaderApi extends GlobalApi<Header> {
 
 	public HeaderApi() {
-		super(Header.class);
+		super(Header.class, WebsiteTemplate.DRAFTS);
 	}
 }
