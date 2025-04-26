@@ -22,7 +22,7 @@ posts-element {
     margin-bottom: 3rem;
 
     & + p {
-      color: rgb(248, 250, 252);
+      color: light-dark(rgb(7, 5, 3), rgb(248, 250, 252));
       font-weight: 600;
       margin-bottom: 1rem;
     }

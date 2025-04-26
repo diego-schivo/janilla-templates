@@ -29,7 +29,7 @@ root-element {
     z-index: 20;
 
     a {
-      color: rgb(255, 255, 255);
+      color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));
       font-size: 0.875rem;
       font-weight: 500;
       line-height: 1.25rem;
@@ -73,7 +73,7 @@ root-element {
   }
 
   > footer {
-    background: rgb(10, 10, 10);
+    background: light-dark(rgb(245, 245, 245), rgb(10, 10, 10));
     border-top: 1px solid rgba(38, 38, 38, 0.8);
     /*margin-top: 2rem;*/
     margin-top: auto;

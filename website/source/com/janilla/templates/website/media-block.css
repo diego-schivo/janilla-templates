@@ -12,7 +12,7 @@ media-block {
   }
 
   a {
-    color: rgb(255, 255, 255);
+    color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));
     font-weight: 500;
   }
 }

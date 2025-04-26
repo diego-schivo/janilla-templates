@@ -34,7 +34,7 @@ form-block {
   }
 
   label {
-    color: rgb(248, 250, 252);
+    color: light-dark(rgb(7, 5, 3), rgb(248, 250, 252));
     font-size: 0.875rem;
     font-weight: 500;
     gap: 0.25rem;
