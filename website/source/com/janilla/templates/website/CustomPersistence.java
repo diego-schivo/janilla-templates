@@ -23,7 +23,17 @@
  */
 package com.janilla.templates.website;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,13 +41,21 @@ import com.janilla.cms.CmsPersistence;
 import com.janilla.cms.Document;
 import com.janilla.cms.Types;
 import com.janilla.database.Database;
+import com.janilla.io.IO;
+import com.janilla.json.Converter;
+import com.janilla.json.Json;
 import com.janilla.json.MapAndType.TypeResolver;
 import com.janilla.persistence.Crud;
+import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
 
 public class CustomPersistence extends CmsPersistence {
 
 	private Crud.Observer searchObserver;
+
+	public Properties configuration;
+
+	public Factory factory;
 
 	public CustomPersistence(Database database, Iterable<Class<?>> types, TypeResolver typeResolver) {
 		super(database, types, typeResolver);
@@ -109,5 +127,73 @@ public class CustomPersistence extends CmsPersistence {
 		if (x != null)
 			x.observers().add(searchObserver());
 		return x;
+	}
+
+	public void seed() throws IOException {
+		for (var t : new Class<?>[] { Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
+				Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class }) {
+			database.perform((ss, _) -> {
+				var c = crud(t);
+				c.delete(c.list()).forEach(_ -> {
+				});
+				ss.perform(t.getSimpleName(), s -> {
+					s.getAttributes().clear();
+					return null;
+				});
+				return null;
+			}, true);
+		}
+
+		SeedData sd;
+		try (var is = getClass().getResourceAsStream("seed-data.json")) {
+			var s = new String(is.readAllBytes());
+			var o = Json.parse(s);
+			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
+		}
+		for (var x : sd.pages())
+			crud(Page.class).create(x);
+		for (var x : sd.posts())
+			crud(Post.class).create(x);
+		for (var x : sd.media())
+			crud(Media.class).create(x);
+		for (var x : sd.categories())
+			crud(Category.class).create(x);
+		for (var x : sd.users())
+			crud(User.class).create(x);
+		for (var x : sd.redirects())
+			crud(Redirect.class).create(x);
+		for (var x : sd.forms())
+			crud(Form.class).create(x);
+		for (var x : sd.formSubmissions())
+			crud(FormSubmission.class).create(x);
+		for (var x : sd.searchResults())
+			crud(SearchResult.class).create(x);
+		crud(Header.class).create(sd.header());
+		crud(Footer.class).create(sd.footer());
+
+		var r = getClass().getResource("seed-data.zip");
+		URI u;
+		try {
+			u = r.toURI();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		if (!u.toString().startsWith("jar:"))
+			u = URI.create("jar:" + u);
+		var s = IO.zipFileSystem(u).getPath("/");
+//		var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
+		var ud = configuration.getProperty("website-template.upload.directory");
+		if (ud.startsWith("~"))
+			ud = System.getProperty("user.home") + ud.substring(1);
+		var d = Files.createDirectories(Path.of(ud));
+		Files.walkFileTree(s, new SimpleFileVisitor<>() {
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				var t = d.resolve(s.relativize(file).toString());
+				Files.copy(file, t, StandardCopyOption.REPLACE_EXISTING);
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 }
