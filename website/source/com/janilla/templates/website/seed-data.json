@@ -11,14 +11,16 @@
 				"links": [
 					{
 						"$type": "Link",
-						"url": "/posts",
-						"label": "All posts",
+						"type": "CUSTOM",
+						"uri": "/posts",
+						"text": "All posts",
 						"appearance": "DEFAULT"
 					},
 					{
 						"$type": "Link",
-						"url": "/contact",
-						"label": "Contact",
+						"type": "CUSTOM",
+						"uri": "/contact",
+						"text": "Contact",
 						"appearance": "OUTLINE"
 					}
 				],
@@ -74,8 +76,9 @@
 					"links": [
 						{
 							"$type": "Link",
-							"url": "/posts",
-							"label": "All posts",
+							"type": "CUSTOM",
+							"uri": "/posts",
+							"text": "All posts",
 							"appearance": "DEFAULT"
 						}
 					]
@@ -412,8 +415,8 @@
 			{
 				"$type": "Link",
 				"type": "CUSTOM",
-				"url": "/posts",
-				"label": "Posts"
+				"uri": "/posts",
+				"text": "Posts"
 			},
 			{
 				"$type": "Link",
@@ -423,7 +426,7 @@
 					"type": "Page",
 					"id": 2
 				},
-				"label": "Contact"
+				"text": "Contact"
 			}
 		]
 	},
@@ -433,18 +436,21 @@
 		"navItems": [
 			{
 				"$type": "Link",
-				"url": "/admin",
-				"label": "Admin"
+				"type": "CUSTOM",
+				"uri": "/admin",
+				"text": "Admin"
 			},
 			{
 				"$type": "Link",
-				"url": "https://github.com/diego-schivo/website-template",
-				"label": "Source Code"
+				"type": "CUSTOM",
+				"uri": "https://github.com/diego-schivo/website-template",
+				"text": "Source Code"
 			},
 			{
 				"$type": "Link",
-				"url": "https://janilla.com/",
-				"label": "Janilla"
+				"type": "CUSTOM",
+				"uri": "https://janilla.com/",
+				"text": "Janilla"
 			}
 		]
 	}

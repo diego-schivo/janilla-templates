@@ -121,13 +121,13 @@ export default class Root extends WebComponent {
 					}
 					break;
 				case "CUSTOM":
-					h = x.url;
+					h = x.uri;
 					break;
 			}
 			return {
 				$template: "link",
+				...x,
 				href: h,
-				text: x.label,
 				target: x.newTab ? "_blank" : null
 			};
 		};
@@ -173,7 +173,7 @@ export default class Root extends WebComponent {
 			"og:description": d,
 			"og:url": location.href,
 			"og:site_name": sn,
-			"og:image": meta?.image?.url ? `${location.protocol}://${location.host}${meta.image.url}` : null,
+			"og:image": meta?.image?.uri ? `${location.protocol}://${location.host}${meta.image.uri}` : null,
 			"og:type": "website"
 		}))
 			if (k === "title")

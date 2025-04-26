@@ -32,7 +32,7 @@ import com.janilla.persistence.Store;
 public record Media(Long id, File file, String alt, String caption, Instant createdAt, Instant updatedAt,
 		Document.Status status, Instant publishedAt) implements Document {
 
-	public String url() {
+	public String uri() {
 		return file != null ? ("/images/" + file.name()) : null;
 	}
 }

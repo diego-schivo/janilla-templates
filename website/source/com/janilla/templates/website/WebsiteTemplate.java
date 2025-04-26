@@ -299,7 +299,7 @@ public class WebsiteTemplate {
 			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
 					"og:description", meta != null ? meta.description() : null, "og:url",
 					r.getScheme() + "://" + r.getAuthority() + r.getTarget(), "og:site_name", SITE_NAME, "og:image",
-					m != null ? r.getScheme() + "://" + r.getAuthority() + m.url() : null, "og:type", "website")
+					m != null ? r.getScheme() + "://" + r.getAuthority() + m.uri() : null, "og:type", "website")
 					.iterator();
 			return Stream.<Map.Entry<String, String>>iterate(null,
 					_ -> ss.hasNext() ? new AbstractMap.SimpleEntry<>(ss.next(), ss.next()) : null).skip(1)
