@@ -90,7 +90,7 @@ public class WebsiteTemplate {
 					pp.load(Files.newInputStream(Path.of(p)));
 				}
 			}
-			INSTANCE = new WebsiteTemplate(pp);
+			new WebsiteTemplate(pp);
 			Server s;
 			{
 				var a = new InetSocketAddress(
@@ -128,6 +128,7 @@ public class WebsiteTemplate {
 	public Iterable<Class<?>> types;
 
 	public WebsiteTemplate(Properties configuration) {
+		INSTANCE = this;
 		this.configuration = configuration;
 		types = Util.getPackageClasses(getClass().getPackageName()).toList();
 		factory = new Factory(types, this);

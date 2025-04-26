@@ -36,8 +36,10 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
 	protected static final Set<String> FORM_SUBMISSION_POST = Set.of("/api/form-submissions");
 
+	protected static final Set<String> USER_LOGIN_LOGOUT = Set.of("/api/users/login", "/api/users/logout");
+
 	protected static final Set<String> USER_POST = Set.of("/api/users/first-register", "/api/users/forgot-password",
-			"/api/users/login", "/api/users/reset-password");
+			"/api/users/login", "/api/users/logout", "/api/users/reset-password");
 
 	public Properties configuration;
 
@@ -54,7 +56,7 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 		}
 
 		if (Boolean.parseBoolean(configuration.getProperty("website-template.live-demo")))
-			if (!rq.getMethod().equals("GET") && !USER_POST.contains(rq.getPath()))
+			if (!rq.getMethod().equals("GET") && !USER_LOGIN_LOGOUT.contains(rq.getPath()))
 				throw new HandleException(new MethodBlockedException());
 
 //		if (rq.getPath().startsWith("/api/"))
