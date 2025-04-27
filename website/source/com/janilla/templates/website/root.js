@@ -45,14 +45,27 @@ export default class Root extends WebComponent {
 			this.#serverData = JSON.parse(el.text);
 		}
 		super.connectedCallback();
+		this.addEventListener("change", this.handleChange);
 		this.addEventListener("click", this.handleClick);
 		addEventListener("popstate", this.handlePopState);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.removeEventListener("change", this.handleChange);
 		this.removeEventListener("click", this.handleClick);
 		removeEventListener("popstate", this.handlePopState);
+	}
+
+	handleChange = event => {
+		const el = event.target.closest("select");
+		if (el?.closest("footer")) {
+			if (el.value === "auto")
+				localStorage.removeItem("janilla-templates.website.color-scheme");
+			else
+				localStorage.setItem("janilla-templates.website.color-scheme", el.value);
+			this.requestDisplay();
+		}
 	}
 
 	handleClick = event => {
@@ -131,8 +144,10 @@ export default class Root extends WebComponent {
 				target: x.newTab ? "_blank" : null
 			};
 		};
+		const cs = localStorage.getItem("janilla-templates.website.color-scheme");
 		this.appendChild(this.interpolateDom({
 			$template: "",
+			style: `color-scheme: ${cs ?? "light dark"}`,
 			header: s.header ? {
 				$template: "header",
 				navItems: s.header.navItems?.map(link)
@@ -157,7 +172,13 @@ export default class Root extends WebComponent {
 			})(),
 			footer: s.footer ? {
 				$template: "footer",
-				navItems: s.footer.navItems?.map(link)
+				navItems: s.footer.navItems?.map(link),
+				options: ["auto", "light", "dark"].map(x => ({
+					$template: "option",
+					value: x,
+					text: x.charAt(0).toUpperCase() + x.substring(1),
+					selected: x === cs ?? "auto"
+				}))
 			} : null
 		}));
 	}

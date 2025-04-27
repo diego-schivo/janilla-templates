@@ -34,12 +34,10 @@ import com.janilla.web.MethodHandlerFactory;
 
 public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
-	protected static final Set<String> FORM_SUBMISSION_POST = Set.of("/api/form-submissions");
+	protected static final Set<String> GUEST_POST = Set.of("/api/form-submissions", "/api/users/first-register",
+			"/api/users/forgot-password", "/api/users/login", "/api/users/reset-password");
 
 	protected static final Set<String> USER_LOGIN_LOGOUT = Set.of("/api/users/login", "/api/users/logout");
-
-	protected static final Set<String> USER_POST = Set.of("/api/users/first-register", "/api/users/forgot-password",
-			"/api/users/login", "/api/users/logout", "/api/users/reset-password");
 
 	public Properties configuration;
 
@@ -51,7 +49,7 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
 			if (rq.getPath().startsWith("/api/search-results"))
 				throw new ForbiddenException("Forbidden");
-			else if (!FORM_SUBMISSION_POST.contains(rq.getPath()) && !USER_POST.contains(rq.getPath()))
+			else if (!GUEST_POST.contains(rq.getPath()))
 				((CustomHttpExchange) exchange).requireSessionEmail();
 		}
 

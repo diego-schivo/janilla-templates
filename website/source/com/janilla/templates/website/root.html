@@ -1,7 +1,9 @@
 <!--${admin}-->
-<!--${header}-->
-<!--${content}-->
-<!--${footer}-->
+<div style="${style}">
+  <!--${header}-->
+  <!--${content}-->
+  <!--${footer}-->
+</div>
 
 <template id="admin">
   <cms-admin data-email="${email}" data-path="${path}"></cms-admin>
@@ -57,12 +59,14 @@
       </nav>
       <div>
         <select>
-          <option value="auto">Auto</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
+          <!--${options}-->
         </select>
         <lucide-icon data-name="chevron-down"></lucide-icon>
       </div>
     </div>
   </footer>
+</template>
+
+<template id="option">
+  <option value="${value}" selected="${selected}">${text}</option>
 </template>
