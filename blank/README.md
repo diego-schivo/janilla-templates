@@ -20,7 +20,7 @@ Then open a browser and navigate to <https://localhost:8443/>.
 
 ### Set up the project in an IDE
 
-So far the project has been developed with [Eclipse IDE](https://eclipseide.org/):
+[Eclipse IDE](https://eclipseide.org/):
 
 1. download the [Eclipse Installer](https://www.eclipse.org/downloads/packages/installer)
 2. install the package for Enterprise Java and Web Developers with JRE 24
