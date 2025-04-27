@@ -177,7 +177,7 @@ export default class Root extends WebComponent {
 					$template: "option",
 					value: x,
 					text: x.charAt(0).toUpperCase() + x.substring(1),
-					selected: x === cs ?? "auto"
+					selected: x === (cs ?? "auto")
 				}))
 			} : null
 		}));
