@@ -43,12 +43,11 @@ import com.janilla.cms.Cms;
 import com.janilla.cms.DocumentCrud;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
-import com.janilla.http.HttpProtocol;
+import com.janilla.http.HttpServer;
 import com.janilla.json.Json;
 import com.janilla.json.MapAndType;
 import com.janilla.json.ReflectionJsonIterator;
 import com.janilla.net.Net;
-import com.janilla.net.Server;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Factory;
@@ -83,19 +82,16 @@ public class WebsiteTemplate {
 				}
 			}
 			new WebsiteTemplate(pp);
-			Server s;
+			HttpServer s;
 			{
-				var a = new InetSocketAddress(
-						Integer.parseInt(INSTANCE.configuration.getProperty("website-template.server.port")));
 				SSLContext sc;
 				try (var is = Net.class.getResourceAsStream("testkeys")) {
 					sc = Net.getSSLContext("JKS", is, "passphrase".toCharArray());
 				}
-				var p = INSTANCE.factory.create(HttpProtocol.class,
-						Map.of("handler", INSTANCE.handler, "sslContext", sc, "useClientMode", false));
-				s = new Server(a, p);
+				s = INSTANCE.factory.create(HttpServer.class, Map.of("sslContext", sc, "handler", INSTANCE.handler));
 			}
-			s.serve();
+			var p = Integer.parseInt(INSTANCE.configuration.getProperty("website-template.server.port"));
+			s.serve(new InetSocketAddress(p));
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -222,7 +218,7 @@ public class WebsiteTemplate {
 		}
 
 		public Stream<Map.@Render(template = "meta") Entry<String, String>> metaEntries() {
-			var r = HttpProtocol.HTTP_EXCHANGE.get().getRequest();
+			var r = HttpServer.HTTP_EXCHANGE.get().getRequest();
 			var m = meta != null && meta.image() != null ? INSTANCE.persistence.crud(Media.class).read(meta.image())
 					: null;
 			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
