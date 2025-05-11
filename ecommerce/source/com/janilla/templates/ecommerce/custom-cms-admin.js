@@ -44,7 +44,7 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	headers(entitySlug) {
 		switch (entitySlug) {
 			case "pages":
-			case "posts":
+			case "products":
 				return ["title", "slug", "updatedAt"];
 			case "redirects":
 				return ["from"];
@@ -74,10 +74,10 @@ export default class CustomCmsAdmin extends CmsAdmin {
 					Content: ["layout"],
 					SEO: ["meta"]
 				};
-			case "Post":
+			case "Product":
 				return {
 					Content: ["heroImage", "content"],
-					Meta: ["relatedPosts", "categories"],
+					Meta: ["relatedProducts", "categories"],
 					SEO: ["meta"]
 				};
 		}
@@ -88,8 +88,8 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		switch (entity.$type) {
 			case "Page":
 				return `/${entity.slug}`;
-			case "Post":
-				return `/posts/${entity.slug}`;
+			case "Product":
+				return `/products/${entity.slug}`;
 		}
 		return super.preview(entity);
 	}
@@ -98,7 +98,7 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		switch (type) {
 			case "Page":
 				return ["publishedAt", "slug"];
-			case "Post":
+			case "Product":
 				return ["publishedAt", "slug", "authors"];
 			case "SearchResult":
 				return ["document"];

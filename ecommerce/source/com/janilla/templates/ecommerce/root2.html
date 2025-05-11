@@ -1,0 +1,27 @@
+<!--${admin}-->
+<main>
+  <!--${content}-->
+  <!--${messages}-->
+</main>
+
+<template id="admin">
+  <cms-admin data-email="${email}" data-path="${path}"></cms-admin>
+</template>
+
+<template id="payment">
+  <payment-element></payment-element>
+</template>
+
+<template id="return">
+  <return-element></return-element>
+</template>
+
+<template id="messages">
+  <div id="messages" role="alert">
+    <!--${items}-->
+  </div>
+</template>
+
+<template id="message">
+  &gt; ${text}<br />
+</template>

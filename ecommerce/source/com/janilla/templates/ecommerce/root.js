@@ -24,7 +24,7 @@
 import { WebComponent } from "./web-component.js";
 
 const adminRegex = /^\/admin(\/.*)?$/;
-const postsRegex = /^\/posts(\/.*)?$/;
+const productsRegex = /^\/products(\/.*)?$/;
 
 export default class Root extends WebComponent {
 
@@ -128,8 +128,8 @@ export default class Root extends WebComponent {
 						case "Page":
 							h = `/${x.reference.slug}`;
 							break;
-						case "Post":
-							h = `/posts/${x.reference.slug}`;
+						case "Product":
+							h = `/products/${x.reference.slug}`;
 							break;
 					}
 					break;
@@ -153,12 +153,12 @@ export default class Root extends WebComponent {
 				navItems: s.header.navItems?.map(link)
 			} : null,
 			content: s.notFound ? { $template: "not-found" } : (() => {
-				const m2 = location.pathname.match(postsRegex);
+				const m2 = location.pathname.match(productsRegex);
 				if (m2)
 					return m2[1] ? {
-						$template: "post",
+						$template: "product",
 						slug: m2[1].substring(1)
-					} : { $template: "posts" };
+					} : { $template: "products" };
 				return location.pathname === "/search" ? {
 					$template: "search",
 					query: new URLSearchParams(location.search).get("query")

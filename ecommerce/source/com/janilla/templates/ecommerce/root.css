@@ -1,0 +1,141 @@
+root-element {
+  > div {
+    background: light-dark(rgb(255, 255, 255), rgb(0, 0, 0));
+    color: light-dark(rgb(46, 42, 36), rgb(209, 213, 219));
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    min-height: 100vh;
+
+    > header,
+    > footer > div {
+      @media (min-width: 1441px) {
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 86rem;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      a:not(:hover) {
+        text-decoration: none;
+      }
+    }
+
+    > header {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      /*padding: 2rem 1rem;*/
+      position: relative;
+      z-index: 20;
+
+      a {
+        color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+      }
+
+      img {
+        height: 34px;
+      }
+
+      nav {
+        align-items: center;
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      lucide-icon {
+        width: 1.25rem;
+      }
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      font-size: 1rem;
+      gap: 4rem;
+      line-height: 1.75;
+
+      > :not(.hero) {
+        padding: 0 1rem;
+
+        @media (min-width: 1441px) {
+          box-sizing: border-box;
+          margin-left: auto;
+          margin-right: auto;
+          max-width: 86rem;
+          padding-left: 2rem;
+          padding-right: 2rem;
+          width: 100%;
+        }
+      }
+    }
+
+    > footer {
+      background: light-dark(rgb(245, 245, 245), rgb(10, 10, 10));
+      border-top: 1px solid rgba(38, 38, 38, 0.8);
+      /*margin-top: 2rem;*/
+      margin-top: auto;
+      /*padding: 2rem 1rem 0;*/
+
+      > div,
+      nav {
+        display: flex;
+        gap: 1rem;
+
+        @media (max-width: 1440px) {
+          flex-direction: column;
+        }
+
+        @media (min-width: 1441px) {
+          align-items: center;
+        }
+      }
+
+      img {
+        height: 34px;
+      }
+
+      nav {
+        @media (min-width: 1441px) {
+          order: 1;
+        }
+      }
+
+      div:has(> select) {
+        align-self: start;
+        position: relative;
+
+        @media (min-width: 1441px) {
+          margin-left: auto;
+        }
+
+        lucide-icon {
+          pointer-events: none;
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        svg {
+          display: block;
+          opacity: 0.5;
+          width: 1rem;
+        }
+      }
+
+      select {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 1rem;
+        padding-right: 1rem;
+      }
+    }
+  }
+}

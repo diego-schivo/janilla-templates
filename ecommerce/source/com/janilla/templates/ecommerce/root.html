@@ -1,0 +1,72 @@
+<!--${admin}-->
+<div style="${style}">
+  <!--${header}-->
+  <!--${content}-->
+  <!--${footer}-->
+</div>
+
+<template id="admin">
+  <cms-admin data-email="${email}" data-path="${path}"></cms-admin>
+</template>
+
+<template id="header">
+  <header>
+    <a href="/">
+      <img src="/images/janilla-logo-light.svg" loading="lazy" />
+    </a>
+    <nav>
+      <!--${navItems}-->
+      <a href="/search">
+        <span class="visually-hidden">Search</span>
+        <lucide-icon data-name="search"></lucide-icon>
+      </a>
+    </nav>
+  </header>
+</template>
+
+<template id="link">
+  <a href="${href}" target="${target}">${text}</a>
+</template>
+
+<template id="page">
+  <page-element data-slug="${slug}"></page-element>
+</template>
+
+<template id="products">
+  <products-element></products-element>
+</template>
+
+<template id="product">
+  <product-element data-slug="${slug}"></product-element>
+</template>
+
+<template id="search">
+  <search-element data-query="${query}"></search-element>
+</template>
+
+<template id="not-found">
+  <not-found></not-found>
+</template>
+
+<template id="footer">
+  <footer>
+    <div>
+      <a href="/">
+        <img src="/images/janilla-logo-light.svg" loading="lazy" />
+      </a>
+      <nav>
+        <!--${navItems}-->
+      </nav>
+      <div>
+        <select>
+          <!--${options}-->
+        </select>
+        <lucide-icon data-name="chevron-down"></lucide-icon>
+      </div>
+    </div>
+  </footer>
+</template>
+
+<template id="option">
+  <option value="${value}" selected="${selected}">${text}</option>
+</template>
