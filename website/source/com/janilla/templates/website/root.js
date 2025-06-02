@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 const adminRegex = /^\/admin(\/.*)?$/;
 const postsRegex = /^\/posts(\/.*)?$/;
@@ -78,10 +78,10 @@ export default class Root extends WebComponent {
 		event.preventDefault();
 		history.pushState(undefined, "", u.pathname + u.search);
 		dispatchEvent(new CustomEvent("popstate"));
-		window.scrollTo(0, 0);
 	}
 
 	handlePopState = () => {
+		window.scrollTo(0, 0);
 		delete this.state.notFound;
 		this.requestDisplay();
 	}
@@ -122,7 +122,7 @@ export default class Root extends WebComponent {
 				}
 		const link = x => {
 			let h;
-			switch (x.type) {
+			switch (x.type.name) {
 				case "REFERENCE":
 					switch (x.reference?.$type) {
 						case "Page":

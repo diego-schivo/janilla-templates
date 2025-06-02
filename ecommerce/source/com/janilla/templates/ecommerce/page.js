@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 export default class Page extends WebComponent {
 
@@ -66,7 +66,7 @@ export default class Page extends WebComponent {
 							{
 								$type: "Column",
 								size: "FULL",
-								richText: `<h1>Janilla Website Template</h1>
+								richText: `<h1>Janilla Ecommerce Template</h1>
 <p>
   <a href="/admin">Visit the admin dashboard</a>
   to make your account and seed content for your website.

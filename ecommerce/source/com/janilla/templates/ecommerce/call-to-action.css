@@ -1,0 +1,50 @@
+call-to-action {
+  article,
+  section {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  article {
+    background: light-dark(rgb(245, 245, 245), rgb(10, 10, 10));
+    border: 1px solid rgba(38, 38, 38, 0.8);
+    border-radius: 0.2rem;
+    gap: 1rem;
+    padding: 1rem;
+
+    @media (min-width: 1441px) {
+      align-items: center;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  p {
+    color: light-dark(rgb(46, 42, 36), rgb(209, 213, 219));
+
+    a {
+      color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));
+    }
+  }
+
+  section {
+    > .button {
+      /*
+      background: light-dark(rgb(7, 5, 3), rgb(248, 250, 252));
+      border: 1px solid rgba(38, 38, 38, 0.8);
+      border-radius: 0.25rem;
+      box-sizing: border-box;
+      color: light-dark(rgb(240, 232, 213), rgb(15, 23, 42));
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.75rem;
+      line-height: 1.25rem;
+      padding: 0.5rem;
+      text-align: center;
+      text-decoration: none;
+      */
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+}

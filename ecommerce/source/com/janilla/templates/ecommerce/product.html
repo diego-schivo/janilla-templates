@@ -18,12 +18,20 @@
     </section>
   </article>
   <div>
+    <form>
+      <!--${variantSelector}-->
+      <button>Add To Cart</button>
+    </form>
     <!--${content}-->
     <div class="cards">
       <!--${cards}-->
     </div>
   </div>
 </main>
+
+<template id="variant-selector">
+  <variant-selector></variant-selector>
+</template>
 
 <template id="banner">
   <banner-element data-path="${path}"></banner-element>

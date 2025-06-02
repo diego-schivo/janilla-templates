@@ -11,6 +11,28 @@
 
 <template id="header">
   <header>
+    <button>
+      <lucide-icon data-name="menu"></lucide-icon>
+    </button>
+    <dialog>
+      <ul>
+        <li>
+          <a href="/login">Log in</a>
+        </li>
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/shop">Shop</a>
+        </li>
+        <li>
+          <a href="/account">Account</a>
+        </li>
+        <li>
+          <a href="/logout">Log out</a>
+        </li>
+      </ul>
+    </dialog>
     <a href="/">
       <img src="/images/janilla-logo-light.svg" loading="lazy" />
     </a>
@@ -20,6 +42,16 @@
         <span class="visually-hidden">Search</span>
         <lucide-icon data-name="search"></lucide-icon>
       </a>
+      <a href="#">Cart:${cartQuantity}</a>
+      <dialog>
+        <h2>My Cart</h2>
+        <p>Manage your cart here, add items to view the total.</p>
+        <ul>
+          <!--${cartItems}-->
+        </ul>
+        <p>Total: ${cartTotal}</p>
+        <a href="/checkout">Proceed to Checkout</a>
+      </dialog>
     </nav>
   </header>
 </template>
@@ -28,12 +60,50 @@
   <a href="${href}" target="${target}">${text}</a>
 </template>
 
+<template id="cart-item">
+  <li>
+    <img src="${product.heroImage.uri}" />
+    <span>${product.title}</span>
+    <span>${option}</span>
+    <span>${variant.price}</span>
+    <span>${quantity}</span>
+  </li>
+</template>
+
 <template id="page">
   <page-element data-slug="${slug}"></page-element>
 </template>
 
-<template id="products">
-  <products-element></products-element>
+<template id="account">
+  <account-element></account-element>
+</template>
+
+<template id="checkout">
+  <checkout-element></checkout-element>
+</template>
+
+<template id="login">
+  <login-element></login-element>
+</template>
+
+<template id="logout">
+  <logout-element></logout-element>
+</template>
+
+<template id="order-confirmation">
+  <order-confirmation data-stripe-payment-intent-id="${stripePaymentIntentId}"></order-confirmation>
+</template>
+
+<template id="orders">
+  <orders-element></orders-element>
+</template>
+
+<template id="order">
+  <order-element data-id="${id}"></order-element>
+</template>
+
+<template id="shop">
+  <shop-element></shop-element>
 </template>
 
 <template id="product">

@@ -21,42 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+package com.janilla.templates.ecommerce;
 
-export default class Products extends WebComponent {
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-	static get templateName() {
-		return "products";
+import com.janilla.cms.CollectionApi;
+import com.janilla.web.Bind;
+import com.janilla.web.Handle;
+
+@Handle(path = "/api/search-results")
+public class SearchResultApi extends CollectionApi<SearchResult> {
+
+	public SearchResultApi() {
+		super(SearchResult.class, EcommerceTemplate.DRAFTS);
 	}
 
-	constructor() {
-		super();
+	@Override
+	public List<SearchResult> read() {
+		throw new UnsupportedOperationException();
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		while (this.firstChild)
-			this.removeChild(this.lastChild);
-	}
-
-	async computeState() {
-		const s = this.state;
-		delete s.products;
-		s.products = await this.closest("root-element").fetchData("/api/products");
-		this.requestDisplay();
-	}
-
-	async updateDisplay() {
-		const s = this.state;
-		s.computeState ??= this.computeState();
-		this.closest("root-element").updateSeo(null);
-		this.appendChild(this.interpolateDom({
-			$template: "",
-			total: s.products?.length ?? 0,
-			cards: s.products?.map(x => ({
-				$template: "card",
-				...x
-			}))
-		}));
+	@Handle(method = "GET")
+	public List<SearchResult> read(@Bind("slug") String slug, @Bind("query") String query) {
+		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
+		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
+			var m = x.meta();
+			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
+					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
+			return s.toLowerCase().contains(query.toLowerCase());
+		}).toList() : pp;
 	}
 }

@@ -37,6 +37,13 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		super();
 	}
 
+	field(path, parent) {
+		const f = super.field(path, parent);
+		if (f.parent?.type === "User" && f.name === "password")
+			f.type = "String";
+		return f;
+	}
+
 	label(path) {
 		return ["hero", "hero.richText", "meta"].includes(path) ? null : super.label(path);
 	}
@@ -53,16 +60,24 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	}
 
 	controlTemplate(field) {
-		if (field.type === "String")
-			switch (field.name) {
-				case "confirmationMessage":
-				case "content":
-				case "message":
-				case "richText":
-					return "rich-text";
-				case "type":
-					return field.options.length <= 2 ? "radio" : "select";
-			}
+		switch (field.type) {
+			case "Set":
+				console.log("field", field);
+				if (field.name === "options" && field.parent.type === "Variant")
+					return "foo";
+				break;
+			case "String":
+				switch (field.name) {
+					case "confirmationMessage":
+					case "content":
+					case "message":
+					case "richText":
+						return "rich-text";
+					case "type":
+						return field.options.length <= 2 ? "radio" : "select";
+				}
+				break;
+		}
 		return super.controlTemplate(field);
 	}
 

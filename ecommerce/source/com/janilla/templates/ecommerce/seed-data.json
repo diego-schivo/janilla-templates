@@ -6,22 +6,37 @@
 			"title": "Home",
 			"hero": {
 				"$type": "Hero",
-				"type": "HIGH_IMPACT",
-				"richText": "<h1>Janilla Website Template</h1><p><a href=\"/admin\">Visit the admin dashboard</a> to begin managing this site's content. The code for this template is completely open-source and can be found <a href=\"https://github.com/diego-schivo/janilla-templates/tree/main/website\" rel=\"noopener noreferrer\" target=\"_blank\">on our Github</a>. </p>",
+				"type": {
+					"$type": "Hero.Type",
+					"name": "HIGH_IMPACT"
+				},
+				"richText": "<h1>Janilla Ecommerce Template</h1><p><a href=\"/admin\">Visit the admin dashboard</a> to begin managing this site's content. The code for this template is completely open-source and can be found <a href=\"https://github.com/diego-schivo/janilla-templates/tree/main/website\" rel=\"noopener noreferrer\" target=\"_blank\">on our Github</a>. </p>",
 				"links": [
 					{
 						"$type": "Link",
-						"type": "CUSTOM",
-						"uri": "/products",
-						"text": "All products",
-						"appearance": "DEFAULT"
+						"type": {
+							"$type": "Link.Type",
+							"name": "CUSTOM"
+						},
+						"uri": "/shop",
+						"text": "Shop",
+						"appearance": {
+							"$type": "Link.Appearance",
+							"name": "DEFAULT"
+						}
 					},
 					{
 						"$type": "Link",
-						"type": "CUSTOM",
+						"type": {
+							"$type": "Link.Type",
+							"name": "CUSTOM"
+						},
 						"uri": "/contact",
 						"text": "Contact",
-						"appearance": "OUTLINE"
+						"appearance": {
+							"$type": "Link.Appearance",
+							"name": "OUTLINE"
+						}
 					}
 				],
 				"media": 4
@@ -32,32 +47,50 @@
 					"columns": [
 						{
 							"$type": "Column",
-							"size": "FULL",
+							"size": {
+								"$type": "Column.Size",
+								"name": "FULL"
+							},
 							"richText": "<h2>Core features</h2>"
 						},
 						{
 							"$type": "Column",
-							"size": "ONE_THIRD",
+							"size": {
+								"$type": "Column.Size",
+								"name": "ONE_THIRD"
+							},
 							"richText": "<h3>Admin Dashboard</h3><p>Manage this site's pages and products from the <a href=\"/admin\">admin dashboard</a>.</p>"
 						},
 						{
 							"$type": "Column",
-							"size": "ONE_THIRD",
+							"size": {
+								"$type": "Column.Size",
+								"name": "ONE_THIRD"
+							},
 							"richText": "<h3>Preview</h3><p>Using versions, drafts, and preview, editors can review and share their changes before publishing them.</p>"
 						},
 						{
 							"$type": "Column",
-							"size": "ONE_THIRD",
+							"size": {
+								"$type": "Column.Size",
+								"name": "ONE_THIRD"
+							},
 							"richText": "<h3>Page Builder</h3><p>Custom page builder allows you to create unique page, product, and project layouts for any type of content.</p>"
 						},
 						{
 							"$type": "Column",
-							"size": "ONE_THIRD",
+							"size": {
+								"$type": "Column.Size",
+								"name": "ONE_THIRD"
+							},
 							"richText": "<h3>SEO</h3><p>Editors have complete control over SEO data and site content directly from the <a href=\"/admin\">admin dashboard</a>.</p>"
 						},
 						{
 							"$type": "Column",
-							"size": "ONE_THIRD",
+							"size": {
+								"$type": "Column.Size",
+								"name": "ONE_THIRD"
+							},
 							"richText": "<h3>Dark Mode</h3><p>Users will experience this site in their preferred color scheme and each block can be inverted.</p>"
 						}
 					]
@@ -76,22 +109,31 @@
 					"links": [
 						{
 							"$type": "Link",
-							"type": "CUSTOM",
-							"uri": "/products",
-							"text": "All products",
-							"appearance": "DEFAULT"
+							"type": {
+								"$type": "Link.Type",
+								"name": "CUSTOM"
+							},
+							"uri": "/shop",
+							"text": "Shop",
+							"appearance": {
+								"$type": "Link.Appearance",
+								"name": "DEFAULT"
+							}
 						}
 					]
 				}
 			],
 			"meta": {
 				"$type": "Meta",
-				"title": "Janilla Website Template",
+				"title": "Janilla Ecommerce Template",
 				"description": "An open-source website built with Janilla.",
 				"image": 4
 			},
 			"slug": "home",
-			"status": "PUBLISHED"
+			"status": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Page",
@@ -99,7 +141,10 @@
 			"title": "Contact",
 			"hero": {
 				"$type": "Hero",
-				"type": "NONE",
+				"type": {
+					"$type": "Hero.Type",
+					"name": "NONE"
+				},
 				"richText": "",
 				"links": []
 			},
@@ -112,7 +157,10 @@
 				}
 			],
 			"slug": "contact",
-			"status": "PUBLISHED"
+			"status": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		}
 	],
 	"products": [
@@ -128,7 +176,10 @@
 				},
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p><strong>Disclaimer:</strong> This content is fabricated and for demonstration purposes only. To edit this product, <a href=\"/admin\" rel=\"noopener noreferrer\" target=\"_blank\">navigate to the admin dashboard</a>.</p>"
 				},
 				{
@@ -145,12 +196,14 @@
 				},
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p>This content above is completely dynamic using custom layout building blocks configured in the CMS. This can be anything you'd like from rich text and images, to highly designed, complex components.</p>"
 				}
 			],
 			"enableVariants": false,
-			"variantOptions": [],
 			"stock": 64,
 			"price": 2999,
 			"relatedProducts": [
@@ -160,7 +213,7 @@
 			"meta": {
 				"$type": "Meta",
 				"title": "Mouse pad",
-				"description": "Dive into the marvels of modern innovation, where the only constant is change. A journey where pixels and data converge to craft the future.",
+				"description": "Upgrade your workspace with our premium mousepad, designed for precision and comfort. Featuring a smooth, durable surface for effortless mouse movement and a non-slip rubber base for stability, it's perfect for work, gaming, or everyday use. Easy to clean and available in various sizes and stylish designs to suit your needs.",
 				"image": 1
 			},
 			"slug": "mouse-pad",
@@ -168,7 +221,10 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:07:44.965918Z",
-			"status": "PUBLISHED"
+			"status": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Product",
@@ -182,7 +238,10 @@
 				},
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p><strong>Disclaimer:</strong> This content is fabricated and for demonstration purposes only. To edit this product, <a href=\"/admin\" rel=\"noopener noreferrer\" target=\"_blank\">navigate to the admin dashboard.</a></p>"
 				},
 				{
@@ -199,24 +258,55 @@
 				},
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p>This content above is completely dynamic using custom layout building blocks configured in the CMS. This can be anything you'd like from rich text and images, to highly designed, complex components.</p>"
 				}
 			],
 			"enableVariants": true,
 			"variantOptions": [
 				{
-					"$type": "VariantOption",
-					"label": "Color",
-					"slug": "color",
+					"$type": "Color",
 					"options": [
-						"BLACK",
-						"WHITE"
+						{
+							"$type": "Color.Option",
+							"name": "BLACK"
+						},
+						{
+							"$type": "Color.Option",
+							"name": "WHITE"
+						}
 					]
 				}
 			],
-			"stock": 0,
-			"price": 1999,
+			"variants": [
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Color.Option",
+							"name": "BLACK"
+						}
+					],
+					"price": 2122,
+					"stock": 423
+				},
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Color.Option",
+							"name": "WHITE"
+						}
+					],
+					"price": 1299,
+					"stock": 889
+				}
+			],
 			"relatedProducts": [
 				1,
 				3
@@ -224,7 +314,7 @@
 			"meta": {
 				"$type": "Meta",
 				"title": "Hat",
-				"description": "Explore the untold and overlooked. A magnified view into the corners of the world, where every story deserves its spotlight.",
+				"description": "Top off your look with our classic hat, crafted for style and comfort. Made with breathable, high-quality materials and an adjustable strap for the perfect fit.",
 				"image": 2
 			},
 			"slug": "hat",
@@ -232,7 +322,10 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:08:44.965918Z",
-			"status": "PUBLISHED"
+			"status": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Product",
@@ -242,7 +335,10 @@
 			"content": [
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p><strong>Disclaimer: </strong>This content is fabricated and for demonstration purposes only. To edit this product, <a href=\"/admin\" rel=\"noopener noreferrer\" target=\"_blank\">navigate to the admin dashboard.</a></p>"
 				},
 				{
@@ -259,16 +355,85 @@
 				},
 				{
 					"$type": "Banner",
-					"style": "INFO",
+					"style": {
+						"$type": "Banner.Style",
+						"name": "INFO"
+					},
 					"content": "<p>This content above is completely dynamic using custom layout building blocks configured in the CMS. This can be anything you'd like from rich text and images, to highly designed, complex components.</p>"
 				}
 			],
 			"enableVariants": true,
 			"variantOptions": [
 				{
-					"$type": "VariantOption",
-					"label": "Size",
-					"slug": "size"
+					"$type": "Size",
+					"options": [
+						{
+							"$type": "Size.Option",
+							"name": "SMALL"
+						},
+						{
+							"$type": "Size.Option",
+							"name": "MEDIUM"
+						},
+						{
+							"$type": "Size.Option",
+							"name": "LARGE"
+						},
+						{
+							"$type": "Size.Option",
+							"name": "X_LARGE"
+						}
+					]
+				}
+			],
+			"variants": [
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Size.Option",
+							"name": "SMALL"
+						}
+					],
+					"price": 2122,
+					"stock": 423
+				},
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Size.Option",
+							"name": "MEDIUM"
+						}
+					],
+					"price": 1299,
+					"stock": 889
+				},
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Size.Option",
+							"name": "LARGE"
+						}
+					],
+					"price": 1999,
+					"stock": 13
+				},
+				{
+					"$type": "Variant",
+					"active": true,
+					"options": [
+						{
+							"$type": "Size.Option",
+							"name": "X_LARGE"
+						}
+					],
+					"price": 0,
+					"stock": 23
 				}
 			],
 			"stock": 0,
@@ -280,7 +445,7 @@
 			"meta": {
 				"$type": "Meta",
 				"title": "Hoodie",
-				"description": "Money isn't just currency; it's a language. Dive deep into its nuances, where strategy meets intuition in the vast sea of finance.",
+				"description": "Top off your look with our classic hat, crafted for style and comfort. Made with breathable, high-quality materials and an adjustable strap for the perfect fit.",
 				"image": 3
 			},
 			"slug": "hoodie",
@@ -288,7 +453,10 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:09:44.965918Z",
-			"status": "PUBLISHED"
+			"status": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		}
 	],
 	"media": [
@@ -378,7 +546,13 @@
 			"name": "Demo Author",
 			"email": "demo-author@example.com",
 			"salt": "16c13790d6698b7627936913e93397af",
-			"hash": "0638a17a8c549052c0272768378ed9b8aab97d5b7bd36ec41a30a346932914c52d0a864d777062e6b60610e84bdafb68a7e3e60c50ba1e3758912099777d295f"
+			"hash": "0638a17a8c549052c0272768378ed9b8aab97d5b7bd36ec41a30a346932914c52d0a864d777062e6b60610e84bdafb68a7e3e60c50ba1e3758912099777d295f",
+			"roles": [
+				{
+					"$type": "User.Role",
+					"name": "ADMIN"
+				}
+			]
 		}
 	],
 	"redirects": [],
@@ -418,7 +592,10 @@
 				}
 			],
 			"submitButtonLabel": "Submit",
-			"confirmationType": "MESSAGE",
+			"confirmationType": {
+				"$type": "Form.ConfirmationType",
+				"name": "MESSAGE"
+			},
 			"confirmationMessage": "<h2>The contact form has been submitted successfully.</h2>",
 			"emails": [
 				{
@@ -442,13 +619,19 @@
 		"navItems": [
 			{
 				"$type": "Link",
-				"type": "CUSTOM",
-				"uri": "/products",
-				"text": "Products"
+				"type": {
+					"$type": "Link.Type",
+					"name": "CUSTOM"
+				},
+				"uri": "/shop",
+				"text": "Shop"
 			},
 			{
 				"$type": "Link",
-				"type": "REFERENCE",
+				"type": {
+					"$type": "Link.Type",
+					"name": "REFERENCE"
+				},
 				"reference": {
 					"$type": "Document.Reference",
 					"type": "Page",
@@ -464,19 +647,28 @@
 		"navItems": [
 			{
 				"$type": "Link",
-				"type": "CUSTOM",
+				"type": {
+					"$type": "Link.Type",
+					"name": "CUSTOM"
+				},
 				"uri": "/admin",
 				"text": "Admin"
 			},
 			{
 				"$type": "Link",
-				"type": "CUSTOM",
+				"type": {
+					"$type": "Link.Type",
+					"name": "CUSTOM"
+				},
 				"uri": "https://github.com/diego-schivo/website-template",
 				"text": "Source Code"
 			},
 			{
 				"$type": "Link",
-				"type": "CUSTOM",
+				"type": {
+					"$type": "Link.Type",
+					"name": "CUSTOM"
+				},
 				"uri": "https://janilla.com/",
 				"text": "Janilla"
 			}

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 export default class Card extends WebComponent {
 
@@ -38,10 +38,10 @@ export default class Card extends WebComponent {
 	}
 
 	async updateDisplay() {
-		const el = this.closest("product-element, products-element, search-element");
+		const el = this.closest("product-element, shop-element, search-element");
 		const pp = el.matches("product-element")
 			? el.state.product.relatedProducts
-			: el.matches("products-element")
+			: el.matches("shop-element")
 				? el.state.products
 				: el.state.results;
 		const p = pp.find(x => x.slug === this.dataset.slug);

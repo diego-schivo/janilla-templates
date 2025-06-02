@@ -31,6 +31,10 @@ root-element {
       position: relative;
       z-index: 20;
 
+      button + dialog {
+        margin-left: 0;
+      }
+
       a {
         color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));
         font-size: 0.875rem;
@@ -40,6 +44,9 @@ root-element {
 
       img {
         height: 34px;
+        object-fit: cover;
+        object-position: left;
+        width: 34px;
       }
 
       nav {

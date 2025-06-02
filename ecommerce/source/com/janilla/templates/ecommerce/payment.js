@@ -21,9 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 export default class Payment extends WebComponent {
+
+	static get observedAttributes() {
+		return ["data-email", "data-amount"];
+	}
 
 	static get templateName() {
 		return "payment";
@@ -46,21 +50,26 @@ export default class Payment extends WebComponent {
 	handleSubmit = async event => {
 		event.preventDefault();
 		const s = this.closest("root-element").state.stripe;
-		const { error: stripeError } = await s.confirmPayment({
+		const { error: stripeError, paymentIntent } = await s.confirmPayment({
 			elements: this.state.elements,
-			confirmParams: { return_url: `${location.origin}/return` }
+			confirmParams: { return_url: `${location.origin}/order-confirmation` }
 		});
 	}
 
 	async updateDisplay() {
 		this.appendChild(this.interpolateDom({ $template: "" }));
-		const s = this.closest("root-element").state.stripe;
-		const pi = await (await fetch("/api/create-payment-intent")).json();
-		this.state.elements = s.elements({
-			clientSecret: pi["client_secret"],
-			loader: "auto"
-		});
-		const pe = this.state.elements.create("payment");
-		pe.mount("#payment-element");
+		if (this.dataset.email && this.dataset.amount) {
+			const u = new URL("/api/create-payment-intent", location.href);
+			u.searchParams.append("email", this.dataset.email);
+			u.searchParams.append("amount", this.dataset.amount);
+			const s = this.closest("root-element").state.stripe;
+			const pi = await (await fetch(u)).json();
+			this.state.elements = s.elements({
+				clientSecret: pi["client_secret"],
+				loader: "auto"
+			});
+			const pe = this.state.elements.create("payment");
+			pe.mount("#payment-element");
+		}
 	}
 }

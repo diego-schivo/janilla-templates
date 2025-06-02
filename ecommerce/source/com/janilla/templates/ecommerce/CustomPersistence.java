@@ -148,7 +148,9 @@ public class CustomPersistence extends CmsPersistence {
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {
 			var s = new String(is.readAllBytes());
 			var o = Json.parse(s);
+//			System.out.println("o=" + o);
 			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
+//			System.out.println("sd=" + sd);
 		}
 		for (var x : sd.pages())
 			crud(Page.class).create(x);

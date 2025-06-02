@@ -33,17 +33,18 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Index(sort = "-createdAt")
+@Index(sort = "title")
 @Versions(drafts = true)
 public record Product(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, MediaBlock.class, RichText.class }) Object> content, Boolean enableVariants,
-		List<VariantOption> variantOptions, Long stock, Long price, List<@Types(Product.class) Long> relatedProducts,
+		List<@Types({ Fabric.class, Size.class, Color.class }) Object> variantOptions, List<Variant> variants,
+		Long stock, Long price, List<@Types(Product.class) Long> relatedProducts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
 		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status status,
 		Instant publishedAt) implements Document{
 
 	public Product withRelatedProducts(List<Long> relatedProducts) {
-		return new Product(id, title, heroImage, content, enableVariants, variantOptions, stock, price, relatedProducts,
-				categories, meta, slug, authors, createdAt, updatedAt, status, publishedAt);
+		return new Product(id, title, heroImage, content, enableVariants, variantOptions, variants, stock, price,
+				relatedProducts, categories, meta, slug, authors, createdAt, updatedAt, status, publishedAt);
 	}
 }

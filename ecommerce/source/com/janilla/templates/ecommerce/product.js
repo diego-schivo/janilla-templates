@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 export default class Product extends WebComponent {
 
@@ -37,8 +37,14 @@ export default class Product extends WebComponent {
 		super();
 	}
 
+	connectedCallback() {
+		super.connectedCallback();
+		this.addEventListener("submit", this.handleSubmit);
+	}
+
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.removeEventListener("submit", this.handleSubmit);
 		while (this.firstChild)
 			this.removeChild(this.lastChild);
 	}
@@ -48,6 +54,24 @@ export default class Product extends WebComponent {
 		if (newValue !== oldValue && s?.computeState)
 			delete s.computeState;
 		super.attributeChangedCallback(name, oldValue, newValue);
+	}
+
+	handleSubmit = async event => {
+		event.preventDefault();
+		const fd = new FormData(event.target);
+		const p = this.state.product;
+		const v = p.variants.findIndex(x => x.active && x.options.every(y => y.name === fd.get(y.$type.split(".")[0])));
+		const c = JSON.parse(localStorage.getItem("cart") ?? '{ "items": [] }');
+		const ci = c.items.find(x => x.product.id === p.id && x.variant === v);
+		if (ci)
+			ci.quantity++;
+		else
+			c.items.push({
+				product: p,
+				variant: v,
+				quantity: 1
+			});
+		localStorage.setItem("cart", JSON.stringify(c));
 	}
 
 	async computeState() {
@@ -66,6 +90,7 @@ export default class Product extends WebComponent {
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			...s.product,
+			variantSelector: s.product?.enableVariants ? { $template: "variant-selector" } : null,
 			content: s.product?.content?.map((x, i) => ({
 				$template: x.$type.split(/(?=[A-Z])/).map(x => x.toLowerCase()).join("-"),
 				path: `content.${i}`

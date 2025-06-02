@@ -61,9 +61,9 @@ import com.janilla.web.Renderer;
 
 public class WebsiteTemplate {
 
-	public static WebsiteTemplate INSTANCE;
-
 	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
+
+	public static WebsiteTemplate INSTANCE;
 
 	protected static final Pattern ADMIN = Pattern.compile("/admin(/.*)?");
 

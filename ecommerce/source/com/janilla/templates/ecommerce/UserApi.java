@@ -27,10 +27,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.json.Jwt;
+import com.janilla.reflect.Reflection;
 import com.janilla.web.BadRequestException;
 import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
@@ -43,6 +46,11 @@ public class UserApi extends CollectionApi<User> {
 
 	public UserApi() {
 		super(User.class, EcommerceTemplate.DRAFTS);
+	}
+
+	@Handle(method = "PUT", path = "(\\d+)")
+	public User update(long id, User entity, Boolean draft, Boolean autosave, String password) {
+		return super.update(id, entity.withPassword(password), draft, autosave);
 	}
 
 	@Handle(method = "POST", path = "login")
@@ -129,6 +137,12 @@ public class UserApi extends CollectionApi<User> {
 		var t = Jwt.generateToken(h, p, configuration.getProperty("ecommerce-template.jwt.key"));
 		exchange.setSessionCookie(t);
 		return u;
+	}
+
+	@Override
+	protected Set<String> foo(User entity) {
+		return entity.salt() == null ? Reflection.propertyNames(User.class)
+				.filter(x -> !Set.of("salt", "hash").contains(x)).collect(Collectors.toSet()) : null;
 	}
 
 //	private static void mail(Data d) {

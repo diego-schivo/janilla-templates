@@ -29,13 +29,12 @@ import java.util.Set;
 import com.janilla.http.HttpExchange;
 import com.janilla.json.MapAndType;
 import com.janilla.web.ForbiddenException;
-import com.janilla.web.HandleException;
 import com.janilla.web.MethodHandlerFactory;
 
 public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
 	protected static final Set<String> GUEST_POST = Set.of("/api/form-submissions", "/api/users/first-register",
-			"/api/users/forgot-password", "/api/users/login", "/api/users/reset-password");
+			"/api/users/forgot-password", "/api/users/login", "/api/users/reset-password", "/api/stripe/webhooks");
 
 	protected static final Set<String> USER_LOGIN_LOGOUT = Set.of("/api/users/login", "/api/users/logout");
 
@@ -49,13 +48,18 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
 			if (rq.getPath().startsWith("/api/search-results"))
 				throw new ForbiddenException("Forbidden");
-			else if (!GUEST_POST.contains(rq.getPath()))
-				((CustomHttpExchange) exchange).requireSessionEmail();
+			else if (!GUEST_POST.contains(rq.getPath())) {
+				var ex = (CustomHttpExchange) exchange;
+				if (rq.getPath().equals("/api/users/logout"))
+					ex.requireSessionEmail();
+				else
+					ex.requireSessionRole(User.Role.ADMIN);
+			}
 		}
 
-		if (Boolean.parseBoolean(configuration.getProperty("ecommerce-template.live-demo")))
-			if (!rq.getMethod().equals("GET") && !USER_LOGIN_LOGOUT.contains(rq.getPath()))
-				throw new HandleException(new MethodBlockedException());
+//		if (Boolean.parseBoolean(configuration.getProperty("ecommerce-template.live-demo")))
+//			if (!rq.getMethod().equals("GET") && !USER_LOGIN_LOGOUT.contains(rq.getPath()))
+//				throw new HandleException(new MethodBlockedException());
 
 //		if (rq.getPath().startsWith("/api/"))
 //			try {

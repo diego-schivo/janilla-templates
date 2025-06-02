@@ -66,15 +66,21 @@ public class CustomHttpExchange extends HttpExchange {
 
 	public User sessionUser() {
 		if (!map.containsKey("sessionUser")) {
-			var uc = persistence.crud(User.class);
-			var se = sessionEmail();
-			map.put("sessionUser", uc.read(se != null ? uc.find("email", se) : 0));
+			var c = persistence.crud(User.class);
+			var e = sessionEmail();
+			map.put("sessionUser", e != null ? c.read(c.find("email", e)) : null);
 		}
 		return (User) map.get("sessionUser");
 	}
 
 	public void requireSessionEmail() {
 		if (sessionEmail() == null)
+			throw new UnauthorizedException();
+	}
+
+	public void requireSessionRole(User.Role role) {
+		var u = sessionUser();
+		if (u == null || !u.hasRole(role))
 			throw new UnauthorizedException();
 	}
 

@@ -21,14 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.ecommerce;
+import WebComponent from "./web-component.js";
 
-import java.util.Set;
+export default class Archive extends WebComponent {
 
-public record VariantOption(String label, String slug, Set<Color> options) {
+	static get templateName() {
+		return "archive";
+	}
 
-	public enum Color {
+	constructor() {
+		super();
+	}
 
-		BLACK, BLUE, GREEN, GREY, ORANGE, PURPLE, RED, WHITE, YELLOW
+	async updateDisplay() {
+		const d = this.closest("page-element").data(this.dataset.path);
+		const pp = await (await fetch("/api/products")).json();
+		this.appendChild(this.interpolateDom({
+			$template: "",
+			...d,
+			articles: pp.map(x => ({
+				$template: "article",
+				...x
+			}))
+		}));
 	}
 }

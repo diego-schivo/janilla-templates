@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { WebComponent } from "./web-component.js";
+import WebComponent from "./web-component.js";
 
 const adminRegex = /^\/admin(\/.*)?$/;
-const productsRegex = /^\/products(\/.*)?$/;
+const ordersRegex = /^\/orders(\/.*)?$/;
+const productRegex = /^\/products(\/.*)$/;
 
 export default class Root extends WebComponent {
 
@@ -70,35 +71,51 @@ export default class Root extends WebComponent {
 
 	handleClick = event => {
 		const a = event.target.closest("a");
-		if (!a?.href || event.defaultPrevented || a.target)
-			return;
-		const u = new URL(a.href);
-		if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
-			return;
-		event.preventDefault();
-		history.pushState(undefined, "", u.pathname + u.search);
-		dispatchEvent(new CustomEvent("popstate"));
-		window.scrollTo(0, 0);
+		if (a?.href && !event.defaultPrevented && !a.target) {
+			if (a.getAttribute("href") === "#") {
+				event.preventDefault();
+				this.querySelector("dialog").showModal();
+			} else {
+				const u = new URL(a.href);
+				if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
+					return;
+				event.preventDefault();
+				history.pushState(undefined, "", u.pathname + u.search);
+				dispatchEvent(new CustomEvent("popstate"));
+			}
+		}
+		const b = event.target.closest("header button");
+		if (b) {
+			event.preventDefault();
+			b.nextElementSibling.showModal();
+		}
 	}
 
 	handlePopState = () => {
+		window.scrollTo(0, 0);
+		document.querySelectorAll("dialog[open]").forEach(x => x.close());
 		delete this.state.notFound;
 		this.requestDisplay();
 	}
 
 	async computeState() {
 		const s = this.state;
-		const nn = ["header", "footer", "redirects"];
+		const nn = location.pathname.match(adminRegex)
+			? ["user"]
+			: ["user", "header", "footer", "redirects", "config"];
 		nn.forEach(x => delete s[x]);
-		for (const [k, v] of await Promise.all(nn.map(x => {
-			const k = `/api/${x}`;
-			return this.fetchData(k).then(y => ([x, y]));
-		})))
+		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
+		for (const [k, v] of kkvv)
 			s[k] = v;
+		if (typeof Stripe !== "undefined")
+			s.stripe = Stripe(s.config.publishableKey, { apiVersion: "2020-08-27" });
 		this.requestDisplay();
 	}
 
 	async updateDisplay() {
+		const s = this.state;
+		s.computeState ??= this.computeState();
+
 		const m = location.pathname.match(adminRegex);
 		if (m) {
 			this.appendChild(this.interpolateDom({
@@ -111,8 +128,7 @@ export default class Root extends WebComponent {
 			}));
 			return;
 		}
-		const s = this.state;
-		s.computeState ??= this.computeState();
+
 		if (s.redirects)
 			for (const x of s.redirects)
 				if (x.from === location.pathname) {
@@ -120,9 +136,25 @@ export default class Root extends WebComponent {
 					dispatchEvent(new CustomEvent("popstate"));
 					return;
 				}
+
+		switch (location.pathname) {
+			case "/account":
+				if (!s.user) {
+					history.pushState(undefined, "", "/login");
+					dispatchEvent(new CustomEvent("popstate"));
+					return;
+				}
+				break;
+			case "/logout":
+				await fetch("/api/users/logout", { method: "POST" });
+				delete s.user;
+				break;
+		}
+
+		const cs = localStorage.getItem("janilla-templates.website.color-scheme");
 		const link = x => {
 			let h;
-			switch (x.type) {
+			switch (x.type.name) {
 				case "REFERENCE":
 					switch (x.reference?.$type) {
 						case "Page":
@@ -144,21 +176,55 @@ export default class Root extends WebComponent {
 				target: x.newTab ? "_blank" : null
 			};
 		};
-		const cs = localStorage.getItem("janilla-templates.website.color-scheme");
+		const c = JSON.parse(localStorage.getItem("cart"));
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			style: `color-scheme: ${cs ?? "light dark"}`,
 			header: s.header ? {
 				$template: "header",
-				navItems: s.header.navItems?.map(link)
+				navItems: s.header.navItems?.map(link),
+				cartQuantity: c?.items?.reduce((x, y) => x + y.quantity, 0) ?? 0,
+				cartItems: c?.items?.map(x => {
+					const v = x.product.variants[x.variant];
+					return {
+						$template: "cart-item",
+						...x,
+						variant: v,
+						option: v.options[0].$type.split(".")[0]
+					};
+				}),
+				cartTotal: c?.items?.reduce((x, y) => x + y.quantity * y.product.variants[y.variant].price, 0) ?? 0
 			} : null,
 			content: s.notFound ? { $template: "not-found" } : (() => {
-				const m2 = location.pathname.match(productsRegex);
+				switch (location.pathname) {
+					case "/account":
+						return { $template: "account" };
+					case "/checkout":
+						return { $template: "checkout" };
+					case "/login":
+						return { $template: "login" };
+					case "/logout":
+						return { $template: "logout" };
+					case "/order-confirmation":
+						return {
+							$template: "order-confirmation",
+							stripePaymentIntentId: new URLSearchParams(location.search).get("payment_intent")
+						};
+					case "/shop":
+						return { $template: "shop" };
+				}
+				const m2 = location.pathname.match(productRegex);
 				if (m2)
-					return m2[1] ? {
+					return {
 						$template: "product",
 						slug: m2[1].substring(1)
-					} : { $template: "products" };
+					};
+				const m3 = location.pathname.match(ordersRegex);
+				if (m3)
+					return m3[1] ? {
+						$template: "order",
+						id: m3[1].substring(1)
+					} : { $template: "orders" };
 				return location.pathname === "/search" ? {
 					$template: "search",
 					query: new URLSearchParams(location.search).get("query")
@@ -184,7 +250,7 @@ export default class Root extends WebComponent {
 	}
 
 	updateSeo(meta) {
-		const sn = "Janilla Website Template";
+		const sn = "Janilla Ecommerce Template";
 		const t = [meta?.title && meta.title !== sn ? meta.title : null, sn].filter(x => x).join(" | ");
 		const d = meta?.description ?? "";
 		for (const [k, v] of Object.entries({
