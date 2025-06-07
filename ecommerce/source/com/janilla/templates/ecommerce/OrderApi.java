@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpResponse;
 import com.janilla.json.Json;
+import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/orders")
@@ -41,6 +43,26 @@ public class OrderApi extends CollectionApi<Order> {
 
 	public OrderApi() {
 		super(Order.class, EcommerceTemplate.DRAFTS);
+	}
+
+	@Override
+	public List<Order> read() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Handle(method = "GET")
+	public List<Order> read(Long orderedBy, CustomHttpExchange exchange) {
+		var u = exchange.sessionUser();
+		if (u.hasRole(User.Role.ADMIN))
+			;
+		else if (u.hasRole(User.Role.CUSTOMER)) {
+			if (orderedBy == null)
+				orderedBy = u.id();
+			else if (orderedBy.longValue() != u.id())
+				throw new ForbiddenException();
+		}
+		var d = drafts.test(exchange);
+		return crud().read(orderedBy != null ? crud().filter("orderedBy", orderedBy) : crud().list(), d);
 	}
 
 	@Handle(method = "GET", path = "poll")

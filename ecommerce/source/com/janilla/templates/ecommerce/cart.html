@@ -1,0 +1,31 @@
+<button>Cart ${quantity}</button>
+<dialog>
+  <button>
+    <lucide-icon data-name="x"></lucide-icon>
+  </button>
+  <h2>My Cart</h2>
+  <p>Manage your cart here, add items to view the total.</p>
+  <!--${content}-->
+</dialog>
+
+<template id="empty">
+  <p>Your cart is empty.</p>
+</template>
+
+<template id="content">
+  <ul>
+    <!--${items}-->
+  </ul>
+  <p>Total: ${total}</p>
+  <a href="/checkout">Proceed to Checkout</a>
+</template>
+
+<template id="item">
+  <li>
+    <img src="${product.heroImage.uri}" />
+    <span>${product.title}</span>
+    <span>${option}</span>
+    <span>${variant.price}</span>
+    <span>${quantity}</span>
+  </li>
+</template>

@@ -62,8 +62,8 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	controlTemplate(field) {
 		switch (field.type) {
 			case "Set":
-				console.log("field", field);
-				if (field.name === "options" && field.parent.type === "Variant")
+				//console.log("field", field);
+				if (field.name === "options" && field.parent.type === "Product.Variant")
 					return "foo";
 				break;
 			case "String":

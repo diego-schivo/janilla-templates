@@ -10,36 +10,7 @@
 					"$type": "Hero.Type",
 					"name": "HIGH_IMPACT"
 				},
-				"richText": "<h1>Janilla Ecommerce Template</h1><p><a href=\"/admin\">Visit the admin dashboard</a> to begin managing this site's content. The code for this template is completely open-source and can be found <a href=\"https://github.com/diego-schivo/janilla-templates/tree/main/website\" rel=\"noopener noreferrer\" target=\"_blank\">on our Github</a>. </p>",
-				"links": [
-					{
-						"$type": "Link",
-						"type": {
-							"$type": "Link.Type",
-							"name": "CUSTOM"
-						},
-						"uri": "/shop",
-						"text": "Shop",
-						"appearance": {
-							"$type": "Link.Appearance",
-							"name": "DEFAULT"
-						}
-					},
-					{
-						"$type": "Link",
-						"type": {
-							"$type": "Link.Type",
-							"name": "CUSTOM"
-						},
-						"uri": "/contact",
-						"text": "Contact",
-						"appearance": {
-							"$type": "Link.Appearance",
-							"name": "OUTLINE"
-						}
-					}
-				],
-				"media": 4
+				"richText": "<h1>Janilla Ecommerce Template</h1><p><a href=\"/admin\">Visit the admin dashboard</a> to begin managing this site's content. The code for this template is completely open-source and can be found <a href=\"https://github.com/diego-schivo/janilla-templates/tree/main/website\" rel=\"noopener noreferrer\" target=\"_blank\">on our Github</a>. </p>"
 			},
 			"layout": [
 				{
@@ -100,10 +71,6 @@
 					"media": 2
 				},
 				{
-					"$type": "Archive",
-					"introContent": "<h3>Recent products</h3><p>The products below are displayed in an \"Archive\" layout building block which is an extremely powerful way to display documents on a page. It can be auto-populated by collection or by category, or products can be individually selected. Pagination controls will automatically appear if the number of results exceeds the number of items per page.</p>"
-				},
-				{
 					"$type": "CallToAction",
 					"richText": "<h3>This is a call to action</h3><p>This is a custom layout building block <a href=\"/admin\">configured in the admin dashboard</a>.</p>",
 					"links": [
@@ -130,7 +97,7 @@
 				"image": 4
 			},
 			"slug": "home",
-			"status": {
+			"documentStatus": {
 				"$type": "Document.Status",
 				"name": "PUBLISHED"
 			}
@@ -157,7 +124,7 @@
 				}
 			],
 			"slug": "contact",
-			"status": {
+			"documentStatus": {
 				"$type": "Document.Status",
 				"name": "PUBLISHED"
 			}
@@ -221,7 +188,7 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:07:44.965918Z",
-			"status": {
+			"documentStatus": {
 				"$type": "Document.Status",
 				"name": "PUBLISHED"
 			}
@@ -283,7 +250,7 @@
 			],
 			"variants": [
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -295,7 +262,7 @@
 					"stock": 423
 				},
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -322,7 +289,7 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:08:44.965918Z",
-			"status": {
+			"documentStatus": {
 				"$type": "Document.Status",
 				"name": "PUBLISHED"
 			}
@@ -388,7 +355,7 @@
 			],
 			"variants": [
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -400,7 +367,7 @@
 					"stock": 423
 				},
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -412,7 +379,7 @@
 					"stock": 889
 				},
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -424,7 +391,7 @@
 					"stock": 13
 				},
 				{
-					"$type": "Variant",
+					"$type": "Product.Variant",
 					"active": true,
 					"options": [
 						{
@@ -453,7 +420,7 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:09:44.965918Z",
-			"status": {
+			"documentStatus": {
 				"$type": "Document.Status",
 				"name": "PUBLISHED"
 			}
@@ -551,6 +518,20 @@
 				{
 					"$type": "User.Role",
 					"name": "ADMIN"
+				}
+			]
+		},
+		{
+			"$type": "User",
+			"id": 2,
+			"name": "Demo Customer",
+			"email": "demo-customer@example.com",
+			"salt": "8458738bcfcdc5f921a1fca90924b796",
+			"hash": "1295019a559b839208a43feb1aaada92b89736287d6c9c6241202824a2e2b144e3ac6fa33be475334cb2c4ded08b0e84d19b1c6173ff556ba5f09628b939336b",
+			"roles": [
+				{
+					"$type": "User.Role",
+					"name": "CUSTOMER"
 				}
 			]
 		}

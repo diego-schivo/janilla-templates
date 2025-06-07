@@ -72,7 +72,7 @@ public class CustomPersistence extends CmsPersistence {
 				public <E> void afterCreate(E entity) {
 					var d = (Document) entity;
 					var dc = d.getClass();
-					if (types.contains(dc) && d.status() == Document.Status.PUBLISHED)
+					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED)
 						crud(SearchResult.class)
 								.create(Reflection.copy(d,
 										new SearchResult(null, new Document.Reference<>(dc, d.id()), null, null, null,
@@ -87,9 +87,9 @@ public class CustomPersistence extends CmsPersistence {
 					var dc = d1.getClass();
 					if (types.contains(dc)) {
 						var c = crud(SearchResult.class);
-						switch (d1.status()) {
+						switch (d1.documentStatus()) {
 						case DRAFT:
-							if (d2.status() == d1.status())
+							if (d2.documentStatus() == d1.documentStatus())
 								;
 							else
 								c.create(Reflection.copy(d2,
@@ -98,7 +98,7 @@ public class CustomPersistence extends CmsPersistence {
 										y -> !Set.of("id", "document").contains(y)));
 							break;
 						case PUBLISHED:
-							if (d2.status() == d1.status())
+							if (d2.documentStatus() == d1.documentStatus())
 								c.update(c.find("document", new Document.Reference<>(dc, d2.id())),
 										x -> Reflection.copy(d2, x, y -> !Set.of("id", "document").contains(y)));
 							else
@@ -112,7 +112,7 @@ public class CustomPersistence extends CmsPersistence {
 				public <E> void afterDelete(E entity) {
 					var d = (Document) entity;
 					var dc = d.getClass();
-					if (types.contains(dc) && d.status() == Document.Status.PUBLISHED) {
+					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED) {
 						var c = crud(SearchResult.class);
 						c.delete(c.find("document", new Document.Reference<>(dc, d.id())));
 					}

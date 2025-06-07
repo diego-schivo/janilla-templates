@@ -23,25 +23,148 @@
  */
 package com.janilla.templates.ecommerce;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.SSLContext;
+
+import com.janilla.http.HttpClient;
 import com.janilla.http.HttpRequest;
 import com.janilla.json.Json;
+import com.janilla.net.Net;
 import com.janilla.persistence.Persistence;
+import com.janilla.util.EntryList;
 import com.janilla.web.Handle;
+import com.janilla.web.UnauthorizedException;
 
 @Handle(path = "/api/stripe")
 public class StripeApi {
 
 	public static Map<String, BlockingQueue<Order>> FOO = new ConcurrentHashMap<>();
 
+	public Properties configuration;
+
 	public Persistence persistence;
+
+	@Handle(method = "GET", path = "create-payment-intent")
+	public Map<String, Object> createPaymentIntent(String email, Long amount, CustomHttpExchange exchange)
+			throws GeneralSecurityException, IOException {
+		var u = exchange.sessionUser();
+		if (u == null && (email == null || email.isBlank()))
+			throw new UnauthorizedException("A user or an email is required for this transaction.");
+
+		if (u != null)
+			email = u.email();
+		var c = u != null ? u.stripeCustomerId() : null;
+		var sc = SSLContext.getInstance("TLSv1.3");
+		sc.init(null, null, null);
+		var a = "Basic " + Base64.getEncoder()
+				.encodeToString((configuration.getProperty("ecommerce-template.stripe.secret-key") + ":").getBytes());
+
+		if (c == null) {
+			var rq = new HttpRequest();
+			rq.setMethod("GET");
+			var el = new EntryList<String, String>();
+			el.add("email", email);
+			rq.setTarget("/v1/customers?" + Net.formatQueryString(el));
+			rq.setScheme("https");
+			rq.setAuthority("api.stripe.com");
+			rq.setHeaderValue("authorization", a);
+			var oo1 = new Object[1];
+			new HttpClient(sc).send(rq, rs -> {
+				try {
+					oo1[0] = Json.parse(
+							new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			@SuppressWarnings("unchecked")
+			var m1 = (Map<String, Object>) oo1[0];
+			System.out.println("m1=" + m1);
+			@SuppressWarnings("unchecked")
+			var l1 = (List<Object>) m1.get("data");
+			@SuppressWarnings("unchecked")
+			var m2 = !l1.isEmpty() ? (Map<String, Object>) l1.getFirst() : null;
+			c = m2 != null ? (String) m2.get("id") : null;
+		}
+
+		if (c == null) {
+			var rq = new HttpRequest();
+			rq.setMethod("POST");
+			rq.setTarget("/v1/customers");
+			rq.setScheme("https");
+			rq.setAuthority("api.stripe.com");
+			rq.setHeaderValue("authorization", a);
+			var el = new EntryList<String, String>();
+			el.add("email", email);
+			var bb = Net.formatQueryString(el).getBytes();
+			rq.setHeaderValue("content-length", String.valueOf(bb.length));
+			rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
+			rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
+			var oo2 = new Object[1];
+			new HttpClient(sc).send(rq, rs -> {
+				try {
+					oo2[0] = Json.parse(
+							new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			@SuppressWarnings("unchecked")
+			var m3 = (Map<String, Object>) oo2[0];
+			System.out.println("m3=" + m3);
+			c = (String) m3.get("id");
+		}
+
+		if (u == null)
+			u = persistence.crud(User.class).create(new User(null, null, email, null, null, null, null,
+					Set.of(User.Role.CUSTOMER), c, null, null, null, null, null));
+		else if (u.stripeCustomerId() == null) {
+			var c0 = c;
+			u = persistence.crud(User.class).update(u.id(), x -> x.withStripeCustomerId(c0));
+		}
+
+		var rq = new HttpRequest();
+		rq.setMethod("POST");
+		rq.setTarget("/v1/payment_intents");
+		rq.setScheme("https");
+		rq.setAuthority("api.stripe.com");
+		rq.setHeaderValue("authorization", a);
+		var el = new EntryList<String, String>();
+		el.add("customer", c);
+		el.add("amount", amount.toString());
+		el.add("currency", "usd");
+		el.add("automatic_payment_methods[enabled]", "true");
+		var bb = Net.formatQueryString(el).getBytes();
+		rq.setHeaderValue("content-length", String.valueOf(bb.length));
+		rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
+		rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
+		var oo2 = new Object[1];
+		new HttpClient(sc).send(rq, rs -> {
+			try {
+				oo2[0] = Json
+						.parse(new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		@SuppressWarnings("unchecked")
+		var m3 = (Map<String, Object>) oo2[0];
+		System.out.println("m3=" + m3);
+		return m3;
+	}
 
 	@Handle(path = "webhooks")
 	public void webhooks(HttpRequest request) throws IOException {
@@ -54,8 +177,11 @@ public class StripeApi {
 			var t = m.get("type");
 			if (t.equals("payment_intent.succeeded")) {
 				var m2 = Json.asMap(Json.asMap(m.get("data")).get("object"));
-				var o = persistence.crud(Order.class).create(
-						new Order(null, (String) m2.get("id"), (Long) m2.get("amount"), null, null, null, null));
+//				System.out.println("m2=" + m2);
+				var uc = persistence.crud(User.class);
+				var u = uc.read(uc.filter("stripeCustomerId", (String) m2.get("customer"))[0]);
+				var o = persistence.crud(Order.class).create(new Order(null, u.id(), (String) m2.get("id"),
+						(Long) m2.get("amount"), null, null, Order.Status.PROCESSING, null, null, null, null));
 				var q = FOO.computeIfAbsent(o.stripePaymentIntentId(), _ -> new ArrayBlockingQueue<>(1));
 				try {
 					q.put(o);

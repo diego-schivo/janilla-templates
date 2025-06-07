@@ -56,9 +56,16 @@ export default class Checkout extends WebComponent {
 
 	async updateDisplay() {
 		const s = this.state;
-		this.closest("root-element").updateSeo(null);
+		const r = this.closest("root-element");
+		const u = r.state.user;
+		s.email = u?.email;
+		r.updateSeo(null);
 		this.appendChild(this.interpolateDom({
 			$template: "",
+			user: u ? {
+				$template: "user",
+				...u
+			} : { $template: "guest" },
 			payment: s.email ? {
 				$template: "payment",
 				email: s.email,

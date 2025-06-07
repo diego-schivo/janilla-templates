@@ -1,50 +1,16 @@
 <main>
-  <article class="hero" style='background-image: url("${heroImage.uri}")'>
-    <div></div>
-    <section>
-      <div>
-        <h1>${title}</h1>
-        <dl>
-          <div>
-            <dt>Author</dt>
-            <dd>Demo Author</dd>
-          </div>
-          <div>
-            <dt>Date Published</dt>
-            <dd>02/06/2025</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
-  </article>
-  <div>
+  <article>
+    <img src="${meta.image.uri}" loading="lazy" />
+    <h1>${meta.title}</h1>
+    <p>${lowestAmount} - ${highestAmount}</p>
+    <p>${meta.description}</p>
     <form>
       <!--${variantSelector}-->
       <button>Add To Cart</button>
     </form>
-    <!--${content}-->
-    <div class="cards">
-      <!--${cards}-->
-    </div>
-  </div>
+  </article>
 </main>
 
 <template id="variant-selector">
   <variant-selector></variant-selector>
-</template>
-
-<template id="banner">
-  <banner-element data-path="${path}"></banner-element>
-</template>
-
-<template id="rich-text">
-  <rich-text data-path="${path}"></rich-text>
-</template>
-
-<template id="media-block">
-  <media-block data-path="${path}"></media-block>
-</template>
-
-<template id="card">
-  <card-element data-slug="${slug}"></card-element>
 </template>

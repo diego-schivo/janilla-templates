@@ -1,10 +1,10 @@
 @import "base.css";
 
 @import "account.css";
-@import "archive.css";
 @import "banner.css";
 @import "call-to-action.css";
 @import "card.css";
+@import "cart.css";
 @import "checkout.css";
 @import "content.css";
 @import "rich-text.css";
@@ -17,6 +17,7 @@
 @import "not-found.css";
 @import "order.css";
 @import "order-confirmation.css";
+@import "orders.css";
 @import "page.css";
 @import "payment.css";
 @import "product.css";

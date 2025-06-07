@@ -1,17 +1,7 @@
 <main>
   <article>
     <h2>Contact</h2>
-    <p>
-      <a href="/login">Log in</a> or <a href="/create-account">create an account</a>
-    </p>
-    <form>
-      <p>Enter your email to checkout as a guest.</p>
-      <label>
-        Email Address
-        <input name="email" />
-      </label>
-      <button>Continue as guest</button>
-    </form>
+    <!--${user}-->
     <!--${payment}-->
     <article>
       <h2>Your Cart</h2>
@@ -22,6 +12,28 @@
     </article>
   </article>
 </main>
+
+<template id="user">
+  <p>${email}</p>
+  <p>
+    Not you?
+    <a href="/logout">Log out</a>
+  </p>
+</template>
+
+<template id="guest">
+  <p>
+    <a href="/login">Log in</a> or <a href="/create-account">create an account</a>
+  </p>
+  <form>
+    <p>Enter your email to checkout as a guest.</p>
+    <label>
+      Email Address
+      <input name="email" />
+    </label>
+    <button>Continue as guest</button>
+  </form>
+</template>
 
 <template id="payment">
   <payment-element data-email="${email}" data-amount="${amount}"></payment-element>

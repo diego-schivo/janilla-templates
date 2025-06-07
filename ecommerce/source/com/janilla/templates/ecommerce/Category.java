@@ -31,5 +31,5 @@ import com.janilla.persistence.Store;
 
 @Store
 public record Category(Long id, String title, @Index String slug, Instant createdAt, Instant updatedAt,
-		Document.Status status, Instant publishedAt) implements Document {
+		Document.Status documentStatus, Instant publishedAt) implements Document {
 }

@@ -15,10 +15,10 @@
       <lucide-icon data-name="menu"></lucide-icon>
     </button>
     <dialog>
+      <button>
+        <lucide-icon data-name="x"></lucide-icon>
+      </button>
       <ul>
-        <li>
-          <a href="/login">Log in</a>
-        </li>
         <li>
           <a href="/">Home</a>
         </li>
@@ -29,45 +29,32 @@
           <a href="/account">Account</a>
         </li>
         <li>
-          <a href="/logout">Log out</a>
+          <a href="/orders">Orders</a>
         </li>
+        <!--${logItem}-->
       </ul>
     </dialog>
     <a href="/">
       <img src="/images/janilla-logo-light.svg" loading="lazy" />
     </a>
-    <nav>
-      <!--${navItems}-->
-      <a href="/search">
-        <span class="visually-hidden">Search</span>
-        <lucide-icon data-name="search"></lucide-icon>
-      </a>
-      <a href="#">Cart:${cartQuantity}</a>
-      <dialog>
-        <h2>My Cart</h2>
-        <p>Manage your cart here, add items to view the total.</p>
-        <ul>
-          <!--${cartItems}-->
-        </ul>
-        <p>Total: ${cartTotal}</p>
-        <a href="/checkout">Proceed to Checkout</a>
-      </dialog>
-    </nav>
+    <cart-element></cart-element>
   </header>
+</template>
+
+<template id="login-item">
+  <li>
+    <a href="/login">Log in</a>
+  </li>
+</template>
+
+<template id="logout-item">
+  <li>
+    <a href="/logout">Log out</a>
+  </li>
 </template>
 
 <template id="link">
   <a href="${href}" target="${target}">${text}</a>
-</template>
-
-<template id="cart-item">
-  <li>
-    <img src="${product.heroImage.uri}" />
-    <span>${product.title}</span>
-    <span>${option}</span>
-    <span>${variant.price}</span>
-    <span>${quantity}</span>
-  </li>
 </template>
 
 <template id="page">

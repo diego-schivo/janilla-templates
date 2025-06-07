@@ -23,26 +23,35 @@
  */
 import WebComponent from "./web-component.js";
 
-export default class Archive extends WebComponent {
+export default class Orders extends WebComponent {
 
 	static get templateName() {
-		return "archive";
+		return "orders";
 	}
 
 	constructor() {
 		super();
 	}
 
+	async computeState() {
+		const s = this.state;
+		delete s.orders;
+		s.orders = await this.closest("root-element").fetchData("/api/orders");
+		this.requestDisplay();
+	}
+
 	async updateDisplay() {
-		const d = this.closest("page-element").data(this.dataset.path);
-		const pp = await (await fetch("/api/products")).json();
+		const s = this.state;
+		s.computeState ??= this.computeState();
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			...d,
-			articles: pp.map(x => ({
-				$template: "article",
-				...x
-			}))
+			content: s.orders?.length ? {
+				$template: "list",
+				items: s.orders.map(x => ({
+					$template: "item",
+					...x
+				}))
+			} : { $template: "empty" }
 		}));
 	}
 }

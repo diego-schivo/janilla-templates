@@ -1,0 +1,27 @@
+<main>
+  <article>
+    <h1>Orders</h1>
+    <!--${content}-->
+  </article>
+</main>
+
+<template id="empty">
+  <p>You have no orders.</p>
+</template>
+
+<template id="list">
+  <ul>
+    <!--${items}-->
+  </ul>
+</template>
+
+<template id="item">
+  <li>
+    <article>
+      <h3>#${id}</h3>
+      <time datetime="${createdAt}">${createdAt}</time>
+      <span>${status}</span>
+      <span></span>
+    </article>
+  </li>
+</template>

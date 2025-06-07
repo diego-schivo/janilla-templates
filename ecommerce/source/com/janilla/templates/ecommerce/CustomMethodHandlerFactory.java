@@ -25,6 +25,7 @@ package com.janilla.templates.ecommerce;
 
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.json.MapAndType;
@@ -52,8 +53,14 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 				var ex = (CustomHttpExchange) exchange;
 				if (rq.getPath().equals("/api/users/logout"))
 					ex.requireSessionEmail();
-				else
-					ex.requireSessionRole(User.Role.ADMIN);
+				else {
+					var m = Pattern.compile("/api/users/(\\d+)").matcher(rq.getPath());
+					var u = ex.sessionUser();
+					if (m.matches() && u != null && u.id().equals(Long.parseLong(m.group(1))))
+						;
+					else
+						ex.requireSessionRole(User.Role.ADMIN);
+				}
 			}
 		}
 

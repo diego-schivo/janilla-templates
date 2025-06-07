@@ -1,2 +1,18 @@
 variant-selector {
+  dd {
+    display: flex;
+    gap: 1rem;
+  }
+
+  label {
+    border-radius: 0.25rem;
+    color: gray;
+    line-height: 1rem;
+    padding: 0.5rem;
+
+    &:has(:checked) {
+      background: darkgray;
+      color: white;
+    }
+  }
 }

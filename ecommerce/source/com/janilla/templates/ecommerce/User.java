@@ -29,20 +29,24 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.Types;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
 public record User(Long id, String name, @Index String email, String salt, String hash,
-		@Index String resetPasswordToken, Instant resetPasswordExpiration, Set<Role> roles, Instant createdAt,
-		Instant updatedAt, Document.Status status, Instant publishedAt) implements Document {
+		@Index String resetPasswordToken, Instant resetPasswordExpiration, Set<Role> roles,
+		@Index String stripeCustomerId, Cart cart, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
+		Instant publishedAt) implements Document {
 
 	private static final SecretKeyFactory SECRET;
 
@@ -67,6 +71,10 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 		return k.getEncoded();
 	}
 
+	public boolean hasRole(Role role) {
+		return roles != null && roles.contains(role);
+	}
+
 	public boolean passwordEquals(String password) {
 		var f = HexFormat.of();
 		var s = f.parseHex(salt);
@@ -76,27 +84,50 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 
 	public User withPassword(String password) {
 		if (password == null || password.isEmpty())
-			return new User(id, name, email, null, null, resetPasswordToken, resetPasswordExpiration, roles, createdAt,
-					updatedAt, status, publishedAt);
+			return new User(id, name, email, null, null, resetPasswordToken, resetPasswordExpiration, roles,
+					stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
 		var s = new byte[16];
 		RANDOM.nextBytes(s);
 		var h = hash(password.toCharArray(), s);
 		var f = HexFormat.of();
 		return new User(id, name, email, f.formatHex(s), f.formatHex(h), resetPasswordToken, resetPasswordExpiration,
-				roles, createdAt, updatedAt, status, publishedAt);
+				roles, stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
 	}
 
 	public User withResetPassword(String resetPasswordToken, Instant resetPasswordExpiration) {
-		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles, createdAt,
-				updatedAt, status, publishedAt);
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles,
+				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
 	}
 
-	public boolean hasRole(Role role) {
-		return roles != null && roles.contains(role);
+	public User withStripeCustomerId(String stripeCustomerId) {
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles,
+				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
+	}
+
+	public User withCart(Cart cart) {
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles,
+				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
 	}
 
 	public enum Role {
 
 		ADMIN, CUSTOMER
+	}
+
+	public record Cart(List<Item> items) {
+
+		public record Item(UUID id, @Types(Product.class) Long product, UUID variantId, Long unitPrice,
+				Integer quantity) {
+
+			public Item withId(UUID id) {
+				return new Item(id, product, variantId, unitPrice, quantity);
+			}
+		}
+
+		public Cart withNonNullItemIds() {
+			return items != null && items.stream().anyMatch(x -> x.id() == null)
+					? new Cart(items.stream().map(x -> x.id() == null ? x.withId(UUID.randomUUID()) : x).toList())
+					: this;
+		}
 	}
 }

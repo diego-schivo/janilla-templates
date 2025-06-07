@@ -25,6 +25,8 @@ package com.janilla.templates.ecommerce;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import com.janilla.cms.Document;
 import com.janilla.cms.Types;
@@ -38,13 +40,32 @@ import com.janilla.persistence.Store;
 public record Product(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, MediaBlock.class, RichText.class }) Object> content, Boolean enableVariants,
 		List<@Types({ Fabric.class, Size.class, Color.class }) Object> variantOptions, List<Variant> variants,
-		Long stock, Long price, List<@Types(Product.class) Long> relatedProducts,
+		Long stock, Long price, //List<@Types(Product.class) Long> relatedProducts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
-		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status status,
+		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
 		Instant publishedAt) implements Document{
 
-	public Product withRelatedProducts(List<Long> relatedProducts) {
+	public Product withVariants(List<Variant> variants) {
 		return new Product(id, title, heroImage, content, enableVariants, variantOptions, variants, stock, price,
-				relatedProducts, categories, meta, slug, authors, createdAt, updatedAt, status, publishedAt);
+//				relatedProducts, 
+				categories, meta, slug, authors, createdAt, updatedAt, documentStatus, publishedAt);
+	}
+
+//	public Product withRelatedProducts(List<Long> relatedProducts) {
+//		return new Product(id, title, heroImage, content, enableVariants, variantOptions, variants, stock, price,
+//				relatedProducts, categories, meta, slug, authors, createdAt, updatedAt, documentStatus, publishedAt);
+//	}
+
+	public Product withNonNullVariantIds() {
+		return variants != null && variants.stream().anyMatch(x -> x.id() == null)
+				? withVariants(variants.stream().map(x -> x.id() == null ? x.withId(UUID.randomUUID()) : x).toList())
+				: this;
+	}
+
+	public record Variant(UUID id, Boolean active, Set<Object> options, Long price, Long stock) {
+
+		public Variant withId(UUID id) {
+			return new Variant(id, active, options, price, stock);
+		}
 	}
 }

@@ -23,11 +23,7 @@
  */
 package com.janilla.templates.ecommerce;
 
-import java.util.List;
-
-import com.janilla.cms.Types;
-
-public record Hero(Type type, String richText, List<Link> links, @Types(Media.class) Long media) {
+public record Hero(Type type, String richText) {
 
 	public enum Type {
 

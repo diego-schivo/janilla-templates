@@ -38,11 +38,11 @@ import com.janilla.persistence.Store;
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, MediaBlock.class, RichText.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
-		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status status,
+		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
 		Instant publishedAt) implements Document{
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {
 		return new Post(id, title, heroImage, content, relatedPosts, categories, meta, slug, authors, createdAt,
-				updatedAt, status, publishedAt);
+				updatedAt, documentStatus, publishedAt);
 	}
 }

@@ -23,10 +23,10 @@
  */
 import WebComponent from "./web-component.js";
 
-export default class Login extends WebComponent {
+export default class Cart extends WebComponent {
 
 	static get templateName() {
-		return "login";
+		return "cart";
 	}
 
 	constructor() {
@@ -35,35 +35,53 @@ export default class Login extends WebComponent {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.addEventListener("submit", this.handleSubmit);
+		this.addEventListener("click", this.handleClick);
+		const r = this.closest("root-element");
+		r.addEventListener("cart-change", this.handleCartChange);
+		r.addEventListener("user-change", this.handleUserChange);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this.removeEventListener("submit", this.handleSubmit);
-		while (this.firstChild)
-			this.removeChild(this.lastChild);
+		this.removeEventListener("click", this.handleClick);
+		const r = this.closest("root-element");
+		r.removeEventListener("cart-change", this.handleCartChange);
+		r.removeEventListener("user-change", this.handleUserChange);
 	}
 
-	handleSubmit = async event => {
-		event.preventDefault();
-		const r = await fetch("/api/users/login", {
-			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify(Object.fromEntries(new FormData(event.target)))
-		});
-		if (r.ok) {
-			this.dispatchEvent(new CustomEvent("user-change", {
-				bubbles: true,
-				detail: { user: await r.json() }
-			}));
-			history.pushState(undefined, "", "/account");
-			dispatchEvent(new CustomEvent("popstate"));
-		}
+	handleCartChange = () => {
+		this.requestDisplay();
+	}
+
+	handleUserChange = () => {
+		this.requestDisplay();
+	}
+
+	handleClick = event => {
+		const b = event.target.closest("button");
+		b?.closest("dialog")?.close();
 	}
 
 	async updateDisplay() {
-		this.closest("root-element").updateSeo(null);
-		this.appendChild(this.interpolateDom({ $template: "" }));
+		const u = this.closest("root-element").state.user;
+		const c = u ? u.cart : JSON.parse(localStorage.getItem("cart"));
+		const cq = c?.items?.reduce((x, y) => x + y.quantity, 0) ?? 0;
+		this.appendChild(this.interpolateDom({
+			$template: "",
+			quantity: cq > 0 ? cq : null,
+			content: cq > 0 ? {
+				$template: "content",
+				items: c?.items?.map(x => {
+					const v = x.product.variants.find(y => y.id === x.variantId);
+					return {
+						$template: "item",
+						...x,
+						variant: v,
+						option: v.options[0].$type.split(".")[0]
+					};
+				}),
+				total: c?.items?.reduce((x, y) => x + y.quantity * y.unitPrice, 0) ?? 0
+			} : { $template: "empty" }
+		}));
 	}
 }

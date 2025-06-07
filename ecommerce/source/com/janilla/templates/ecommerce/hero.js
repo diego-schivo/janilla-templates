@@ -37,7 +37,6 @@ export default class Hero extends WebComponent {
 		const d = this.closest("page-element").data(this.dataset.path);
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			style: d.media?.uri ? `background-image: url("${d.media.uri}")` : null,
 			...d,
 			links: d.links?.map(x => ({
 				$template: "link",

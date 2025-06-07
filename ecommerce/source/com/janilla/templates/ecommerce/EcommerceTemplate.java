@@ -23,18 +23,12 @@
  */
 package com.janilla.templates.ecommerce;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.GeneralSecurityException;
 import java.util.AbstractMap;
-import java.util.Base64;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -48,10 +42,8 @@ import javax.net.ssl.SSLContext;
 
 import com.janilla.cms.Cms;
 import com.janilla.cms.DocumentCrud;
-import com.janilla.http.HttpClient;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
-import com.janilla.http.HttpRequest;
 import com.janilla.http.HttpServer;
 import com.janilla.json.Json;
 import com.janilla.json.MapAndType;
@@ -61,7 +53,6 @@ import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Factory;
 import com.janilla.smtp.SmtpClient;
-import com.janilla.util.EntryList;
 import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerBuilder;
 import com.janilla.web.Handle;
@@ -189,11 +180,11 @@ public class EcommerceTemplate {
 			}
 		}
 
-		var m = PRODUCTS.matcher(path);
 		Meta m2;
 		Map<String, Object> m3 = new LinkedHashMap<>();
 		m3.put("/api/redirects", persistence.crud(Redirect.class).read(persistence.crud(Redirect.class).list()));
 		m3.put("/api/header", persistence.crud(Header.class).read(1));
+		var m = PRODUCTS.matcher(path);
 		if (m.matches()) {
 			var c = ((DocumentCrud<Product>) persistence.crud(Product.class));
 			var d = DRAFTS.test(exchange);
@@ -207,16 +198,28 @@ public class EcommerceTemplate {
 				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
 				m3.put("/api/products?slug=" + s, pp);
 			}
-		} else {
-			var c = ((DocumentCrud<Page>) persistence.crud(Page.class));
-			var d = DRAFTS.test(exchange);
-			var s = path.substring(1);
-			if (s.isEmpty())
-				s = "home";
-			var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
-			m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
-			m3.put("/api/pages?slug=" + s, pp);
-		}
+		} else
+			switch (path) {
+			case "/account":
+				m2 = null;
+				break;
+			case "/orders":
+				m2 = null;
+				var oc = persistence.crud(Order.class);
+				var oo = oc.read(oc.filter("orderedBy", exchange.sessionUser().id()));
+				m3.put("/api/orders", oo);
+				break;
+			default:
+				var pc = (DocumentCrud<Page>) persistence.crud(Page.class);
+				var d = DRAFTS.test(exchange);
+				var s = path.substring(1);
+				if (s.isEmpty())
+					s = "home";
+				var pp = pc.read(pc.filter(d ? "slugDraft" : "slug", s), d);
+				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
+				m3.put("/api/pages?slug=" + s, pp);
+				break;
+			}
 		m3.put("/api/footer", persistence.crud(Footer.class).read(1));
 		return new Index("/style.css", m2, m3);
 	}
@@ -234,98 +237,6 @@ public class EcommerceTemplate {
 	@Handle(method = "GET", path = "/api/config")
 	public Map<String, String> config() {
 		return Map.of("publishableKey", configuration.getProperty("ecommerce-template.stripe.publishable-key"));
-	}
-
-	@Handle(method = "GET", path = "/api/create-payment-intent")
-	public Map<String, Object> createPaymentIntent(String email, Long amount)
-			throws GeneralSecurityException, IOException {
-		var sc = SSLContext.getInstance("TLSv1.3");
-		sc.init(null, null, null);
-		var a = "Basic " + Base64.getEncoder()
-				.encodeToString((configuration.getProperty("ecommerce-template.stripe.secret-key") + ":").getBytes());
-
-		var rq = new HttpRequest();
-		rq.setMethod("GET");
-		var el = new EntryList<String, String>();
-		el.add("email", email);
-		rq.setTarget("/v1/customers?" + Net.formatQueryString(el));
-		rq.setScheme("https");
-		rq.setAuthority("api.stripe.com");
-		rq.setHeaderValue("authorization", a);
-		var oo1 = new Object[1];
-		new HttpClient(sc).send(rq, rs -> {
-			try {
-				oo1[0] = Json
-						.parse(new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-		@SuppressWarnings("unchecked")
-		var m1 = (Map<String, Object>) oo1[0];
-		System.out.println("m1=" + m1);
-		@SuppressWarnings("unchecked")
-		var l1 = (List<Object>) m1.get("data");
-		@SuppressWarnings("unchecked")
-		var m2 = !l1.isEmpty() ? (Map<String, Object>) l1.getFirst() : null;
-		var c = m2 != null ? (String) m2.get("id") : null;
-
-		if (c == null) {
-			rq = new HttpRequest();
-			rq.setMethod("POST");
-			rq.setTarget("/v1/customers");
-			rq.setScheme("https");
-			rq.setAuthority("api.stripe.com");
-			rq.setHeaderValue("authorization", a);
-			el = new EntryList<String, String>();
-			el.add("email", email);
-			var bb = Net.formatQueryString(el).getBytes();
-			rq.setHeaderValue("content-length", String.valueOf(bb.length));
-			rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
-			rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
-			var oo2 = new Object[1];
-			new HttpClient(sc).send(rq, rs -> {
-				try {
-					oo2[0] = Json.parse(
-							new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-			@SuppressWarnings("unchecked")
-			var m3 = (Map<String, Object>) oo2[0];
-			System.out.println("m3=" + m3);
-			c = (String) m3.get("id");
-		}
-
-		rq = new HttpRequest();
-		rq.setMethod("POST");
-		rq.setTarget("/v1/payment_intents");
-		rq.setScheme("https");
-		rq.setAuthority("api.stripe.com");
-		rq.setHeaderValue("authorization", a);
-		el = new EntryList<String, String>();
-		el.add("customer", c);
-		el.add("amount", amount.toString());
-		el.add("currency", "usd");
-		el.add("automatic_payment_methods[enabled]", "true");
-		var bb = Net.formatQueryString(el).getBytes();
-		rq.setHeaderValue("content-length", String.valueOf(bb.length));
-		rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
-		rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
-		var oo2 = new Object[1];
-		new HttpClient(sc).send(rq, rs -> {
-			try {
-				oo2[0] = Json
-						.parse(new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-		@SuppressWarnings("unchecked")
-		var m3 = (Map<String, Object>) oo2[0];
-		System.out.println("m3=" + m3);
-		return m3;
 	}
 
 	@Render(template = "index.html")

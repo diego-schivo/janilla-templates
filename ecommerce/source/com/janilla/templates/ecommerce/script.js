@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 import Account from "./account.js";
-import Archive from "./archive.js";
 import Banner from "./banner.js";
 import CallToAction from "./call-to-action.js";
 import Card from "./card.js";
+import Cart from "./cart.js";
 import Checkout from "./checkout.js";
 import CmsArray from "./cms-array.js";
 import CmsCheckbox from "./cms-checkbox.js";
@@ -67,6 +67,7 @@ import MediaBlock from "./media-block.js";
 import NotFound from "./not-found.js";
 import Order from "./order.js";
 import OrderConfirmation from "./order-confirmation.js";
+import Orders from "./orders.js";
 import Page from "./page.js";
 import Payment from "./payment.js";
 import Product from "./product.js";
@@ -77,10 +78,10 @@ import Shop from "./shop.js";
 import VariantSelector from "./variant-selector.js";
 
 customElements.define("account-element", Account);
-customElements.define("archive-element", Archive);
 customElements.define("banner-element", Banner);
 customElements.define("call-to-action", CallToAction);
 customElements.define("card-element", Card);
+customElements.define("cart-element", Cart);
 customElements.define("checkout-element", Checkout);
 customElements.define("cms-admin", CustomCmsAdmin);
 customElements.define("cms-array", CmsArray);
@@ -122,6 +123,7 @@ customElements.define("media-block", MediaBlock);
 customElements.define("not-found", NotFound);
 customElements.define("order-element", Order);
 customElements.define("order-confirmation", OrderConfirmation);
+customElements.define("orders-element", Orders);
 customElements.define("page-element", Page);
 customElements.define("payment-element", Payment);
 customElements.define("product-element", Product);

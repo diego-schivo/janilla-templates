@@ -36,7 +36,7 @@ public class CustomReflectionJsonIterator extends CmsReflectionJsonIterator {
 
 	@Override
 	protected List<?> list(List<?> list) {
-		return super.list(list).stream()
-				.map(x -> x instanceof Product y && y.relatedProducts() != null ? y.withRelatedProducts(null) : x).toList();
+		return super.list(list); //.stream()
+				//.map(x -> x instanceof Product y && y.relatedProducts() != null ? y.withRelatedProducts(null) : x).toList();
 	}
 }

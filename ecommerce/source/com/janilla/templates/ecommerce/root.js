@@ -49,6 +49,7 @@ export default class Root extends WebComponent {
 		this.addEventListener("change", this.handleChange);
 		this.addEventListener("click", this.handleClick);
 		addEventListener("popstate", this.handlePopState);
+		this.addEventListener("user-change", this.handleUserChange);
 	}
 
 	disconnectedCallback() {
@@ -56,6 +57,7 @@ export default class Root extends WebComponent {
 		this.removeEventListener("change", this.handleChange);
 		this.removeEventListener("click", this.handleClick);
 		removeEventListener("popstate", this.handlePopState);
+		this.removeEventListener("user-change", this.handleUserChange);
 	}
 
 	handleChange = event => {
@@ -84,10 +86,13 @@ export default class Root extends WebComponent {
 				dispatchEvent(new CustomEvent("popstate"));
 			}
 		}
-		const b = event.target.closest("header button");
+		const b = event.target.closest("button");
 		if (b) {
-			event.preventDefault();
-			b.nextElementSibling.showModal();
+			const d = b.closest("dialog");
+			if (d)
+				d.close();
+			else if (b.closest("header"))
+				b.nextElementSibling.showModal();
 		}
 	}
 
@@ -96,6 +101,13 @@ export default class Root extends WebComponent {
 		document.querySelectorAll("dialog[open]").forEach(x => x.close());
 		delete this.state.notFound;
 		this.requestDisplay();
+	}
+
+	handleUserChange = event => {
+		if (event.detail?.user)
+			this.state.user = event.detail.user;
+		else
+			delete this.state.user;
 	}
 
 	async computeState() {
@@ -107,7 +119,7 @@ export default class Root extends WebComponent {
 		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
 		for (const [k, v] of kkvv)
 			s[k] = v;
-		if (typeof Stripe !== "undefined")
+		if (typeof Stripe !== "undefined" && s.config)
 			s.stripe = Stripe(s.config.publishableKey, { apiVersion: "2020-08-27" });
 		this.requestDisplay();
 	}
@@ -122,7 +134,7 @@ export default class Root extends WebComponent {
 				$template: "",
 				admin: {
 					$template: "admin",
-					email: this.querySelector("cms-admin")?.state?.me?.email,
+					email: this.state?.user?.email,
 					path: m[1] ?? "/"
 				}
 			}));
@@ -139,7 +151,7 @@ export default class Root extends WebComponent {
 
 		switch (location.pathname) {
 			case "/account":
-				if (!s.user) {
+				if (s.user === null) {
 					history.pushState(undefined, "", "/login");
 					dispatchEvent(new CustomEvent("popstate"));
 					return;
@@ -147,7 +159,7 @@ export default class Root extends WebComponent {
 				break;
 			case "/logout":
 				await fetch("/api/users/logout", { method: "POST" });
-				delete s.user;
+				this.dispatchEvent(new CustomEvent("user-change"));
 				break;
 		}
 
@@ -176,24 +188,12 @@ export default class Root extends WebComponent {
 				target: x.newTab ? "_blank" : null
 			};
 		};
-		const c = JSON.parse(localStorage.getItem("cart"));
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			style: `color-scheme: ${cs ?? "light dark"}`,
 			header: s.header ? {
 				$template: "header",
-				navItems: s.header.navItems?.map(link),
-				cartQuantity: c?.items?.reduce((x, y) => x + y.quantity, 0) ?? 0,
-				cartItems: c?.items?.map(x => {
-					const v = x.product.variants[x.variant];
-					return {
-						$template: "cart-item",
-						...x,
-						variant: v,
-						option: v.options[0].$type.split(".")[0]
-					};
-				}),
-				cartTotal: c?.items?.reduce((x, y) => x + y.quantity * y.product.variants[y.variant].price, 0) ?? 0
+				logItem: { $template: s.user ? "logout-item" : "login-item" }
 			} : null,
 			content: s.notFound ? { $template: "not-found" } : (() => {
 				switch (location.pathname) {

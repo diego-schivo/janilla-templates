@@ -32,4 +32,43 @@ export default class Account extends WebComponent {
 	constructor() {
 		super();
 	}
+
+	connectedCallback() {
+		super.connectedCallback();
+		this.addEventListener("submit", this.handleSubmit);
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.removeEventListener("submit", this.handleSubmit);
+		while (this.firstChild)
+			this.removeChild(this.lastChild);
+	}
+
+	handleSubmit = async event => {
+		event.preventDefault();
+		const u = this.closest("root-element").state.user;
+		const r = await fetch(`/api/users/${u.id}`, {
+			method: "PATCH",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				$type: "User",
+				...Object.fromEntries(new FormData(event.target))
+			})
+		});
+		if (r.ok) {
+			this.dispatchEvent(new CustomEvent("user-change", {
+				bubbles: true,
+				detail: { user: await r.json() }
+			}));
+			this.requestDisplay();
+		}
+	}
+
+	async updateDisplay() {
+		this.appendChild(this.interpolateDom({
+			$template: "",
+			user: this.closest("root-element").state.user
+		}));
+	}
 }

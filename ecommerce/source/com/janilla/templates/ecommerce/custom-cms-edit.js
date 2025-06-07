@@ -38,7 +38,7 @@ export default class CustomCmsEdit extends CmsEdit {
 	}
 
 	foo(k, v, o, f) {
-		if (f.name === "options" && f.parent.type === "Variant") {
+		if (f.name === "options" && f.parent.type === "Product.Variant") {
 			const vv = v.split(":");
 			v = {
 				$type: `${vv[0]}.Option`,

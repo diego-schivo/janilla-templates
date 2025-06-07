@@ -60,18 +60,43 @@ export default class Product extends WebComponent {
 		event.preventDefault();
 		const fd = new FormData(event.target);
 		const p = this.state.product;
-		const v = p.variants.findIndex(x => x.active && x.options.every(y => y.name === fd.get(y.$type.split(".")[0])));
-		const c = JSON.parse(localStorage.getItem("cart") ?? '{ "items": [] }');
-		const ci = c.items.find(x => x.product.id === p.id && x.variant === v);
+		const v = p.variants.find(x => x.active && x.options.every(y => y.name === fd.get(y.$type.split(".")[0])));
+		const u = this.closest("root-element").state.user;
+		const c = (u ? u.cart : JSON.parse(localStorage.getItem("cart") ?? "undefined")) ?? { "items": [] };
+		const ci = c.items.find(x => x.product.id === p.id && x.variant === v.id);
 		if (ci)
 			ci.quantity++;
 		else
 			c.items.push({
 				product: p,
-				variant: v,
+				variantId: v.id,
+				unitPrice: v.price,
 				quantity: 1
 			});
-		localStorage.setItem("cart", JSON.stringify(c));
+		if (u) {
+			const r = await fetch(`/api/users/${u.id}`, {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					$type: "User",
+					cart: {
+						$type: "User.Cart",
+						items: c.items.map(x => ({
+							$type: "User.Cart.Item",
+							...x,
+							product: x.product.id
+						}))
+					}
+				})
+			});
+			if (r.ok)
+				this.dispatchEvent(new CustomEvent("user-change", {
+					bubbles: true,
+					detail: { user: await r.json() }
+				}));
+		} else
+			localStorage.setItem("cart", JSON.stringify(c));
+		this.dispatchEvent(new CustomEvent("cart-change", { bubbles: true }));
 	}
 
 	async computeState() {
@@ -87,18 +112,13 @@ export default class Product extends WebComponent {
 		const s = this.state;
 		s.computeState ??= this.computeState();
 		this.closest("root-element").updateSeo(s.product?.meta);
+		const pp = s.product?.variants?.filter(x => x.active)?.map(x => x.price);
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			...s.product,
-			variantSelector: s.product?.enableVariants ? { $template: "variant-selector" } : null,
-			content: s.product?.content?.map((x, i) => ({
-				$template: x.$type.split(/(?=[A-Z])/).map(x => x.toLowerCase()).join("-"),
-				path: `content.${i}`
-			})),
-			cards: s.product?.relatedProducts?.map(x => ({
-				$template: "card",
-				...x
-			}))
+			lowestAmount: pp ? Math.min(...pp) : null,
+			highestAmount: pp ? Math.max(...pp) : null,
+			variantSelector: s.product?.enableVariants ? { $template: "variant-selector" } : null
 		}));
 	}
 

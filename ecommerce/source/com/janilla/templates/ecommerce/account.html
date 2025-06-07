@@ -1,5 +1,21 @@
 <main>
   <article>
-    <h1>Account</h1>
+    <h1>Account settings</h1>
+    <p>
+      Change your account details below, or
+      <a href="#">click here</a>
+      to change your password.
+    </p>
+    <form>
+      <label>
+        Email
+        <input type="email" name="email" value="${user.email}" />
+      </label>
+      <label>
+        Name
+        <input type="text" name="name" value="${user.name}" />
+      </label>
+      <button>Update Account</button>
+    </form>
   </article>
 </main>
