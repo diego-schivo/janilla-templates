@@ -1,9 +1,11 @@
 <main>
   <article>
     <form>
-      <h1>Search</h1>
       <label for="search" class="visually-hidden">Search</label>
-      <input id="search" name="query" placeholder="Search" />
+      <div>
+        <input id="search" name="query" value="${query}" placeholder="Search for products..." autocomplete="off" />
+        <lucide-icon data-name="search"></lucide-icon>
+      </div>
       <button class="visually-hidden">submit</button>
     </form>
     <div>

@@ -35,17 +35,17 @@ export default class Cart extends WebComponent {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.addEventListener("click", this.handleClick);
 		const r = this.closest("root-element");
 		r.addEventListener("cart-change", this.handleCartChange);
+		this.addEventListener("submit", this.handleSubmit);
 		r.addEventListener("user-change", this.handleUserChange);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this.removeEventListener("click", this.handleClick);
 		const r = this.closest("root-element");
 		r.removeEventListener("cart-change", this.handleCartChange);
+		this.removeEventListener("submit", this.handleSubmit);
 		r.removeEventListener("user-change", this.handleUserChange);
 	}
 
@@ -53,13 +53,49 @@ export default class Cart extends WebComponent {
 		this.requestDisplay();
 	}
 
-	handleUserChange = () => {
-		this.requestDisplay();
+	handleSubmit = async event => {
+		event.preventDefault();
+		const fd = new FormData(event.target);
+		const p = parseInt(fd.get("product"));
+		const v = fd.get("variant");
+		const q = parseInt(fd.get("quantity"));
+		const u = this.closest("root-element").state.user;
+		const c = u ? u.cart : JSON.parse(localStorage.getItem("cart"));
+		if (!q) {
+			const i = c.items.findIndex(x => x.product.id === p && x.variantId === v);
+			c.items.splice(i, 1);
+		} else {
+			const ci = c.items.find(x => x.product.id === p && x.variantId === v);
+			ci.quantity = q;
+		}
+		if (u) {
+			const r = await fetch(`/api/users/${u.id}`, {
+				method: "PATCH",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({
+					$type: "User",
+					cart: {
+						$type: "User.Cart",
+						items: c.items.map(x => ({
+							$type: "User.Cart.Item",
+							...x,
+							product: x.product.id
+						}))
+					}
+				})
+			});
+			if (r.ok)
+				this.dispatchEvent(new CustomEvent("user-change", {
+					bubbles: true,
+					detail: { user: await r.json() }
+				}));
+		} else
+			localStorage.setItem("cart", JSON.stringify(c));
+		this.dispatchEvent(new CustomEvent("cart-change", { bubbles: true }));
 	}
 
-	handleClick = event => {
-		const b = event.target.closest("button");
-		b?.closest("dialog")?.close();
+	handleUserChange = () => {
+		this.requestDisplay();
 	}
 
 	async updateDisplay() {
@@ -68,7 +104,10 @@ export default class Cart extends WebComponent {
 		const cq = c?.items?.reduce((x, y) => x + y.quantity, 0) ?? 0;
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			quantity: cq > 0 ? cq : null,
+			quantity: cq > 0 ? {
+				$template: "quantity",
+				value: cq
+			} : null,
 			content: cq > 0 ? {
 				$template: "content",
 				items: c?.items?.map(x => {
@@ -77,7 +116,9 @@ export default class Cart extends WebComponent {
 						$template: "item",
 						...x,
 						variant: v,
-						option: v.options[0].$type.split(".")[0]
+						option: v.options[0].$type.split(".")[0],
+						quantityMinus1: x.quantity - 1,
+						quantityPlus1: x.quantity + 1,
 					};
 				}),
 				total: c?.items?.reduce((x, y) => x + y.quantity * y.unitPrice, 0) ?? 0

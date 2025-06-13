@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.json.MapAndType;
-import com.janilla.web.ForbiddenException;
 import com.janilla.web.MethodHandlerFactory;
 
 public class CustomMethodHandlerFactory extends MethodHandlerFactory {
@@ -46,21 +45,17 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 	@Override
 	protected void handle(Invocation invocation, HttpExchange exchange) {
 		var rq = exchange.getRequest();
-		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
-			if (rq.getPath().startsWith("/api/search-results"))
-				throw new ForbiddenException("Forbidden");
-			else if (!GUEST_POST.contains(rq.getPath())) {
-				var ex = (CustomHttpExchange) exchange;
-				if (rq.getPath().equals("/api/users/logout"))
-					ex.requireSessionEmail();
-				else {
-					var m = Pattern.compile("/api/users/(\\d+)").matcher(rq.getPath());
-					var u = ex.sessionUser();
-					if (m.matches() && u != null && u.id().equals(Long.parseLong(m.group(1))))
-						;
-					else
-						ex.requireSessionRole(User.Role.ADMIN);
-				}
+		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET") && !GUEST_POST.contains(rq.getPath())) {
+			var ex = (CustomHttpExchange) exchange;
+			if (rq.getPath().equals("/api/users/logout"))
+				ex.requireSessionEmail();
+			else {
+				var m = Pattern.compile("/api/users/(\\d+)").matcher(rq.getPath());
+				var u = ex.sessionUser();
+				if (m.matches() && u != null && u.id().equals(Long.parseLong(m.group(1))))
+					;
+				else
+					ex.requireSessionRole(User.Role.ADMIN);
 			}
 		}
 
@@ -76,6 +71,7 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 //			}
 
 		super.handle(invocation, exchange);
+
 	}
 
 	@Override

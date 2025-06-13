@@ -23,7 +23,10 @@
  */
 package com.janilla.templates.ecommerce;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpExchange;
@@ -33,8 +36,13 @@ import com.janilla.web.Handle;
 @Handle(path = "/api/products")
 public class ProductApi extends CollectionApi<Product> {
 
+	public static ProductApi INSTANCE;
+
 	public ProductApi() {
 		super(Product.class, EcommerceTemplate.DRAFTS);
+		if (INSTANCE != null)
+			throw new RuntimeException();
+		INSTANCE = this;
 	}
 
 	@Override
@@ -43,9 +51,23 @@ public class ProductApi extends CollectionApi<Product> {
 	}
 
 	@Handle(method = "GET")
-	public List<Product> read(@Bind("slug") String slug, HttpExchange exchange) {
-		var d = drafts.test(exchange);
-		return crud().read(
-				slug != null && !slug.isBlank() ? crud().filter(d ? "slugDraft" : "slug", slug) : crud().list(), d);
+	public List<Product> read(@Bind("slug") String slug, @Bind("categories") Long[] categories,
+			@Bind("query") String query, HttpExchange exchange) {
+		List<Product> pp;
+		{
+			var d = drafts.test(exchange);
+			var m = new LinkedHashMap<String, Object[]>();
+			if (slug != null && !slug.isBlank())
+				m.put(d ? "slugDraft" : "slug", new Object[] { slug });
+			if (categories != null && categories.length > 0)
+				m.put("categories", categories);
+			pp = crud().read(!m.isEmpty() ? crud().filter(m, 0, -1).ids() : crud().list(), d);
+		}
+		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
+			var m = x.meta();
+			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
+					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
+			return s.toLowerCase().contains(query.toLowerCase());
+		}).toList() : pp;
 	}
 }

@@ -23,6 +23,7 @@
  */
 package com.janilla.templates.ecommerce;
 
+import java.math.BigDecimal;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -116,7 +117,7 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 
 	public record Cart(List<Item> items) {
 
-		public record Item(UUID id, @Types(Product.class) Long product, UUID variantId, Long unitPrice,
+		public record Item(UUID id, @Types(Product.class) Long product, UUID variantId, BigDecimal unitPrice,
 				Integer quantity) {
 
 			public Item withId(UUID id) {

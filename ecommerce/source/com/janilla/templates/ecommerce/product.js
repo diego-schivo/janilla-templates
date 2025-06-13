@@ -39,11 +39,15 @@ export default class Product extends WebComponent {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.addEventListener("change", this.handleChange);
+		this.addEventListener("click", this.handleClick);
 		this.addEventListener("submit", this.handleSubmit);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.removeEventListener("change", this.handleChange);
+		this.removeEventListener("click", this.handleClick);
 		this.removeEventListener("submit", this.handleSubmit);
 		while (this.firstChild)
 			this.removeChild(this.lastChild);
@@ -56,13 +60,38 @@ export default class Product extends WebComponent {
 		super.attributeChangedCallback(name, oldValue, newValue);
 	}
 
+	handleChange = async event => {
+		const s = this.state;
+		const p = s.product;
+		const fd = new FormData(event.target.form);
+		s.variant = p.variants.find(x => x.active && x.options.every(y => y.name === fd.get(y.$type.split(".")[0])));
+		this.requestDisplay();
+	}
+
+	handleClick = async event => {
+		const b = event.target.closest("button");
+		const ul1 = b?.closest("#gallery-arrows ul");
+		const s = this.state;
+		if (ul1) {
+			let i = s.galleryIndex;
+			i += [-1, 1][Array.prototype.findIndex.call(ul1.children, x => x.contains(b))];
+			s.galleryIndex = (s.product.gallery.length + i) % s.product.gallery.length;
+			this.requestDisplay();
+		}
+		const ul2 = b?.closest("#gallery-thumbnails ul");
+		if (ul2) {
+			s.galleryIndex = Array.prototype.findIndex.call(ul2.children, x => x.contains(b));
+			this.requestDisplay();
+		}
+	}
+
 	handleSubmit = async event => {
 		event.preventDefault();
-		const fd = new FormData(event.target);
-		const p = this.state.product;
-		const v = p.variants.find(x => x.active && x.options.every(y => y.name === fd.get(y.$type.split(".")[0])));
+		const s = this.state;
+		const p = s.product;
+		const v = s.variant;
 		const u = this.closest("root-element").state.user;
-		const c = (u ? u.cart : JSON.parse(localStorage.getItem("cart") ?? "undefined")) ?? { "items": [] };
+		const c = (u ? u.cart : JSON.parse(localStorage.getItem("cart") ?? "null")) ?? { "items": [] };
 		const ci = c.items.find(x => x.product.id === p.id && x.variant === v.id);
 		if (ci)
 			ci.quantity++;
@@ -101,10 +130,9 @@ export default class Product extends WebComponent {
 
 	async computeState() {
 		const s = this.state;
-		delete s.product;
-		const u = new URL("/api/products", location.href);
-		u.searchParams.append("slug", this.dataset.slug);
-		s.product = (await this.closest("root-element").fetchData(u.pathname + u.search))[0];
+		const usp = new URLSearchParams({ slug: this.dataset.slug });
+		s.product = (await this.closest("root-element").fetchData(`/api/products?${usp}`))[0];
+		s.galleryIndex = 0;
 		this.requestDisplay();
 	}
 
@@ -116,9 +144,16 @@ export default class Product extends WebComponent {
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			...s.product,
+			image: s.product?.gallery[s.galleryIndex],
+			galleryThumbnails: s.product?.gallery.map((x, i) => ({
+				$template: "gallery-thumbnail",
+				active: i === s.galleryIndex ? "active" : null,
+				image: x
+			})),
 			lowestAmount: pp ? Math.min(...pp) : null,
 			highestAmount: pp ? Math.max(...pp) : null,
-			variantSelector: s.product?.enableVariants ? { $template: "variant-selector" } : null
+			variantSelector: s.product?.enableVariants ? { $template: "variant-selector" } : null,
+			disabled: !s.variant
 		}));
 	}
 

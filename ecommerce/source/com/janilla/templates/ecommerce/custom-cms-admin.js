@@ -45,18 +45,34 @@ export default class CustomCmsAdmin extends CmsAdmin {
 	}
 
 	label(path) {
-		return ["hero", "hero.richText", "meta"].includes(path) ? null : super.label(path);
+		return ["description", "hero", "hero.richText", "meta"].includes(path) ? null : super.label(path);
 	}
 
 	headers(entitySlug) {
 		switch (entitySlug) {
+			case "categories":
+				return ["title", "slug"];
 			case "pages":
-			case "products":
 				return ["title", "slug", "updatedAt"];
+			case "products":
+				return ["title", "enableVariants", "documentStatus"];
 			case "redirects":
 				return ["from"];
+			case "users":
+				return ["name", "email", "roles"];
 		}
 		return super.headers(entitySlug);
+	}
+
+	cell(object, key) {
+		const x = super.cell(object, key);
+		switch (key) {
+			case "documentStatus":
+				return x.name;
+			case "roles":
+				return x.map(y => y.name).join();
+		}
+		return x;
 	}
 
 	controlTemplate(field) {
@@ -70,6 +86,7 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				switch (field.name) {
 					case "confirmationMessage":
 					case "content":
+					case "description":
 					case "message":
 					case "richText":
 						return "rich-text";
@@ -91,8 +108,8 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				};
 			case "Product":
 				return {
-					Content: ["heroImage", "content"],
-					Meta: ["relatedProducts", "categories"],
+					Content: ["description", "gallery", "content"],
+					ProductDetails: ["enableVariants", "variantOptions", "variants", "stock", "price"],
 					SEO: ["meta"]
 				};
 		}

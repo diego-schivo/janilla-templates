@@ -62,13 +62,14 @@ export default class Search extends WebComponent {
 	}
 
 	async updateDisplay() {
-		const u = new URL("/api/search-results", location.href);
+		const u = new URL("/api/products", location.href);
 		if (this.dataset.query)
 			u.searchParams.append("query", this.dataset.query);
 		const s = this.state;
 		s.results = await (await fetch(u)).json();
 		this.appendChild(this.interpolateDom({
 			$template: "",
+			...this.dataset,
 			cards: s.results.map(x => ({
 				$template: "card",
 				...x

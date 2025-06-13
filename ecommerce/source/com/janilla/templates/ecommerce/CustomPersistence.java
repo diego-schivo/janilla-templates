@@ -32,14 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.janilla.cms.CmsPersistence;
-import com.janilla.cms.Document;
-import com.janilla.cms.Types;
 import com.janilla.database.Database;
 import com.janilla.io.IO;
 import com.janilla.json.Converter;
@@ -47,7 +42,6 @@ import com.janilla.json.Json;
 import com.janilla.json.MapAndType.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.reflect.Factory;
-import com.janilla.reflect.Reflection;
 
 public class CustomPersistence extends CmsPersistence {
 
@@ -85,8 +79,6 @@ public class CustomPersistence extends CmsPersistence {
 		}
 	};
 
-	private Crud.Observer searchObserver;
-
 	public Properties configuration;
 
 	public Factory factory;
@@ -95,71 +87,10 @@ public class CustomPersistence extends CmsPersistence {
 		super(database, types, typeResolver);
 	}
 
-	protected Crud.Observer searchObserver() {
-		if (searchObserver == null)
-			searchObserver = new Crud.Observer() {
-
-				private Set<Class<?>> types = Arrays.stream(Reflection.property(SearchResult.class, "document")
-						.annotatedType().getAnnotation(Types.class).value()).collect(Collectors.toSet());
-
-				@Override
-				public <E> void afterCreate(E entity) {
-					var d = (Document) entity;
-					var dc = d.getClass();
-					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED)
-						crud(SearchResult.class)
-								.create(Reflection.copy(d,
-										new SearchResult(null, new Document.Reference<>(dc, d.id()), null, null, null,
-												null, null, null, null, null),
-										y -> !Set.of("id", "document").contains(y)));
-				}
-
-				@Override
-				public <E> void afterUpdate(E entity1, E entity2) {
-					var d1 = (Document) entity1;
-					var d2 = (Document) entity2;
-					var dc = d1.getClass();
-					if (types.contains(dc)) {
-						var c = crud(SearchResult.class);
-						switch (d1.documentStatus()) {
-						case DRAFT:
-							if (d2.documentStatus() == d1.documentStatus())
-								;
-							else
-								c.create(Reflection.copy(d2,
-										new SearchResult(null, new Document.Reference<>(dc, d2.id()), null, null, null,
-												null, null, null, null, null),
-										y -> !Set.of("id", "document").contains(y)));
-							break;
-						case PUBLISHED:
-							if (d2.documentStatus() == d1.documentStatus())
-								c.update(c.find("document", new Document.Reference<>(dc, d2.id())),
-										x -> Reflection.copy(d2, x, y -> !Set.of("id", "document").contains(y)));
-							else
-								c.delete(c.find("document", d2.id()));
-							break;
-						}
-					}
-				}
-
-				@Override
-				public <E> void afterDelete(E entity) {
-					var d = (Document) entity;
-					var dc = d.getClass();
-					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED) {
-						var c = crud(SearchResult.class);
-						c.delete(c.find("document", new Document.Reference<>(dc, d.id())));
-					}
-				}
-			};
-		return searchObserver;
-	}
-
 	@Override
 	protected <E> Crud<E> newCrud(Class<E> type) {
 		var x = super.newCrud(type);
 		if (x != null) {
-			x.observers().add(searchObserver());
 			if (type == Product.class)
 				x.observers().add(PRODUCT_OBSERVER);
 			else if (type == User.class)
@@ -170,7 +101,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public void seed() throws IOException {
 		for (var t : new Class<?>[] { Page.class, Product.class, Media.class, Category.class, User.class,
-				Redirect.class, Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class }) {
+				Header.class, Footer.class }) {
 			database.perform((ss, _) -> {
 				var c = crud(t);
 				c.delete(c.list()).forEach(_ -> {
@@ -201,14 +132,6 @@ public class CustomPersistence extends CmsPersistence {
 			crud(Category.class).create(x);
 		for (var x : sd.users())
 			crud(User.class).create(x);
-		for (var x : sd.redirects())
-			crud(Redirect.class).create(x);
-		for (var x : sd.forms())
-			crud(Form.class).create(x);
-		for (var x : sd.formSubmissions())
-			crud(FormSubmission.class).create(x);
-		for (var x : sd.searchResults())
-			crud(SearchResult.class).create(x);
 		crud(Header.class).create(sd.header());
 		crud(Footer.class).create(sd.footer());
 

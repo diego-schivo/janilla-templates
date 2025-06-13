@@ -25,7 +25,6 @@ package com.janilla.templates.ecommerce;
 
 import java.util.List;
 
-public record Collections(List<Page> pages, List<Product> products, List<Media> media, List<Category> categories,
-		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
-		List<SearchResult> searchResults, List<Order> orders) {
+public record Collections(List<Category> categories, List<Media> media, List<Order> orders, List<Page> pages,
+		List<Product> products, List<User> users) {
 }

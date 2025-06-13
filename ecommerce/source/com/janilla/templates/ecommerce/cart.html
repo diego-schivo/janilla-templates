@@ -1,12 +1,21 @@
-<button>Cart ${quantity}</button>
+<button>
+  Cart
+  <!--${quantity}-->
+</button>
 <dialog>
   <button>
     <lucide-icon data-name="x"></lucide-icon>
   </button>
-  <h2>My Cart</h2>
-  <p>Manage your cart here, add items to view the total.</p>
-  <!--${content}-->
+  <div>
+    <h2>My Cart</h2>
+    <p>Manage your cart here, add items to view the total.</p>
+    <!--${content}-->
+  </div>
 </dialog>
+
+<template id="quantity">
+  <span>${value}</span>
+</template>
 
 <template id="empty">
   <p>Your cart is empty.</p>
@@ -16,16 +25,55 @@
   <ul>
     <!--${items}-->
   </ul>
-  <p>Total: ${total}</p>
-  <a href="/checkout">Proceed to Checkout</a>
+  <dl>
+    <dt>Total:</dt>
+    <dd>
+      <intl-format data-type="amount" data-value="${total}"></intl-format>
+    </dd>
+  </dl>
+  <a href="/checkout" class="button primary">Proceed to Checkout</a>
 </template>
 
 <template id="item">
   <li>
-    <img src="${product.heroImage.uri}" />
-    <span>${product.title}</span>
-    <span>${option}</span>
-    <span>${variant.price}</span>
-    <span>${quantity}</span>
+    <div>
+      <a href="/products/${product.slug}">
+        <img src="${product.gallery[0].uri}" />
+      </a>
+      <form>
+        <input type="hidden" name="product" value="${product.id}" />
+        <input type="hidden" name="variant" value="${variant.id}" />
+        <input type="hidden" name="quantity" value="0" />
+        <button>
+          <lucide-icon data-name="x"></lucide-icon>
+        </button>
+      </form>
+    </div>
+    <div>
+      <p>${product.title}</p>
+      <p>${option}</p>
+    </div>
+    <div>
+      <intl-format data-type="amount" data-value="${variant.price}"></intl-format>
+      <div class="edit-quantity">
+        <form>
+          <input type="hidden" name="product" value="${product.id}" />
+          <input type="hidden" name="variant" value="${variant.id}" />
+          <input type="hidden" name="quantity" value="${quantityMinus1}" />
+          <button>
+            <lucide-icon data-name="minus"></lucide-icon>
+          </button>
+        </form>
+        <span>${quantity}</span>
+        <form>
+          <input type="hidden" name="product" value="${product.id}" />
+          <input type="hidden" name="variant" value="${variant.id}" />
+          <input type="hidden" name="quantity" value="${quantityPlus1}" />
+          <button>
+            <lucide-icon data-name="plus"></lucide-icon>
+          </button>
+        </form>
+      </div>
+    </div>
   </li>
 </template>

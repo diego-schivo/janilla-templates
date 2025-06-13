@@ -35,17 +35,26 @@ export default class Checkout extends WebComponent {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.addEventListener("input", this.handleInput);
 		this.addEventListener("submit", this.handleSubmit);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+		this.removeEventListener("input", this.handleInput);
 		this.removeEventListener("submit", this.handleSubmit);
 		while (this.firstChild)
 			this.removeChild(this.lastChild);
 	}
 
-	handleSubmit = async event => {
+	handleInput = event => {
+		if (event.target.matches('[name="email"]')) {
+			this.state.email = event.target.value;
+			this.requestDisplay();
+		}
+	}
+
+	handleSubmit = event => {
 		if (!event.target.matches("#payment-form")) {
 			event.preventDefault();
 			const fd = new FormData(event.target);
@@ -58,19 +67,34 @@ export default class Checkout extends WebComponent {
 		const s = this.state;
 		const r = this.closest("root-element");
 		const u = r.state.user;
-		s.email = u?.email;
+		const c = u ? u.cart : JSON.parse(localStorage.getItem("cart"));
+		s.email ??= u?.email;
 		r.updateSeo(null);
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			user: u ? {
 				$template: "user",
 				...u
-			} : { $template: "guest" },
+			} : {
+				$template: "guest",
+				value: s.email,
+				disabled: !s.email
+			},
 			payment: s.email ? {
 				$template: "payment",
 				email: s.email,
 				amount: 1234
-			} : null
+			} : null,
+			items: c?.items?.map(x => {
+				const v = x.product.variants.find(y => y.id === x.variantId);
+				return {
+					$template: "item",
+					...x,
+					variant: v,
+					option: v.options[0].name
+				};
+			}),
+			total: c?.items?.reduce((x, y) => x + y.quantity * y.unitPrice, 0) ?? 0
 		}));
 	}
 }

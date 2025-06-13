@@ -1,2 +1,55 @@
 checkout-element {
+  form {
+    button {
+      align-self: start;
+    }
+  }
+  
+  ul,
+  li {
+    display: flex;
+    gap: 1rem;
+  }
+
+  ul {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  li {
+    align-items: center;
+
+    div {
+      &:last-child {
+        margin-left: auto;
+      }
+    }
+
+    a {
+      border: 1px solid gray;
+      border-radius: 0.5rem;
+      display: block;
+      height: 4rem;
+      overflow: hidden;
+      width: 4rem;
+    }
+
+    img {
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  dl {
+    align-items: center;
+    border-top: 1px solid gray;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+  }
+
+  dd {
+    font-size: 1.875rem;
+  }
 }

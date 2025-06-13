@@ -1,6 +1,71 @@
 product-element {
   padding: 0 1rem;
 
+  a:has(> lucide-icon) {
+    color: gray;
+    display: flex;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  div:has(> ul),
+  ul {
+    display: flex;
+  }
+
+  div:has(> ul) {
+    justify-content: center;
+
+    button {
+      background: transparent;
+      display: block;
+      height: auto;
+      padding: 0;
+    }
+  }
+
+  #gallery-arrows {
+    ul {
+      background: gray;
+      border-radius: 9999px;
+      padding: 0.5rem 0;
+    }
+
+  li:not(:first-child) {
+      border-left: 1px solid darkgray;
+    }
+
+    button {
+      color: darkgray;
+      padding: 0.25rem 1.5rem;
+    }
+  }
+
+  #gallery-thumbnails {
+    ul {
+      gap: 0.5rem;
+    }
+  
+    button {
+      border: 1px solid darkgray;
+      border-radius: 0.5rem;
+      height: 5rem;
+      overflow: hidden;
+      width: 5rem;
+
+      &.active {
+        border: 2px solid blue;
+      }
+    }
+  }
+
+  img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
   h1 {
     font-size: 1.875rem;
     line-height: 2.25rem;

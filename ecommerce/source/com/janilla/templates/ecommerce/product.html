@@ -1,15 +1,49 @@
 <main>
   <article>
-    <img src="${meta.image.uri}" loading="lazy" />
-    <h1>${meta.title}</h1>
+    <a href="/shop">
+      <lucide-icon data-name="chevron-left"></lucide-icon>
+      All products
+    </a>
+    <img src="${image.uri}" loading="lazy" />
+
+    <div id="gallery-arrows">
+      <ul>
+        <li>
+          <button>
+            <lucide-icon data-name="arrow-left"></lucide-icon>
+          </button>
+        </li>
+        <li>
+          <button>
+            <lucide-icon data-name="arrow-right"></lucide-icon>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div id="gallery-thumbnails">
+      <ul>
+        <!--${galleryThumbnails}-->
+      </ul>
+    </div>
+
+    <h1>${title}</h1>
     <p>${lowestAmount} - ${highestAmount}</p>
-    <p>${meta.description}</p>
+    <p>${description}</p>
     <form>
       <!--${variantSelector}-->
-      <button>Add To Cart</button>
+      <button disabled="${disabled}">Add To Cart</button>
     </form>
   </article>
 </main>
+
+<template id="gallery-thumbnail">
+  <li>
+    <button class="nobutton ${active}">
+      <img src="${image.uri}" loading="lazy" />
+    </button>
+  </li>
+</template>
 
 <template id="variant-selector">
   <variant-selector></variant-selector>

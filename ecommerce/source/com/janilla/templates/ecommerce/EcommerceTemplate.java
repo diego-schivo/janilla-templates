@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,6 +68,8 @@ public class EcommerceTemplate {
 	public static EcommerceTemplate INSTANCE;
 
 	protected static final Pattern PRODUCTS = Pattern.compile("/products(/.*)?");
+
+	protected static final Pattern SHOP = Pattern.compile("/shop(/.*)?");
 
 	public static void main(String[] args) {
 		try {
@@ -182,10 +185,9 @@ public class EcommerceTemplate {
 
 		Meta m2;
 		Map<String, Object> m3 = new LinkedHashMap<>();
-		m3.put("/api/redirects", persistence.crud(Redirect.class).read(persistence.crud(Redirect.class).list()));
 		m3.put("/api/header", persistence.crud(Header.class).read(1));
-		var m = PRODUCTS.matcher(path);
-		if (m.matches()) {
+		Matcher m;
+		if ((m = PRODUCTS.matcher(path)).matches()) {
 			var c = ((DocumentCrud<Product>) persistence.crud(Product.class));
 			var d = DRAFTS.test(exchange);
 			if (m.groupCount() == 1) {
@@ -198,6 +200,15 @@ public class EcommerceTemplate {
 				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
 				m3.put("/api/products?slug=" + s, pp);
 			}
+		} else if ((m = SHOP.matcher(path)).matches()) {
+			m2 = null;
+			var cc = persistence.crud(Category.class);
+			var cc2 = cc.read(cc.list());
+			m3.put("/api/categories", cc2);
+			var s = m.groupCount() == 2 ? m.group(1).substring(1) : null;
+			var c = s != null ? cc2.stream().filter(x -> x.slug().equals(s)).findFirst().orElseThrow() : null;
+			var pp = ProductApi.INSTANCE.read(null, c != null ? new Long[] { c.id() } : null, null, exchange);
+			m3.put(c != null ? "/api/products?category=" + c.id() : "/api/products", pp);
 		} else
 			switch (path) {
 			case "/account":
@@ -209,6 +220,16 @@ public class EcommerceTemplate {
 				var oo = oc.read(oc.filter("orderedBy", exchange.sessionUser().id()));
 				m3.put("/api/orders", oo);
 				break;
+//			case "/shop": {
+//				m2 = null;
+//				var c1 = persistence.crud(Product.class);
+//				var pp = c1.read(c1.list());
+//				m3.put("/api/products", pp);
+//				var c2 = persistence.crud(Category.class);
+//				var cc = c2.read(c2.list());
+//				m3.put("/api/categories", cc);
+//			}
+//				break;
 			default:
 				var pc = (DocumentCrud<Page>) persistence.crud(Page.class);
 				var d = DRAFTS.test(exchange);

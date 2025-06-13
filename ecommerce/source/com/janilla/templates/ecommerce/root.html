@@ -11,50 +11,51 @@
 
 <template id="header">
   <header>
-    <button>
-      <lucide-icon data-name="menu"></lucide-icon>
-    </button>
-    <dialog>
+    <div>
       <button>
-        <lucide-icon data-name="x"></lucide-icon>
+        <lucide-icon data-name="menu"></lucide-icon>
       </button>
-      <ul>
-        <li>
-          <a href="/">Home</a>
-        </li>
-        <li>
-          <a href="/shop">Shop</a>
-        </li>
-        <li>
-          <a href="/account">Account</a>
-        </li>
-        <li>
-          <a href="/orders">Orders</a>
-        </li>
-        <!--${logItem}-->
-      </ul>
-    </dialog>
+      <dialog>
+        <button>
+          <lucide-icon data-name="x"></lucide-icon>
+        </button>
+        <div>
+          <h2>My Store</h2>
+          <form>
+            <label for="search" class="visually-hidden">Search</label>
+            <div>
+              <input id="search" name="query" placeholder="Search for products..." autocomplete="off" />
+              <lucide-icon data-name="search"></lucide-icon>
+            </div>
+            <button class="visually-hidden">submit</button>
+          </form>
+          <ul>
+            <!--${navItems}-->
+          </ul>
+          <h2>My account</h2>
+          <ul>
+            <!--${navItems2}-->
+          </ul>
+        </div>
+      </dialog>
+    </div>
     <a href="/">
       <img src="/images/janilla-logo-light.svg" loading="lazy" />
     </a>
-    <cart-element></cart-element>
+    <div>
+      <cart-element></cart-element>
+    </div>
   </header>
 </template>
 
-<template id="login-item">
+<template id="list-item">
   <li>
-    <a href="/login">Log in</a>
-  </li>
-</template>
-
-<template id="logout-item">
-  <li>
-    <a href="/logout">Log out</a>
+    <!--${content}-->
   </li>
 </template>
 
 <template id="link">
-  <a href="${href}" target="${target}">${text}</a>
+  <a href="${href}" target="${target}" class="${class}">${text}</a>
 </template>
 
 <template id="page">
@@ -90,7 +91,7 @@
 </template>
 
 <template id="shop">
-  <shop-element></shop-element>
+  <shop-element data-category="${category}"></shop-element>
 </template>
 
 <template id="product">

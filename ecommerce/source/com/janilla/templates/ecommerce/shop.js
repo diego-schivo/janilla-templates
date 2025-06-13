@@ -25,6 +25,10 @@ import WebComponent from "./web-component.js";
 
 export default class Shop extends WebComponent {
 
+	static get observedAttributes() {
+		return ["data-category"];
+	}
+
 	static get templateName() {
 		return "shop";
 	}
@@ -39,10 +43,20 @@ export default class Shop extends WebComponent {
 			this.removeChild(this.lastChild);
 	}
 
+	attributeChangedCallback(name, oldValue, newValue) {
+		const s = this.state;
+		if (newValue !== oldValue && s?.computeState)
+			delete s.computeState;
+		super.attributeChangedCallback(name, oldValue, newValue);
+	}
+
 	async computeState() {
 		const s = this.state;
-		delete s.products;
-		s.products = await this.closest("root-element").fetchData("/api/products");
+		const r = this.closest("root-element");
+		s.categories ??= await r.fetchData("/api/categories");
+		const c = this.dataset.category ? s.categories.find(x => x.slug === this.dataset.category) : null;
+		const usp = c ? new URLSearchParams({ categories: c.id }) : null;
+		s.products = await r.fetchData(usp ? `/api/products?${usp}` : "/api/products");
 		this.requestDisplay();
 	}
 
@@ -52,9 +66,19 @@ export default class Shop extends WebComponent {
 		this.closest("root-element").updateSeo(null);
 		this.appendChild(this.interpolateDom({
 			$template: "",
-			total: s.products?.length ?? 0,
-			cards: s.products?.map(x => ({
-				$template: "card",
+			categories: [{
+				href: "/shop",
+				text: "All"
+			}, ...(s.categories?.map(x => ({
+				href: `/shop/${x.slug}`,
+				text: x.title
+			})) ?? [])].map(x => ({
+				$template: "category",
+				...x,
+				class: x.href.split("/")[2] == this.dataset.category ? "active" : null
+			})),
+			products: s.products?.map(x => ({
+				$template: "product",
 				...x
 			}))
 		}));

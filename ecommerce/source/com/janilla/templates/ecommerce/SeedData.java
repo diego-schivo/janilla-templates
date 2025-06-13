@@ -25,7 +25,6 @@ package com.janilla.templates.ecommerce;
 
 import java.util.List;
 
-public record SeedData(List<Page> pages, List<Product> products, List<Media> media, List<Category> categories,
-		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
-		List<SearchResult> searchResults, Header header, Footer footer) {
+public record SeedData(List<Category> categories, Footer footer, Header header, List<Media> media, List<Page> pages,
+		List<Product> products, List<User> users) {
 }

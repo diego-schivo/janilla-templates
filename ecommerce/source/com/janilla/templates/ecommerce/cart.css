@@ -4,5 +4,97 @@ cart-element {
     color: gray;
     padding: 0;
     text-transform: uppercase;
+
+    span::before {
+      content: "\2022";
+      margin: 0 0.5rem;
+    }
+  }
+
+  dialog {
+    border-left: 1px solid darkgray;
+    translate: 100%;
+  }
+
+  h2 + p {
+    color: rgb(148, 163, 184);
+    font-size: 0.875em;
+  }
+  
+  ul,
+  li {
+    display: flex;
+    gap: 1rem;
+  }
+
+  ul {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  li {
+    > div {
+      &:first-child {
+        position: relative;
+
+        button {
+          background: gray;
+          border-radius: 100%;
+          color: black;
+          height: auto;
+          padding: 0;
+          position: absolute;
+          right: 0;
+          top: 0;
+          translate: 50% -50%;
+        }
+      }
+
+      &:last-child {
+        align-items: flex-end;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-left: auto;
+      }
+    }
+
+    a {
+      display: block;
+      height: 4rem;
+      width: 4rem;
+    }
+
+    img {
+      object-fit: cover;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  .edit-quantity {
+    border: 1px solid gray;
+    border-radius: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    button {
+      background: transparent;
+      color: gray;
+      height: auto;
+      padding: 0;
+    }
+  }
+
+  dl {
+    border-bottom: 1px solid gray;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+  }
+
+  dt {
+    color: gray;
   }
 }

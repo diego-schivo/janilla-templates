@@ -26,6 +26,7 @@ import WebComponent from "./web-component.js";
 const adminRegex = /^\/admin(\/.*)?$/;
 const ordersRegex = /^\/orders(\/.*)?$/;
 const productRegex = /^\/products(\/.*)$/;
+const shopRegex = /^\/shop(\/.*)?$/;
 
 export default class Root extends WebComponent {
 
@@ -49,6 +50,7 @@ export default class Root extends WebComponent {
 		this.addEventListener("change", this.handleChange);
 		this.addEventListener("click", this.handleClick);
 		addEventListener("popstate", this.handlePopState);
+		this.addEventListener("submit", this.handleSubmit);
 		this.addEventListener("user-change", this.handleUserChange);
 	}
 
@@ -57,6 +59,7 @@ export default class Root extends WebComponent {
 		this.removeEventListener("change", this.handleChange);
 		this.removeEventListener("click", this.handleClick);
 		removeEventListener("popstate", this.handlePopState);
+		this.removeEventListener("submit", this.handleSubmit);
 		this.removeEventListener("user-change", this.handleUserChange);
 	}
 
@@ -87,13 +90,10 @@ export default class Root extends WebComponent {
 			}
 		}
 		const b = event.target.closest("button");
-		if (b) {
-			const d = b.closest("dialog");
-			if (d)
-				d.close();
-			else if (b.closest("header"))
-				b.nextElementSibling.showModal();
-		}
+		if (b?.nextElementSibling?.matches("dialog"))
+			b.nextElementSibling.showModal();
+		else if (b?.parentElement?.matches("dialog"))
+			b.parentElement.close();
 	}
 
 	handlePopState = () => {
@@ -101,6 +101,15 @@ export default class Root extends WebComponent {
 		document.querySelectorAll("dialog[open]").forEach(x => x.close());
 		delete this.state.notFound;
 		this.requestDisplay();
+	}
+
+	handleSubmit = event => {
+		if (false) {
+			event.preventDefault();
+			const usp = new URLSearchParams(new FormData(event.target));
+			history.pushState(undefined, "", `/search?${usp}`);
+			dispatchEvent(new CustomEvent("popstate"));
+		}
 	}
 
 	handleUserChange = event => {
@@ -193,7 +202,31 @@ export default class Root extends WebComponent {
 			style: `color-scheme: ${cs ?? "light dark"}`,
 			header: s.header ? {
 				$template: "header",
-				logItem: { $template: s.user ? "logout-item" : "login-item" }
+				navItems: s.header.navItems?.map(x => ({
+					$template: "list-item",
+					content: link(x)
+				})),
+				navItems2: (s.user ? [{
+					href: "/orders",
+					text: "Orders"
+				}, {
+					href: "/account",
+					text: "Manage account"
+				}, {
+					href: "/logout",
+					class: "button",
+					text: "Log out"
+				}] : [{
+					href: "/login",
+					class: "button",
+					text: "Log in"
+				}]).map(x => ({
+					$template: "list-item",
+					content: {
+						$template: "link",
+						...x
+					}
+				}))
 			} : null,
 			content: s.notFound ? { $template: "not-found" } : (() => {
 				switch (location.pathname) {
@@ -210,8 +243,6 @@ export default class Root extends WebComponent {
 							$template: "order-confirmation",
 							stripePaymentIntentId: new URLSearchParams(location.search).get("payment_intent")
 						};
-					case "/shop":
-						return { $template: "shop" };
 				}
 				const m2 = location.pathname.match(productRegex);
 				if (m2)
@@ -225,6 +256,12 @@ export default class Root extends WebComponent {
 						$template: "order",
 						id: m3[1].substring(1)
 					} : { $template: "orders" };
+				const m4 = location.pathname.match(shopRegex);
+				if (m4)
+					return {
+						$template: "shop",
+						category: m4[1]?.substring(1)
+					};
 				return location.pathname === "/search" ? {
 					$template: "search",
 					query: new URLSearchParams(location.search).get("query")

@@ -1,6 +1,11 @@
 @font-face {
   font-family: Geist;
-  src: url("/Geist-v1.4.01/webfonts/Geist-Regular.woff2");
+  src: url("/geist-font-1.5.0/Geist-Regular.woff2");
+}
+
+@font-face {
+  font-family: GeistMono;
+  src: url("/geist-font-1.5.0/GeistMono-Regular.woff2");
 }
 
 :root {
@@ -36,30 +41,58 @@ body {
 }
 
 button,
+.button,
 input,
+label,
 select,
 textarea {
   color: inherit;
-  font-family: Geist;
   font-size: 0.875rem;
 }
 
 button,
+.button,
+input,
+select,
+textarea {
+  font-family: Geist;
+}
+
+button,
 .button {
-  background: light-dark(rgb(7, 5, 3), rgb(248, 250, 252));
   border: none;
-  border-radius: 0.25rem;
-  box-sizing: border-box;
-  color: light-dark(rgb(240, 232, 213), rgb(15, 23, 42));
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  height: 2.5rem;
-  padding: 0.5rem 1rem;
   text-decoration: none;
 
-  &:hover {
-    background: rgba(248, 250, 252, 0.9);
+  &.primary,
+  &.secondary {
+    align-content: center;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    text-align: center;
+  }
+
+  &.primary {
+    background: rgb(248, 250, 252);
+    color: rgb(15, 23, 42);
+
+    &[disabled] {
+      opacity: 0.5;
+    }
+
+    &:not([disabled]):hover {
+      background: rgba(248, 250, 252, 0.9);
+    }
+  }
+
+  &.secondary {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(20, 20, 20);
+    color: rgb(248, 250, 252);
   }
 }
 
@@ -77,6 +110,7 @@ ul {
 dialog {
   border: none;
   box-sizing: border-box;
+  display: flex;
   height: 100vh;
   margin-right: 0;
   max-height: none;
@@ -84,16 +118,39 @@ dialog {
   padding: 1rem;
   position: fixed;
   top: 0;
+  transition: translate 0.5s ease-in-out;
+  translate: -100%;
   width: 75vw;
   z-index: 101;
 
-  button:has([data-name="x"]) {
+  &[open],
+  > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &[open] {
+    translate: 0;
+  }
+
+  > button {
     background: transparent;
     color: gray;
+    height: auto;
     padding: 0;
     position: absolute;
     right: 1em;
     top: 1em;
+
+    &,
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  > div {
+    flex: 1;
+    gap: 1rem;
   }
 }
 
@@ -140,8 +197,14 @@ input {
   height: 2.5rem;
 }
 
-label:has([required]) span::after {
-  content: " *";
+label {
+  color: gray;
+  font-family: GeistMono;
+  text-transform: uppercase;
+
+  &:has([required]) span::after {
+    content: " *";
+  }
 }
 
 ol,

@@ -23,6 +23,7 @@
  */
 package com.janilla.templates.ecommerce;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -37,24 +38,17 @@ import com.janilla.persistence.Store;
 @Store
 @Index(sort = "title")
 @Versions(drafts = true)
-public record Product(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
-		Banner.class, MediaBlock.class, RichText.class }) Object> content, Boolean enableVariants,
-		List<@Types({ Fabric.class, Size.class, Color.class }) Object> variantOptions, List<Variant> variants,
-		Long stock, Long price, //List<@Types(Product.class) Long> relatedProducts,
-		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
-		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
+public record Product(Long id, String title, String description, List<@Types(Media.class) Long> gallery,
+		Boolean enableVariants, List<@Types( {
+				Fabric.class, Size.class, Color.class }) Object> variantOptions,
+		List<Variant> variants, Long stock, BigDecimal price, @Index List<@Types(Category.class) Long> categories,
+		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
 		Instant publishedAt) implements Document{
 
 	public Product withVariants(List<Variant> variants) {
-		return new Product(id, title, heroImage, content, enableVariants, variantOptions, variants, stock, price,
-//				relatedProducts, 
-				categories, meta, slug, authors, createdAt, updatedAt, documentStatus, publishedAt);
+		return new Product(id, title, description, gallery, enableVariants, variantOptions, variants, stock, price,
+				categories, meta, slug, createdAt, updatedAt, documentStatus, publishedAt);
 	}
-
-//	public Product withRelatedProducts(List<Long> relatedProducts) {
-//		return new Product(id, title, heroImage, content, enableVariants, variantOptions, variants, stock, price,
-//				relatedProducts, categories, meta, slug, authors, createdAt, updatedAt, documentStatus, publishedAt);
-//	}
 
 	public Product withNonNullVariantIds() {
 		return variants != null && variants.stream().anyMatch(x -> x.id() == null)
@@ -62,7 +56,7 @@ public record Product(Long id, String title, @Types(Media.class) Long heroImage,
 				: this;
 	}
 
-	public record Variant(UUID id, Boolean active, Set<Object> options, Long price, Long stock) {
+	public record Variant(UUID id, Boolean active, Set<Object> options, BigDecimal price, Long stock) {
 
 		public Variant withId(UUID id) {
 			return new Variant(id, active, options, price, stock);

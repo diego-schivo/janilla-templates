@@ -21,36 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.ecommerce;
+import WebComponent from "./web-component.js";
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+const amountFormatter = new Intl.NumberFormat("en-US", {
+	style: "currency",
+	currency: "USD"
+});
 
-import com.janilla.cms.CollectionApi;
-import com.janilla.web.Bind;
-import com.janilla.web.Handle;
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+	day: "numeric",
+	month: "short",
+	year: "numeric",
+});
 
-@Handle(path = "/api/search-results")
-public class SearchResultApi extends CollectionApi<SearchResult> {
+const formatters = {
+	amount: x => amountFormatter.format(x),
+	date: x => dateFormatter.format(new Date(x))
+};
 
-	public SearchResultApi() {
-		super(SearchResult.class, EcommerceTemplate.DRAFTS);
+export default class IntlFormat extends WebComponent {
+
+	static get observedAttributes() {
+		return ["data-type", "data-value"];
 	}
 
-	@Override
-	public List<SearchResult> read() {
-		throw new UnsupportedOperationException();
+	constructor() {
+		super();
 	}
 
-	@Handle(method = "GET")
-	public List<SearchResult> read(@Bind("slug") String slug, @Bind("query") String query) {
-		var pp = crud().read(slug != null && !slug.isBlank() ? crud().filter("slug", slug) : crud().list());
-		return query != null && !query.isBlank() ? pp.stream().filter(x -> {
-			var m = x.meta();
-			var s = Stream.of(m != null ? m.title() : null, m != null ? m.description() : null)
-					.filter(y -> y != null && !y.isBlank()).collect(Collectors.joining(" "));
-			return s.toLowerCase().contains(query.toLowerCase());
-		}).toList() : pp;
+	async updateDisplay() {
+		// console.log("IntlFormat.updateDisplay");
+		if (!this.dataset.value) {
+			this.textContent = "";
+			return;
+		}
+		const f = this.dataset.type ? formatters[this.dataset.type] : undefined;
+		this.textContent = f ? f(this.dataset.value) : this.dataset.value;
 	}
 }

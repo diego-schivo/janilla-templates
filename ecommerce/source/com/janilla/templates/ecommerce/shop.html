@@ -1,13 +1,20 @@
 <main>
   <article>
-    <h1>Shop</h1>
-    <p>Showing 1 - ${total} of ${total} Products</p>
+    <ul>
+      <!--${categories}-->
+    </ul>
     <div>
-      <!--${cards}-->
+      <!--${products}-->
     </div>
   </article>
 </main>
 
-<template id="card">
+<template id="category">
+  <li>
+    <a href="${href}" class="${class}">${text}</a>
+  </li>
+</template>
+
+<template id="product">
   <card-element data-slug="${slug}"></card-element>
 </template>
