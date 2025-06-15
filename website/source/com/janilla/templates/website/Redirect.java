@@ -31,5 +31,5 @@ import com.janilla.persistence.Store;
 
 @Store
 public record Redirect(Long id, @Index String from, String to, Instant createdAt, Instant updatedAt,
-		Document.Status documentStatus, Instant publishedAt) implements Document {
+		Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
 }

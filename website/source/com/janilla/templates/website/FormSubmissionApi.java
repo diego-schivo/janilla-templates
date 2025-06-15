@@ -33,7 +33,7 @@ import com.janilla.smtp.SmtpClient;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/form-submissions")
-public class FormSubmissionApi extends CollectionApi<FormSubmission> {
+public class FormSubmissionApi extends CollectionApi<Long, FormSubmission> {
 
 	public SmtpClient smtpClient;
 

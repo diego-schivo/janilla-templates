@@ -38,5 +38,5 @@ import com.janilla.persistence.Store;
 public record Page(Long id, String title, Hero hero, List<@Types( {
 		Archive.class, CallToAction.class, Content.class, FormBlock.class, MediaBlock.class }) Object> layout,
 		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
-		Instant publishedAt) implements Document{
+		Instant publishedAt) implements Document<Long> {
 }

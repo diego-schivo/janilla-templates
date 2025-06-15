@@ -30,8 +30,8 @@ export default class CmsFoo extends WebComponent {
 		return ["data-array-key", "data-path", "data-updated-at"];
 	}
 
-	static get templateName() {
-		return "cms-foo";
+	static get templateNames() {
+		return ["cms-variant-options"];
 	}
 
 	constructor() {

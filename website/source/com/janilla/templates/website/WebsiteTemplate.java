@@ -169,9 +169,9 @@ public class WebsiteTemplate {
 		Meta m2;
 		Map<String, Object> m3 = new LinkedHashMap<>();
 		m3.put("/api/redirects", persistence.crud(Redirect.class).read(persistence.crud(Redirect.class).list()));
-		m3.put("/api/header", persistence.crud(Header.class).read(1));
+		m3.put("/api/header", persistence.crud(Header.class).read(1L));
 		if (m.matches()) {
-			var c = ((DocumentCrud<Post>) persistence.crud(Post.class));
+			var c = ((DocumentCrud<Long, Post>) persistence.crud(Post.class));
 			var d = DRAFTS.test(exchange);
 			if (m.groupCount() == 1) {
 				var pp = c.read(c.list(), d);
@@ -184,7 +184,7 @@ public class WebsiteTemplate {
 				m3.put("/api/posts?slug=" + s, pp);
 			}
 		} else {
-			var c = ((DocumentCrud<Page>) persistence.crud(Page.class));
+			var c = ((DocumentCrud<Long, Page>) persistence.crud(Page.class));
 			var d = DRAFTS.test(exchange);
 			var s = path.substring(1);
 			if (s.isEmpty())
@@ -193,7 +193,7 @@ public class WebsiteTemplate {
 			m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
 			m3.put("/api/pages?slug=" + s, pp);
 		}
-		m3.put("/api/footer", persistence.crud(Footer.class).read(1));
+		m3.put("/api/footer", persistence.crud(Footer.class).read(1L));
 		return new Index("/style.css", m2, m3);
 	}
 

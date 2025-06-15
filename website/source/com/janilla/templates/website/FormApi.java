@@ -27,7 +27,7 @@ import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/forms")
-public class FormApi extends CollectionApi<Form> {
+public class FormApi extends CollectionApi<Long, Form> {
 
 	public FormApi() {
 		super(Form.class, WebsiteTemplate.DRAFTS);

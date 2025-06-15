@@ -31,7 +31,7 @@ import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/pages")
-public class PageApi extends CollectionApi<Page> {
+public class PageApi extends CollectionApi<Long, Page> {
 
 	public PageApi() {
 		super(Page.class, WebsiteTemplate.DRAFTS);

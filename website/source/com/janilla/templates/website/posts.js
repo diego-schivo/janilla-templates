@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Posts extends WebComponent {
 
-	static get templateName() {
-		return "posts";
+	static get templateNames() {
+		return ["posts"];
 	}
 
 	constructor() {

@@ -8,16 +8,7 @@
 
     <div id="gallery-arrows">
       <ul>
-        <li>
-          <button>
-            <lucide-icon data-name="arrow-left"></lucide-icon>
-          </button>
-        </li>
-        <li>
-          <button>
-            <lucide-icon data-name="arrow-right"></lucide-icon>
-          </button>
-        </li>
+        <!--${galleryArrows}-->
       </ul>
     </div>
 
@@ -28,14 +19,26 @@
     </div>
 
     <h1>${title}</h1>
-    <p>${lowestAmount} - ${highestAmount}</p>
+    <p>
+      <intl-format data-type="amount" data-value="${lowestAmount}"></intl-format>
+      -
+      <intl-format data-type="amount" data-value="${highestAmount}"></intl-format>
+    </p>
     <p>${description}</p>
     <form>
       <!--${variantSelector}-->
-      <button disabled="${disabled}">Add To Cart</button>
+      <button disabled="${disabled}" class="primary">Add To Cart</button>
     </form>
   </article>
 </main>
+
+<template id="gallery-arrow">
+  <li>
+    <button>
+      <lucide-icon data-name="${name}"></lucide-icon>
+    </button>
+  </li>
+</template>
 
 <template id="gallery-thumbnail">
   <li>

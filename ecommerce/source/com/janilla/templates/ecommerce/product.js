@@ -29,8 +29,8 @@ export default class Product extends WebComponent {
 		return ["data-slug"];
 	}
 
-	static get templateName() {
-		return "product";
+	static get templateNames() {
+		return ["product"];
 	}
 
 	constructor() {
@@ -145,6 +145,10 @@ export default class Product extends WebComponent {
 			$template: "",
 			...s.product,
 			image: s.product?.gallery[s.galleryIndex],
+			galleryArrows: ["left", "right"].map(x => ({
+				$template: "gallery-arrow",
+				name: `arrow-${x}`
+			})),
 			galleryThumbnails: s.product?.gallery.map((x, i) => ({
 				$template: "gallery-thumbnail",
 				active: i === s.galleryIndex ? "active" : null,

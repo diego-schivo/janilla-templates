@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Logout extends WebComponent {
 
-	static get templateName() {
-		return "logout";
+	static get templateNames() {
+		return ["logout"];
 	}
 
 	constructor() {

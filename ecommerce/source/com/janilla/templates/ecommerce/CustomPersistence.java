@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Properties;
 
 import com.janilla.cms.CmsPersistence;
@@ -41,6 +42,7 @@ import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.MapAndType.TypeResolver;
 import com.janilla.persistence.Crud;
+import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
 
 public class CustomPersistence extends CmsPersistence {
@@ -83,12 +85,12 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(Database database, Iterable<Class<?>> types, TypeResolver typeResolver) {
+	public CustomPersistence(Database database, Iterable<Class<? extends Entity<?>>> types, TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
 
 	@Override
-	protected <E> Crud<E> newCrud(Class<E> type) {
+	protected <E extends Entity<?>> Crud<?, E> newCrud(Class<E> type) {
 		var x = super.newCrud(type);
 		if (x != null) {
 			if (type == Product.class)
@@ -100,12 +102,11 @@ public class CustomPersistence extends CmsPersistence {
 	}
 
 	public void seed() throws IOException {
-		for (var t : new Class<?>[] { Page.class, Product.class, Media.class, Category.class, User.class,
-				Header.class, Footer.class }) {
+		for (var t : List.of(Page.class, Product.class, Media.class, Category.class, User.class, Header.class,
+				Footer.class)) {
 			database.perform((ss, _) -> {
 				var c = crud(t);
-				c.delete(c.list()).forEach(_ -> {
-				});
+				c.delete(c.list());
 				ss.perform(t.getSimpleName(), s -> {
 					s.getAttributes().clear();
 					return null;

@@ -27,7 +27,7 @@ import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/categories")
-public class CategoryApi extends CollectionApi<Category> {
+public class CategoryApi extends CollectionApi<Long, Category> {
 
 	public CategoryApi() {
 		super(Category.class, EcommerceTemplate.DRAFTS);

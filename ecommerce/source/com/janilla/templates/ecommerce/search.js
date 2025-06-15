@@ -29,8 +29,8 @@ export default class Search extends WebComponent {
 		return ["data-query"];
 	}
 
-	static get templateName() {
-		return "search";
+	static get templateNames() {
+		return ["search"];
 	}
 
 	constructor() {

@@ -34,7 +34,7 @@ import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/products")
-public class ProductApi extends CollectionApi<Product> {
+public class ProductApi extends CollectionApi<Long, Product> {
 
 	public static ProductApi INSTANCE;
 

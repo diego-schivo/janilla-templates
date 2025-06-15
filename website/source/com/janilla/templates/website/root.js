@@ -28,8 +28,8 @@ const postsRegex = /^\/posts(\/.*)?$/;
 
 export default class Root extends WebComponent {
 
-	static get templateName() {
-		return "root";
+	static get templateNames() {
+		return ["root"];
 	}
 
 	#serverData;

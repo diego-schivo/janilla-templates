@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class MediaBlock extends WebComponent {
 
-	static get templateName() {
-		return "media-block";
+	static get templateNames() {
+		return ["media-block"];
 	}
 
 	constructor() {

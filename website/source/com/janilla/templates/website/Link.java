@@ -28,7 +28,7 @@ import com.janilla.cms.Types;
 import com.janilla.persistence.Index;
 
 public record Link(Type type, Boolean newTab, @Index Document.@Types( {
-		Page.class, Post.class }) Reference<?> reference, String uri, String text, Appearance appearance){
+		Page.class, Post.class }) Reference<?, ?> reference, String uri, String text, Appearance appearance){
 
 	public enum Appearance {
 

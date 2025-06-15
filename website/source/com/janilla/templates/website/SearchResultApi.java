@@ -32,7 +32,7 @@ import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/search-results")
-public class SearchResultApi extends CollectionApi<SearchResult> {
+public class SearchResultApi extends CollectionApi<Long, SearchResult> {
 
 	public SearchResultApi() {
 		super(SearchResult.class, WebsiteTemplate.DRAFTS);

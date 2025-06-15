@@ -29,8 +29,8 @@ export default class Order extends WebComponent {
 		return ["data-id"];
 	}
 
-	static get templateName() {
-		return "order";
+	static get templateNames() {
+		return ["order"];
 	}
 
 	constructor() {

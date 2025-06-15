@@ -29,8 +29,8 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		return ["data-email", "data-path"];
 	}
 
-	static get templateName() {
-		return "cms-admin";
+	static get templateNames() {
+		return ["cms-admin"];
 	}
 
 	constructor() {
@@ -80,7 +80,7 @@ export default class CustomCmsAdmin extends CmsAdmin {
 			case "Set":
 				//console.log("field", field);
 				if (field.name === "options" && field.parent.type === "Product.Variant")
-					return "foo";
+					return "cms-variant-options";
 				break;
 			case "String":
 				switch (field.name) {
@@ -140,5 +140,25 @@ export default class CustomCmsAdmin extends CmsAdmin {
 
 	isReadOnly(type) {
 		return type === "SearchResult";
+	}
+
+	setValue(object, key, value, field) {
+		if (field.name === "options" && field.parent.type === "Product.Variant") {
+			const vv = value.split(":");
+			value = {
+				$type: `${vv[0]}.Option`,
+				name: vv[1]
+			};
+		}
+		return super.setValue(object, key, value, field);
+	}
+
+	formProperties(field) {
+		//console.log("f", f);
+		const x = super.formProperties(field);
+		if (field.type === "User")
+			x.splice(x.findIndex(([k, _]) => k === "salt"), 4, ["password", null]);
+		//console.log("x", x);
+		return x;
 	}
 }

@@ -29,8 +29,8 @@ export default class Post extends WebComponent {
 		return ["data-slug"];
 	}
 
-	static get templateName() {
-		return "post";
+	static get templateNames() {
+		return ["post"];
 	}
 
 	constructor() {

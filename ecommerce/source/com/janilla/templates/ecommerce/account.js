@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Account extends WebComponent {
 
-	static get templateName() {
-		return "account";
+	static get templateNames() {
+		return ["account"];
 	}
 
 	constructor() {

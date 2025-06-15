@@ -47,7 +47,7 @@ import com.janilla.persistence.Store;
 public record User(Long id, String name, @Index String email, String salt, String hash,
 		@Index String resetPasswordToken, Instant resetPasswordExpiration, Set<Role> roles,
 		@Index String stripeCustomerId, Cart cart, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
-		Instant publishedAt) implements Document {
+		Instant publishedAt) implements Document<Long> {
 
 	private static final SecretKeyFactory SECRET;
 

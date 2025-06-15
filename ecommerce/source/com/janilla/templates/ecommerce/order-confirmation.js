@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class OrderConfirmation extends WebComponent {
 
-	static get templateName() {
-		return "order-confirmation";
+	static get templateNames() {
+		return ["order-confirmation"];
 	}
 
 	constructor() {

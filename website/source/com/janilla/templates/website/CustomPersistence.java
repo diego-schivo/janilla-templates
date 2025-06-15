@@ -33,6 +33,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.MapAndType.TypeResolver;
 import com.janilla.persistence.Crud;
+import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
 
@@ -57,7 +59,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(Database database, Iterable<Class<?>> types, TypeResolver typeResolver) {
+	public CustomPersistence(Database database, Iterable<Class<? extends Entity<?>>> types, TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
 
@@ -70,7 +72,7 @@ public class CustomPersistence extends CmsPersistence {
 
 				@Override
 				public <E> void afterCreate(E entity) {
-					var d = (Document) entity;
+					var d = (Document<?>) entity;
 					var dc = d.getClass();
 					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED)
 						crud(SearchResult.class)
@@ -82,8 +84,8 @@ public class CustomPersistence extends CmsPersistence {
 
 				@Override
 				public <E> void afterUpdate(E entity1, E entity2) {
-					var d1 = (Document) entity1;
-					var d2 = (Document) entity2;
+					var d1 = (Document<?>) entity1;
+					var d2 = (Document<?>) entity2;
 					var dc = d1.getClass();
 					if (types.contains(dc)) {
 						var c = crud(SearchResult.class);
@@ -110,7 +112,7 @@ public class CustomPersistence extends CmsPersistence {
 
 				@Override
 				public <E> void afterDelete(E entity) {
-					var d = (Document) entity;
+					var d = (Document<?>) entity;
 					var dc = d.getClass();
 					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED) {
 						var c = crud(SearchResult.class);
@@ -122,7 +124,7 @@ public class CustomPersistence extends CmsPersistence {
 	}
 
 	@Override
-	protected <E> Crud<E> newCrud(Class<E> type) {
+	protected <E extends Entity<?>> Crud<?, E> newCrud(Class<E> type) {
 		var x = super.newCrud(type);
 		if (x != null)
 			x.observers().add(searchObserver());
@@ -130,12 +132,11 @@ public class CustomPersistence extends CmsPersistence {
 	}
 
 	public void seed() throws IOException {
-		for (var t : new Class<?>[] { Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
-				Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class }) {
+		for (var t : List.of(Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
+				Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class)) {
 			database.perform((ss, _) -> {
 				var c = crud(t);
-				c.delete(c.list()).forEach(_ -> {
-				});
+				c.delete(c.list());
 				ss.perform(t.getSimpleName(), s -> {
 					s.getAttributes().clear();
 					return null;

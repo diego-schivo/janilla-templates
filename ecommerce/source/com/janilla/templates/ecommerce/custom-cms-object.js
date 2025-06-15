@@ -30,20 +30,11 @@ export default class CustomCmsObject extends CmsObject {
 		return ["data-array-key", "data-path", "data-updated-at"];
 	}
 
-	static get templateName() {
-		return "custom-cms-object";
+	static get templateNames() {
+		return ["cms-object", "custom-cms-object"];
 	}
 
 	constructor() {
 		super();
-	}
-
-	foo(f) {
-		//console.log("f", f);
-		const x = super.foo(f).filter(([k, _]) => k !== "id");
-		if (f.type === "User")
-			x.splice(x.findIndex(([k, _]) => k === "salt"), 4, ["password", null]);
-		//console.log("x", x);
-		return x;
 	}
 }

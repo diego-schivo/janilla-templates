@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class RichText extends WebComponent {
 
-	static get templateName() {
-		return "rich-text";
+	static get templateNames() {
+		return ["rich-text"];
 	}
 
 	constructor() {

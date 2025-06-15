@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Banner extends WebComponent {
 
-	static get templateName() {
-		return "banner";
+	static get templateNames() {
+		return ["banner"];
 	}
 
 	constructor() {

@@ -31,7 +31,7 @@ import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/posts")
-public class PostApi extends CollectionApi<Post> {
+public class PostApi extends CollectionApi<Long, Post> {
 
 	public PostApi() {
 		super(Post.class, WebsiteTemplate.DRAFTS);

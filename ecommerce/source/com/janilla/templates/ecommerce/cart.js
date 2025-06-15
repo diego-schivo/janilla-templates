@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Cart extends WebComponent {
 
-	static get templateName() {
-		return "cart";
+	static get templateNames() {
+		return ["cart"];
 	}
 
 	constructor() {

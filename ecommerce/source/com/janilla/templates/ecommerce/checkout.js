@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Checkout extends WebComponent {
 
-	static get templateName() {
-		return "checkout";
+	static get templateNames() {
+		return ["checkout"];
 	}
 
 	constructor() {

@@ -185,10 +185,10 @@ public class EcommerceTemplate {
 
 		Meta m2;
 		Map<String, Object> m3 = new LinkedHashMap<>();
-		m3.put("/api/header", persistence.crud(Header.class).read(1));
+		m3.put("/api/header", persistence.crud(Header.class).read(1L));
 		Matcher m;
 		if ((m = PRODUCTS.matcher(path)).matches()) {
-			var c = ((DocumentCrud<Product>) persistence.crud(Product.class));
+			var c = ((DocumentCrud<Long, Product>) persistence.crud(Product.class));
 			var d = DRAFTS.test(exchange);
 			if (m.groupCount() == 1) {
 				var pp = c.read(c.list(), d);
@@ -231,7 +231,7 @@ public class EcommerceTemplate {
 //			}
 //				break;
 			default:
-				var pc = (DocumentCrud<Page>) persistence.crud(Page.class);
+				var pc = (DocumentCrud<Long, Page>) persistence.crud(Page.class);
 				var d = DRAFTS.test(exchange);
 				var s = path.substring(1);
 				if (s.isEmpty())
@@ -241,7 +241,7 @@ public class EcommerceTemplate {
 				m3.put("/api/pages?slug=" + s, pp);
 				break;
 			}
-		m3.put("/api/footer", persistence.crud(Footer.class).read(1));
+		m3.put("/api/footer", persistence.crud(Footer.class).read(1L));
 		return new Index("/style.css", m2, m3);
 	}
 

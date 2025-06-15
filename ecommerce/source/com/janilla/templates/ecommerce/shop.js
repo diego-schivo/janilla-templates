@@ -29,8 +29,8 @@ export default class Shop extends WebComponent {
 		return ["data-category"];
 	}
 
-	static get templateName() {
-		return "shop";
+	static get templateNames() {
+		return ["shop"];
 	}
 
 	constructor() {

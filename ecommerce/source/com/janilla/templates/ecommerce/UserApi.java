@@ -40,7 +40,7 @@ import com.janilla.web.Handle;
 import com.janilla.web.UnauthorizedException;
 
 @Handle(path = "/api/users")
-public class UserApi extends CollectionApi<User> {
+public class UserApi extends CollectionApi<Long, User> {
 
 	public Properties configuration;
 
@@ -140,9 +140,11 @@ public class UserApi extends CollectionApi<User> {
 	}
 
 	@Override
-	protected Set<String> foo(User entity) {
-		return entity.salt() == null ? Reflection.propertyNames(User.class)
-				.filter(x -> !Set.of("salt", "hash").contains(x)).collect(Collectors.toSet()) : null;
+	protected Set<String> updateInclude(User entity) {
+		var nn = Set.of("salt", "hash");
+		return entity.salt() == null
+				? Reflection.propertyNames(User.class).filter(x -> !nn.contains(x)).collect(Collectors.toSet())
+				: null;
 	}
 
 //	private static void mail(Data d) {

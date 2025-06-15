@@ -29,8 +29,8 @@ export default class Payment extends WebComponent {
 		return ["data-email", "data-amount"];
 	}
 
-	static get templateName() {
-		return "payment";
+	static get templateNames() {
+		return ["payment"];
 	}
 
 	constructor() {

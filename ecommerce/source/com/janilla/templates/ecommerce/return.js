@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Return extends WebComponent {
 
-	static get templateName() {
-		return "return";
+	static get templateNames() {
+		return ["return"];
 	}
 
 	constructor() {

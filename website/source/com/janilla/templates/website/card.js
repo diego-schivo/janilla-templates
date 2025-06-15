@@ -29,8 +29,8 @@ export default class Card extends WebComponent {
 		return ["data-slug"];
 	}
 
-	static get templateName() {
-		return "card";
+	static get templateNames() {
+		return ["card"];
 	}
 
 	constructor() {

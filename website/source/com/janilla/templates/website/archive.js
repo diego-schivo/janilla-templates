@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Archive extends WebComponent {
 
-	static get templateName() {
-		return "archive";
+	static get templateNames() {
+		return ["archive"];
 	}
 
 	constructor() {

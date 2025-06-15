@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Login extends WebComponent {
 
-	static get templateName() {
-		return "login";
+	static get templateNames() {
+		return ["login"];
 	}
 
 	constructor() {

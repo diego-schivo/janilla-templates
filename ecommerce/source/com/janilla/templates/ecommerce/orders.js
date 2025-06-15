@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class Orders extends WebComponent {
 
-	static get templateName() {
-		return "orders";
+	static get templateNames() {
+		return ["orders"];
 	}
 
 	constructor() {

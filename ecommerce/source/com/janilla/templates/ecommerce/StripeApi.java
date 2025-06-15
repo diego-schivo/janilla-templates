@@ -179,7 +179,7 @@ public class StripeApi {
 				var m2 = Json.asMap(Json.asMap(m.get("data")).get("object"));
 //				System.out.println("m2=" + m2);
 				var uc = persistence.crud(User.class);
-				var u = uc.read(uc.filter("stripeCustomerId", (String) m2.get("customer"))[0]);
+				var u = uc.read(uc.filter("stripeCustomerId", (String) m2.get("customer")).getFirst());
 				var o = persistence.crud(Order.class).create(new Order(null, u.id(), (String) m2.get("id"),
 						(Long) m2.get("amount"), null, null, Order.Status.PROCESSING, null, null, null, null));
 				var q = FOO.computeIfAbsent(o.stripePaymentIntentId(), _ -> new ArrayBlockingQueue<>(1));

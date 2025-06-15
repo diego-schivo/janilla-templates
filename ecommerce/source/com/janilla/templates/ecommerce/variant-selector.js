@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class VariantSelector extends WebComponent {
 
-	static get templateName() {
-		return "variant-selector";
+	static get templateNames() {
+		return ["variant-selector"];
 	}
 
 	constructor() {

@@ -27,7 +27,7 @@ import com.janilla.cms.CollectionApi;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/redirects")
-public class RedirectApi extends CollectionApi<Redirect> {
+public class RedirectApi extends CollectionApi<Long, Redirect> {
 
 	public RedirectApi() {
 		super(Redirect.class, WebsiteTemplate.DRAFTS);

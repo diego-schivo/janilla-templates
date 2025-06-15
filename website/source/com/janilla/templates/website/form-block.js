@@ -25,8 +25,8 @@ import WebComponent from "./web-component.js";
 
 export default class FormBlock extends WebComponent {
 
-	static get templateName() {
-		return "form-block";
+	static get templateNames() {
+		return ["form-block"];
 	}
 
 	constructor() {

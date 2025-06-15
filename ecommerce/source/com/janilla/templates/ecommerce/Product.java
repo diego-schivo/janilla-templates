@@ -43,7 +43,7 @@ public record Product(Long id, String title, String description, List<@Types(Med
 				Fabric.class, Size.class, Color.class }) Object> variantOptions,
 		List<Variant> variants, Long stock, BigDecimal price, @Index List<@Types(Category.class) Long> categories,
 		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
-		Instant publishedAt) implements Document{
+		Instant publishedAt) implements Document<Long>{
 
 	public Product withVariants(List<Variant> variants) {
 		return new Product(id, title, description, gallery, enableVariants, variantOptions, variants, stock, price,

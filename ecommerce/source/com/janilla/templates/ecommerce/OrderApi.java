@@ -39,7 +39,7 @@ import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/orders")
-public class OrderApi extends CollectionApi<Order> {
+public class OrderApi extends CollectionApi<Long, Order> {
 
 	public OrderApi() {
 		super(Order.class, EcommerceTemplate.DRAFTS);
