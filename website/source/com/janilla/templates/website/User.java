@@ -95,6 +95,11 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 				updatedAt, documentStatus, publishedAt);
 	}
 
+	public User withRoles(Set<Role> roles) {
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles, createdAt,
+				updatedAt, documentStatus, publishedAt);
+	}
+
 	public enum Role {
 
 		ADMIN

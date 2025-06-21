@@ -86,7 +86,7 @@ public class UserApi extends CollectionApi<Long, User> {
 			throw new BadRequestException("Please correct invalid fields.");
 		if (crud().count() != 0)
 			throw new ForbiddenException("You are not allowed to perform this action.");
-		var u = crud().create(user.withPassword(password));
+		var u = crud().create(user.withPassword(password).withRoles(Set.of(User.Role.ADMIN)));
 		var h = Map.of("alg", "HS256", "typ", "JWT");
 		var p = Map.of("loggedInAs", u.email());
 		var t = Jwt.generateToken(h, p, configuration.getProperty("ecommerce-template.jwt.key"));

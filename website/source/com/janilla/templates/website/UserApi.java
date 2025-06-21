@@ -48,6 +48,11 @@ public class UserApi extends CollectionApi<Long, User> {
 		super(User.class, WebsiteTemplate.DRAFTS);
 	}
 
+	@Handle(method = "PUT", path = "(\\d+)")
+	public User update(long id, User entity, Boolean draft, Boolean autosave, String password) {
+		return super.update(id, entity.withPassword(password), draft, autosave);
+	}
+
 	@Handle(method = "POST", path = "login")
 	public User login(User user, String password, CustomHttpExchange exchange) {
 		if (user == null || user.email() == null || user.email().isBlank() || password == null || password.isBlank())
@@ -81,7 +86,7 @@ public class UserApi extends CollectionApi<Long, User> {
 			throw new BadRequestException("Please correct invalid fields.");
 		if (crud().count() != 0)
 			throw new ForbiddenException("You are not allowed to perform this action.");
-		var u = crud().create(user.withPassword(password));
+		var u = crud().create(user.withPassword(password).withRoles(Set.of(User.Role.ADMIN)));
 		var h = Map.of("alg", "HS256", "typ", "JWT");
 		var p = Map.of("loggedInAs", u.email());
 		var t = Jwt.generateToken(h, p, configuration.getProperty("website-template.jwt.key"));

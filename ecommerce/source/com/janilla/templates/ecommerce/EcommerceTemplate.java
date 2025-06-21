@@ -147,7 +147,8 @@ public class EcommerceTemplate {
 	@Handle(method = "GET", path = "((?!/api/)/[\\w\\d/-]*)")
 	public Index index(String path, CustomHttpExchange exchange) {
 		if (path.equals("/admin") || path.startsWith("/admin/")) {
-			if (path.equals("/admin/login")) {
+			switch (path) {
+			case "/admin/login":
 				if (persistence.crud(User.class).count() == 0) {
 					var rs = exchange.getResponse();
 					rs.setStatus(307);
@@ -155,20 +156,26 @@ public class EcommerceTemplate {
 					rs.setHeaderValue("location", "/admin/create-first-user");
 					return null;
 				}
-			} else if (exchange.sessionEmail() == null) {
-				var rs = exchange.getResponse();
-				rs.setStatus(307);
-				rs.setHeaderValue("cache-control", "no-cache");
-				rs.setHeaderValue("location", "/admin/login");
-				return null;
-			} else if (!Set.of("/admin/logout", "/admin/unauthorized").contains(path)) {
-				if (exchange.sessionUser() == null || !exchange.sessionUser().hasRole(User.Role.ADMIN)) {
+				break;
+			case "/admin/create-first-user":
+				break;
+			default:
+				if (exchange.sessionEmail() == null) {
 					var rs = exchange.getResponse();
 					rs.setStatus(307);
 					rs.setHeaderValue("cache-control", "no-cache");
-					rs.setHeaderValue("location", "/admin/unauthorized");
+					rs.setHeaderValue("location", "/admin/login");
 					return null;
+				} else if (!Set.of("/admin/logout", "/admin/unauthorized").contains(path)) {
+					if (exchange.sessionUser() == null || !exchange.sessionUser().hasRole(User.Role.ADMIN)) {
+						var rs = exchange.getResponse();
+						rs.setStatus(307);
+						rs.setHeaderValue("cache-control", "no-cache");
+						rs.setHeaderValue("location", "/admin/unauthorized");
+						return null;
+					}
 				}
+				break;
 			}
 			return new Index("/admin.css", null, Map.of());
 		}

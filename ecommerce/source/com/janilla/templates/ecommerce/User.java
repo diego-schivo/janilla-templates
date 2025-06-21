@@ -100,6 +100,11 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
 	}
 
+	public User withRoles(Set<Role> roles) {
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles,
+				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);
+	}
+
 	public User withStripeCustomerId(String stripeCustomerId) {
 		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles,
 				stripeCustomerId, cart, createdAt, updatedAt, documentStatus, publishedAt);

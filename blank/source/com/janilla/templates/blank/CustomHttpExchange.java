@@ -68,7 +68,7 @@ public class CustomHttpExchange extends HttpExchange {
 		if (!map.containsKey("sessionUser")) {
 			var uc = persistence.crud(User.class);
 			var se = sessionEmail();
-			map.put("sessionUser", uc.read(se != null ? uc.find("email", se) : 0));
+			map.put("sessionUser", uc.read(se != null ? uc.find("email", se) : null));
 		}
 		return (User) map.get("sessionUser");
 	}
