@@ -67,9 +67,9 @@ export default class Root extends WebComponent {
 		const el = event.target.closest("select");
 		if (el?.closest("footer")) {
 			if (el.value === "auto")
-				localStorage.removeItem("janilla-templates.website.color-scheme");
+				localStorage.removeItem("janilla-templates.ecommerce.color-scheme");
 			else
-				localStorage.setItem("janilla-templates.website.color-scheme", el.value);
+				localStorage.setItem("janilla-templates.ecommerce.color-scheme", el.value);
 			this.requestDisplay();
 		}
 	}
@@ -123,7 +123,7 @@ export default class Root extends WebComponent {
 		const s = this.state;
 		const nn = location.pathname.match(adminRegex)
 			? ["user"]
-			: ["user", "header", "footer", "redirects", "config"];
+			: ["user", "header", "footer", "config"];
 		nn.forEach(x => delete s[x]);
 		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
 		for (const [k, v] of kkvv)
@@ -150,14 +150,6 @@ export default class Root extends WebComponent {
 			return;
 		}
 
-		if (s.redirects)
-			for (const x of s.redirects)
-				if (x.from === location.pathname) {
-					history.pushState(undefined, "", x.to);
-					dispatchEvent(new CustomEvent("popstate"));
-					return;
-				}
-
 		switch (location.pathname) {
 			case "/account":
 				if (s.user === null) {
@@ -172,7 +164,7 @@ export default class Root extends WebComponent {
 				break;
 		}
 
-		const cs = localStorage.getItem("janilla-templates.website.color-scheme");
+		const cs = localStorage.getItem("janilla-templates.ecommerce.color-scheme");
 		const link = x => {
 			let h;
 			switch (x.type.name) {

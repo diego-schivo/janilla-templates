@@ -37,6 +37,13 @@ export default class CustomCmsAdmin extends CmsAdmin {
 		super();
 	}
 
+	field(path, parent) {
+		const f = super.field(path, parent);
+		if (f.parent?.type === "User" && f.name === "password")
+			f.type = "String";
+		return f;
+	}
+
 	label(path) {
 		return ["hero", "hero.richText", "meta"].includes(path) ? null : super.label(path);
 	}
@@ -48,8 +55,21 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				return ["title", "slug", "updatedAt"];
 			case "redirects":
 				return ["from"];
+			case "users":
+				return ["name", "email", "roles"];
 		}
 		return super.headers(entitySlug);
+	}
+
+	cell(object, key) {
+		const x = super.cell(object, key);
+		switch (key) {
+			case "documentStatus":
+				return x.name;
+			case "roles":
+				return x.map(y => y.name).join();
+		}
+		return x;
 	}
 
 	controlTemplate(field) {
@@ -108,5 +128,14 @@ export default class CustomCmsAdmin extends CmsAdmin {
 
 	isReadOnly(type) {
 		return type === "SearchResult";
+	}
+
+	formProperties(field) {
+		//console.log("f", f);
+		const x = super.formProperties(field);
+		if (field.type === "User")
+			x.splice(x.findIndex(([k, _]) => k === "salt"), 4, ["password", null]);
+		//console.log("x", x);
+		return x;
 	}
 }

@@ -184,7 +184,7 @@ public class EcommerceTemplate {
 		}
 
 		Meta m2;
-		Map<String, Object> m3 = new LinkedHashMap<>();
+		var m3 = new LinkedHashMap<String, Object>();
 		m3.put("/api/header", persistence.crud(Header.class).read(1L));
 		Matcher m;
 		if ((m = PRODUCTS.matcher(path)).matches()) {

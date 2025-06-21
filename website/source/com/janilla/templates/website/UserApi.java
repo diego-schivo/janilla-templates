@@ -27,10 +27,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.json.Jwt;
+import com.janilla.reflect.Reflection;
 import com.janilla.web.BadRequestException;
 import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
@@ -129,6 +132,14 @@ public class UserApi extends CollectionApi<Long, User> {
 		var t = Jwt.generateToken(h, p, configuration.getProperty("website-template.jwt.key"));
 		exchange.setSessionCookie(t);
 		return u;
+	}
+
+	@Override
+	protected Set<String> updateInclude(User entity) {
+		var nn = Set.of("salt", "hash");
+		return entity.salt() == null
+				? Reflection.propertyNames(User.class).filter(x -> !nn.contains(x)).collect(Collectors.toSet())
+				: null;
 	}
 
 //	private static void mail(Data d) {

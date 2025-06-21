@@ -25,7 +25,7 @@ package com.janilla.templates.website;
 
 import java.util.List;
 
-public record SeedData(List<Page> pages, List<Post> posts, List<Media> media, List<Category> categories,
-		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
-		List<SearchResult> searchResults, Header header, Footer footer) {
+public record SeedData(List<Category> categories, Footer footer, List<FormSubmission> formSubmissions, List<Form> forms,
+		Header header, List<Media> media, List<Page> pages, List<Post> posts, List<Redirect> redirects,
+		List<SearchResult> searchResults, List<User> users) {
 }

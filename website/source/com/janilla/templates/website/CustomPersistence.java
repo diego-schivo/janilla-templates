@@ -132,8 +132,8 @@ public class CustomPersistence extends CmsPersistence {
 	}
 
 	public void seed() throws IOException {
-		for (var t : List.of(Page.class, Post.class, Media.class, Category.class, User.class, Redirect.class,
-				Form.class, FormSubmission.class, SearchResult.class, Header.class, Footer.class)) {
+		for (var t : List.of(Category.class, Footer.class, Form.class, FormSubmission.class, Header.class, Media.class,
+				Page.class, Post.class, Redirect.class, SearchResult.class, User.class)) {
 			database.perform((ss, _) -> {
 				var c = crud(t);
 				c.delete(c.list());
@@ -151,26 +151,26 @@ public class CustomPersistence extends CmsPersistence {
 			var o = Json.parse(s);
 			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
 		}
-		for (var x : sd.pages())
-			crud(Page.class).create(x);
-		for (var x : sd.posts())
-			crud(Post.class).create(x);
-		for (var x : sd.media())
-			crud(Media.class).create(x);
 		for (var x : sd.categories())
 			crud(Category.class).create(x);
-		for (var x : sd.users())
-			crud(User.class).create(x);
-		for (var x : sd.redirects())
-			crud(Redirect.class).create(x);
+		crud(Footer.class).create(sd.footer());
 		for (var x : sd.forms())
 			crud(Form.class).create(x);
 		for (var x : sd.formSubmissions())
 			crud(FormSubmission.class).create(x);
+		crud(Header.class).create(sd.header());
+		for (var x : sd.media())
+			crud(Media.class).create(x);
+		for (var x : sd.pages())
+			crud(Page.class).create(x);
+		for (var x : sd.posts())
+			crud(Post.class).create(x);
+		for (var x : sd.redirects())
+			crud(Redirect.class).create(x);
 		for (var x : sd.searchResults())
 			crud(SearchResult.class).create(x);
-		crud(Header.class).create(sd.header());
-		crud(Footer.class).create(sd.footer());
+		for (var x : sd.users())
+			crud(User.class).create(x);
 
 		var r = getClass().getResource("seed-data.zip");
 		URI u;

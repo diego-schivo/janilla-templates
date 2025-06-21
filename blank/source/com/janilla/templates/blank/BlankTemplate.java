@@ -68,6 +68,7 @@ public class BlankTemplate {
 					pp.load(Files.newInputStream(Path.of(p)));
 				}
 			}
+			new BlankTemplate(pp);
 			HttpServer s;
 			{
 				SSLContext sc;
@@ -100,6 +101,7 @@ public class BlankTemplate {
 	public Iterable<Class<?>> types;
 
 	public BlankTemplate(Properties configuration) {
+		INSTANCE = this;
 		this.configuration = configuration;
 		types = Util.getPackageClasses(getClass().getPackageName()).toList();
 		factory = new Factory(types, this);

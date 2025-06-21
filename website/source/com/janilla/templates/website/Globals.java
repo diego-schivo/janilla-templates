@@ -23,5 +23,5 @@
  */
 package com.janilla.templates.website;
 
-public record Globals(Header header, Footer footer) {
+public record Globals(Footer footer, Header header) {
 }

@@ -30,6 +30,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.util.HexFormat;
 import java.util.Random;
+import java.util.Set;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -40,8 +41,8 @@ import com.janilla.persistence.Store;
 
 @Store
 public record User(Long id, String name, @Index String email, String salt, String hash,
-		@Index String resetPasswordToken, Instant resetPasswordExpiration, Instant createdAt, Instant updatedAt,
-		Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
+		@Index String resetPasswordToken, Instant resetPasswordExpiration, Set<Role> roles, Instant createdAt,
+		Instant updatedAt, Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
 
 	private static final SecretKeyFactory SECRET;
 
@@ -66,6 +67,10 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 		return k.getEncoded();
 	}
 
+	public boolean hasRole(Role role) {
+		return roles != null && roles.contains(role);
+	}
+
 	public boolean passwordEquals(String password) {
 		var f = HexFormat.of();
 		var s = f.parseHex(salt);
@@ -74,16 +79,24 @@ public record User(Long id, String name, @Index String email, String salt, Strin
 	}
 
 	public User withPassword(String password) {
+		if (password == null || password.isEmpty())
+			return new User(id, name, email, null, null, resetPasswordToken, resetPasswordExpiration, roles, createdAt,
+					updatedAt, documentStatus, publishedAt);
 		var s = new byte[16];
 		RANDOM.nextBytes(s);
 		var h = hash(password.toCharArray(), s);
 		var f = HexFormat.of();
 		return new User(id, name, email, f.formatHex(s), f.formatHex(h), resetPasswordToken, resetPasswordExpiration,
-				createdAt, updatedAt, documentStatus, publishedAt);
+				roles, createdAt, updatedAt, documentStatus, publishedAt);
 	}
 
 	public User withResetPassword(String resetPasswordToken, Instant resetPasswordExpiration) {
-		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, createdAt, updatedAt,
-				documentStatus, publishedAt);
+		return new User(id, name, email, salt, hash, resetPasswordToken, resetPasswordExpiration, roles, createdAt,
+				updatedAt, documentStatus, publishedAt);
+	}
+
+	public enum Role {
+
+		ADMIN
 	}
 }

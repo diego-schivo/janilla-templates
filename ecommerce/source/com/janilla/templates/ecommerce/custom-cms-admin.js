@@ -56,8 +56,6 @@ export default class CustomCmsAdmin extends CmsAdmin {
 				return ["title", "slug", "updatedAt"];
 			case "products":
 				return ["title", "enableVariants", "documentStatus"];
-			case "redirects":
-				return ["from"];
 			case "users":
 				return ["name", "email", "roles"];
 		}

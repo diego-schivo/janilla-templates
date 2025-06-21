@@ -70,14 +70,14 @@ export default class Root extends WebComponent {
 
 	handleClick = event => {
 		const a = event.target.closest("a");
-		if (!a?.href || event.defaultPrevented || a.target)
-			return;
-		const u = new URL(a.href);
-		if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
-			return;
-		event.preventDefault();
-		history.pushState(undefined, "", u.pathname + u.search);
-		dispatchEvent(new CustomEvent("popstate"));
+		if (a?.href && !event.defaultPrevented && !a.target) {
+				const u = new URL(a.href);
+				if (!u.pathname.match(adminRegex) !== !location.pathname.match(adminRegex))
+					return;
+				event.preventDefault();
+				history.pushState(undefined, "", u.pathname + u.search);
+				dispatchEvent(new CustomEvent("popstate"));
+		}
 	}
 
 	handlePopState = () => {
@@ -88,31 +88,33 @@ export default class Root extends WebComponent {
 
 	async computeState() {
 		const s = this.state;
-		const nn = ["header", "footer", "redirects"];
+		const nn = location.pathname.match(adminRegex)
+			? ["user"]
+			: ["user", "header", "footer", "redirects", "config"];
 		nn.forEach(x => delete s[x]);
-		for (const [k, v] of await Promise.all(nn.map(x => {
-			const k = `/api/${x}`;
-			return this.fetchData(k).then(y => ([x, y]));
-		})))
+		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
+		for (const [k, v] of kkvv)
 			s[k] = v;
 		this.requestDisplay();
 	}
 
 	async updateDisplay() {
+		const s = this.state;
+		s.computeState ??= this.computeState();
+
 		const m = location.pathname.match(adminRegex);
 		if (m) {
 			this.appendChild(this.interpolateDom({
 				$template: "",
 				admin: {
 					$template: "admin",
-					email: this.querySelector("cms-admin")?.state?.me?.email,
+					email: this.state?.user?.email,
 					path: m[1] ?? "/"
 				}
 			}));
 			return;
 		}
-		const s = this.state;
-		s.computeState ??= this.computeState();
+
 		if (s.redirects)
 			for (const x of s.redirects)
 				if (x.from === location.pathname) {

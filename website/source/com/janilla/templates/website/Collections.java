@@ -25,7 +25,7 @@ package com.janilla.templates.website;
 
 import java.util.List;
 
-public record Collections(List<Page> pages, List<Post> posts, List<Media> media, List<Category> categories,
-		List<User> users, List<Redirect> redirects, List<Form> forms, List<FormSubmission> formSubmissions,
-		List<SearchResult> searchResults) {
+public record Collections(List<Category> categories, List<Form> forms, List<FormSubmission> formSubmissions,
+		List<Media> media, List<Page> pages, List<Post> posts, List<Redirect> redirects,
+		List<SearchResult> searchResults, List<User> users) {
 }

@@ -1,4 +1,183 @@
 {
+	"categories": [
+		{
+			"$type": "Category",
+			"id": 1,
+			"title": "Technology",
+			"slug": "technology"
+		},
+		{
+			"$type": "Category",
+			"id": 2,
+			"title": "News",
+			"slug": "news"
+		},
+		{
+			"$type": "Category",
+			"id": 3,
+			"title": "Finance",
+			"slug": "finance"
+		},
+		{
+			"$type": "Category",
+			"id": 4,
+			"title": "Design",
+			"slug": "design"
+		},
+		{
+			"$type": "Category",
+			"id": 5,
+			"title": "Software",
+			"slug": "software"
+		},
+		{
+			"$type": "Category",
+			"id": 6,
+			"title": "Engineering",
+			"slug": "engineering"
+		}
+	],
+	"footer": {
+		"$type": "Footer",
+		"id": 1,
+		"navItems": [
+			{
+				"$type": "Link",
+				"type": "CUSTOM",
+				"uri": "/admin",
+				"text": "Admin"
+			},
+			{
+				"$type": "Link",
+				"type": "CUSTOM",
+				"uri": "https://github.com/diego-schivo/website-template",
+				"text": "Source Code"
+			},
+			{
+				"$type": "Link",
+				"type": "CUSTOM",
+				"uri": "https://janilla.com/",
+				"text": "Janilla"
+			}
+		]
+	},
+	"formSubmissions": [],
+	"forms": [
+		{
+			"$type": "Form",
+			"id": 1,
+			"title": "Contact Form",
+			"fields": [
+				{
+					"$type": "Field.Text",
+					"name": "full-name",
+					"label": "Full Name",
+					"width": 100,
+					"required": true
+				},
+				{
+					"$type": "Field.Email",
+					"name": "email",
+					"label": "Email",
+					"width": 100,
+					"required": true
+				},
+				{
+					"$type": "Field.Number",
+					"name": "phone",
+					"label": "Phone",
+					"width": 100,
+					"required": false
+				},
+				{
+					"$type": "Field.TextArea",
+					"name": "message",
+					"label": "Message",
+					"width": 100,
+					"required": true
+				}
+			],
+			"submitButtonLabel": "Submit",
+			"confirmationType": "MESSAGE",
+			"confirmationMessage": "<h2>The contact form has been submitted successfully.</h2>",
+			"emails": [
+				{
+					"$type": "Email",
+					"emailTo": "${email}",
+					"cc": "",
+					"bcc": "",
+					"replyTo": "",
+					"emailFrom": "\"Janilla\" <diego.schivo@janilla.com>",
+					"subject": "You've received a new message.",
+					"message": "Your contact form submission was successfully received."
+				}
+			]
+		}
+	],
+	"header": {
+		"$type": "Header",
+		"id": 1,
+		"navItems": [
+			{
+				"$type": "Link",
+				"type": "CUSTOM",
+				"uri": "/posts",
+				"text": "Posts"
+			},
+			{
+				"$type": "Link",
+				"type": "REFERENCE",
+				"reference": {
+					"$type": "Document.Reference",
+					"type": "Page",
+					"id": 2
+				},
+				"text": "Contact"
+			}
+		]
+	},
+	"media": [
+		{
+			"$type": "Media",
+			"id": 1,
+			"file": {
+				"$type": "File",
+				"name": "image-post1.webp"
+			},
+			"alt": "Curving abstract shapes with an orange and blue gradient",
+			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
+		},
+		{
+			"$type": "Media",
+			"id": 2,
+			"file": {
+				"$type": "File",
+				"name": "image-post2.webp"
+			},
+			"alt": "Curving abstract shapes with an orange and blue gradient",
+			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
+		},
+		{
+			"$type": "Media",
+			"id": 3,
+			"file": {
+				"$type": "File",
+				"name": "image-post3.webp"
+			},
+			"alt": "Curving abstract shapes with an orange and blue gradient",
+			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
+		},
+		{
+			"$type": "Media",
+			"id": 4,
+			"file": {
+				"$type": "File",
+				"name": "image-hero1.webp"
+			},
+			"alt": "Straight metallic shapes with a blue gradient",
+			"caption": ""
+		}
+	],
 	"pages": [
 		{
 			"$type": "Page",
@@ -91,7 +270,10 @@
 				"image": 4
 			},
 			"slug": "home",
-			"status": "PUBLISHED"
+			"documentStatus": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Page",
@@ -112,7 +294,10 @@
 				}
 			],
 			"slug": "contact",
-			"status": "PUBLISHED"
+			"documentStatus": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		}
 	],
 	"posts": [
@@ -164,7 +349,10 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:07:44.965918Z",
-			"status": "PUBLISHED"
+			"documentStatus": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Post",
@@ -214,7 +402,10 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:08:44.965918Z",
-			"status": "PUBLISHED"
+			"documentStatus": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		},
 		{
 			"$type": "Post",
@@ -260,89 +451,14 @@
 				1
 			],
 			"createdAt": "2025-02-16T09:09:44.965918Z",
-			"status": "PUBLISHED"
+			"documentStatus": {
+				"$type": "Document.Status",
+				"name": "PUBLISHED"
+			}
 		}
 	],
-	"media": [
-		{
-			"$type": "Media",
-			"id": 1,
-			"file": {
-				"$type": "File",
-				"name": "image-post1.webp"
-			},
-			"alt": "Curving abstract shapes with an orange and blue gradient",
-			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
-		},
-		{
-			"$type": "Media",
-			"id": 2,
-			"file": {
-				"$type": "File",
-				"name": "image-post2.webp"
-			},
-			"alt": "Curving abstract shapes with an orange and blue gradient",
-			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
-		},
-		{
-			"$type": "Media",
-			"id": 3,
-			"file": {
-				"$type": "File",
-				"name": "image-post3.webp"
-			},
-			"alt": "Curving abstract shapes with an orange and blue gradient",
-			"caption": "<p>Photo by <a href=\"https://unsplash.com/@kirp\" rel=\"noopener noreferrer\" target=\"_blank\">Andrew Kliatskyi</a> on Unsplash.</p>"
-		},
-		{
-			"$type": "Media",
-			"id": 4,
-			"file": {
-				"$type": "File",
-				"name": "image-hero1.webp"
-			},
-			"alt": "Straight metallic shapes with a blue gradient",
-			"caption": ""
-		}
-	],
-	"categories": [
-		{
-			"$type": "Category",
-			"id": 1,
-			"title": "Technology",
-			"slug": "technology"
-		},
-		{
-			"$type": "Category",
-			"id": 2,
-			"title": "News",
-			"slug": "news"
-		},
-		{
-			"$type": "Category",
-			"id": 3,
-			"title": "Finance",
-			"slug": "finance"
-		},
-		{
-			"$type": "Category",
-			"id": 4,
-			"title": "Design",
-			"slug": "design"
-		},
-		{
-			"$type": "Category",
-			"id": 5,
-			"title": "Software",
-			"slug": "software"
-		},
-		{
-			"$type": "Category",
-			"id": 6,
-			"title": "Engineering",
-			"slug": "engineering"
-		}
-	],
+	"redirects": [],
+	"searchResults": [],
 	"users": [
 		{
 			"$type": "User",
@@ -350,108 +466,13 @@
 			"name": "Demo Author",
 			"email": "demo-author@example.com",
 			"salt": "16c13790d6698b7627936913e93397af",
-			"hash": "0638a17a8c549052c0272768378ed9b8aab97d5b7bd36ec41a30a346932914c52d0a864d777062e6b60610e84bdafb68a7e3e60c50ba1e3758912099777d295f"
-		}
-	],
-	"redirects": [],
-	"forms": [
-		{
-			"$type": "Form",
-			"id": 1,
-			"title": "Contact Form",
-			"fields": [
+			"hash": "0638a17a8c549052c0272768378ed9b8aab97d5b7bd36ec41a30a346932914c52d0a864d777062e6b60610e84bdafb68a7e3e60c50ba1e3758912099777d295f",
+			"roles": [
 				{
-					"$type": "Field.Text",
-					"name": "full-name",
-					"label": "Full Name",
-					"width": 100,
-					"required": true
-				},
-				{
-					"$type": "Field.Email",
-					"name": "email",
-					"label": "Email",
-					"width": 100,
-					"required": true
-				},
-				{
-					"$type": "Field.Number",
-					"name": "phone",
-					"label": "Phone",
-					"width": 100,
-					"required": false
-				},
-				{
-					"$type": "Field.TextArea",
-					"name": "message",
-					"label": "Message",
-					"width": 100,
-					"required": true
-				}
-			],
-			"submitButtonLabel": "Submit",
-			"confirmationType": "MESSAGE",
-			"confirmationMessage": "<h2>The contact form has been submitted successfully.</h2>",
-			"emails": [
-				{
-					"$type": "Email",
-					"emailTo": "${email}",
-					"cc": "",
-					"bcc": "",
-					"replyTo": "",
-					"emailFrom": "\"Janilla\" <diego.schivo@janilla.com>",
-					"subject": "You've received a new message.",
-					"message": "Your contact form submission was successfully received."
+					"$type": "User.Role",
+					"name": "ADMIN"
 				}
 			]
 		}
-	],
-	"formSubmissions": [],
-	"searchResults": [],
-	"header": {
-		"$type": "Header",
-		"id": 1,
-		"navItems": [
-			{
-				"$type": "Link",
-				"type": "CUSTOM",
-				"uri": "/posts",
-				"text": "Posts"
-			},
-			{
-				"$type": "Link",
-				"type": "REFERENCE",
-				"reference": {
-					"$type": "Document.Reference",
-					"type": "Page",
-					"id": 2
-				},
-				"text": "Contact"
-			}
-		]
-	},
-	"footer": {
-		"$type": "Footer",
-		"id": 1,
-		"navItems": [
-			{
-				"$type": "Link",
-				"type": "CUSTOM",
-				"uri": "/admin",
-				"text": "Admin"
-			},
-			{
-				"$type": "Link",
-				"type": "CUSTOM",
-				"uri": "https://github.com/diego-schivo/website-template",
-				"text": "Source Code"
-			},
-			{
-				"$type": "Link",
-				"type": "CUSTOM",
-				"uri": "https://janilla.com/",
-				"text": "Janilla"
-			}
-		]
-	}
+	]
 }

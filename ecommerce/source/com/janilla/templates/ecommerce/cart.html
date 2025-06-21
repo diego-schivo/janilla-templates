@@ -38,7 +38,7 @@
   <li>
     <div>
       <a href="/products/${product.slug}">
-        <img src="${product.gallery[0].uri}" />
+        <img src="${product.gallery[0].uri}" loading="lazy" />
       </a>
       <form>
         <input type="hidden" name="product" value="${product.id}" />
