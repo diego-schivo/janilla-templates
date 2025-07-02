@@ -77,7 +77,7 @@ public class CustomPersistence extends CmsPersistence {
 					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED)
 						crud(SearchResult.class)
 								.create(Reflection.copy(d,
-										new SearchResult(null, new Document.Reference<>(dc, d.id()), null, null, null,
+										new SearchResult(null, new Document.Reference(dc, d.id()), null, null, null,
 												null, null, null, null, null),
 										y -> !Set.of("id", "document").contains(y)));
 				}
@@ -95,13 +95,13 @@ public class CustomPersistence extends CmsPersistence {
 								;
 							else
 								c.create(Reflection.copy(d2,
-										new SearchResult(null, new Document.Reference<>(dc, d2.id()), null, null, null,
+										new SearchResult(null, new Document.Reference(dc, d2.id()), null, null, null,
 												null, null, null, null, null),
 										y -> !Set.of("id", "document").contains(y)));
 							break;
 						case PUBLISHED:
 							if (d2.documentStatus() == d1.documentStatus())
-								c.update(c.find("document", new Document.Reference<>(dc, d2.id())),
+								c.update(c.find("document", new Document.Reference(dc, d2.id())),
 										x -> Reflection.copy(d2, x, y -> !Set.of("id", "document").contains(y)));
 							else
 								c.delete(c.find("document", d2.id()));
@@ -116,7 +116,7 @@ public class CustomPersistence extends CmsPersistence {
 					var dc = d.getClass();
 					if (types.contains(dc) && d.documentStatus() == Document.Status.PUBLISHED) {
 						var c = crud(SearchResult.class);
-						c.delete(c.find("document", new Document.Reference<>(dc, d.id())));
+						c.delete(c.find("document", new Document.Reference(dc, d.id())));
 					}
 				}
 			};
