@@ -90,7 +90,7 @@ export default class Root extends WebComponent {
 		const s = this.state;
 		const nn = location.pathname.match(adminRegex)
 			? ["user"]
-			: ["user", "header", "footer", "redirects", "config"];
+			: ["user", "header", "footer", "redirects"];
 		nn.forEach(x => delete s[x]);
 		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
 		for (const [k, v] of kkvv)
@@ -150,10 +150,11 @@ export default class Root extends WebComponent {
 		this.appendChild(this.interpolateDom({
 			$template: "",
 			style: `color-scheme: ${cs ?? "light dark"}`,
-			header: s.header ? {
+			// header: s.header ? {
+			header: {
 				$template: "header",
-				navItems: s.header.navItems?.map(link)
-			} : null,
+				navItems: s.header?.navItems?.map(link)
+			},
 			content: s.notFound ? { $template: "not-found" } : (() => {
 				const m2 = location.pathname.match(postsRegex);
 				if (m2)
@@ -172,16 +173,17 @@ export default class Root extends WebComponent {
 					})()
 				};
 			})(),
-			footer: s.footer ? {
+//			footer: s.footer ? {
+			footer: {
 				$template: "footer",
-				navItems: s.footer.navItems?.map(link),
+				navItems: s.footer?.navItems?.map(link),
 				options: ["auto", "light", "dark"].map(x => ({
 					$template: "option",
 					value: x,
 					text: x.charAt(0).toUpperCase() + x.substring(1),
 					selected: x === (cs ?? "auto")
 				}))
-			} : null
+			}
 		}));
 	}
 

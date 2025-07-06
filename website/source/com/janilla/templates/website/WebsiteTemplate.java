@@ -72,13 +72,15 @@ public class WebsiteTemplate {
 	public static void main(String[] args) {
 		try {
 			var pp = new Properties();
-			try (var is = WebsiteTemplate.class.getResourceAsStream("configuration.properties")) {
-				pp.load(is);
+			try (var s1 = WebsiteTemplate.class.getResourceAsStream("configuration.properties")) {
+				pp.load(s1);
 				if (args.length > 0) {
 					var p = args[0];
 					if (p.startsWith("~"))
 						p = System.getProperty("user.home") + p.substring(1);
-					pp.load(Files.newInputStream(Path.of(p)));
+					try (var s2 = Files.newInputStream(Path.of(p))) {
+						pp.load(s2);
+					}
 				}
 			}
 			new WebsiteTemplate(pp);
