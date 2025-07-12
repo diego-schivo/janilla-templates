@@ -25,6 +25,7 @@ package com.janilla.templates.ecommerce;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.security.GeneralSecurityException;
@@ -81,17 +82,15 @@ public class StripeApi {
 			rq.setScheme("https");
 			rq.setAuthority("api.stripe.com");
 			rq.setHeaderValue("authorization", a);
-			var oo1 = new Object[1];
-			new HttpClient(sc).send(rq, rs -> {
+			@SuppressWarnings("unchecked")
+			var m1 = (Map<String, Object>) new HttpClient(sc).send(rq, rs -> {
 				try {
-					oo1[0] = Json.parse(
+					return Json.parse(
 							new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new UncheckedIOException(e);
 				}
 			});
-			@SuppressWarnings("unchecked")
-			var m1 = (Map<String, Object>) oo1[0];
 			System.out.println("m1=" + m1);
 			@SuppressWarnings("unchecked")
 			var l1 = (List<Object>) m1.get("data");
@@ -113,17 +112,15 @@ public class StripeApi {
 			rq.setHeaderValue("content-length", String.valueOf(bb.length));
 			rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
 			rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
-			var oo2 = new Object[1];
-			new HttpClient(sc).send(rq, rs -> {
+			@SuppressWarnings("unchecked")
+			var m3 = (Map<String, Object>) new HttpClient(sc).send(rq, rs -> {
 				try {
-					oo2[0] = Json.parse(
+					return Json.parse(
 							new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
 				} catch (IOException e) {
-					e.printStackTrace();
+					throw new UncheckedIOException(e);
 				}
 			});
-			@SuppressWarnings("unchecked")
-			var m3 = (Map<String, Object>) oo2[0];
 			System.out.println("m3=" + m3);
 			c = (String) m3.get("id");
 		}
@@ -151,17 +148,15 @@ public class StripeApi {
 		rq.setHeaderValue("content-length", String.valueOf(bb.length));
 		rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
 		rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
-		var oo2 = new Object[1];
-		new HttpClient(sc).send(rq, rs -> {
+		@SuppressWarnings("unchecked")
+		var m3 = (Map<String, Object>) new HttpClient(sc).send(rq, rs -> {
 			try {
-				oo2[0] = Json
+				return Json
 						.parse(new String(Channels.newInputStream((ReadableByteChannel) rs.getBody()).readAllBytes()));
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new UncheckedIOException(e);
 			}
 		});
-		@SuppressWarnings("unchecked")
-		var m3 = (Map<String, Object>) oo2[0];
 		System.out.println("m3=" + m3);
 		return m3;
 	}

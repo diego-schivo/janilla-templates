@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -115,12 +116,12 @@ public class WebsiteTemplate {
 
 	public MapAndType.TypeResolver typeResolver;
 
-	public Iterable<Class<?>> types;
+	public Set<Class<?>> types;
 
 	public WebsiteTemplate(Properties configuration) {
 		INSTANCE = this;
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).toList();
+		types = Util.getPackageClasses(getClass().getPackageName()).collect(Collectors.toSet());
 		factory = new Factory(types, this);
 		typeResolver = factory.create(MapAndType.DollarTypeResolver.class);
 		{
@@ -229,7 +230,7 @@ public class WebsiteTemplate {
 					m != null ? r.getScheme() + "://" + r.getAuthority() + m.uri() : null, "og:type", "website")
 					.iterator();
 			return Stream.<Map.Entry<String, String>>iterate(null,
-					_ -> ss.hasNext() ? new AbstractMap.SimpleEntry<>(ss.next(), ss.next()) : null).skip(1)
+					_ -> ss.hasNext() ? new AbstractMap.SimpleImmutableEntry<>(ss.next(), ss.next()) : null).skip(1)
 					.takeWhile(Objects::nonNull);
 		}
 	}

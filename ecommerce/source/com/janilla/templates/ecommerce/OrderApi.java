@@ -67,7 +67,7 @@ public class OrderApi extends CollectionApi<Long, Order> {
 
 	@Handle(method = "GET", path = "poll")
 	public void poll(String stripePaymentIntentId, HttpResponse response) throws IOException, InterruptedException {
-		response.setHeaderValue(":status", "200");
+		response.setStatus(200);
 		response.setHeaderValue("content-type", "text/event-stream");
 		response.setHeaderValue("cache-control", "no-cache");
 		var ch = (WritableByteChannel) response.getBody();

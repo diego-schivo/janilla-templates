@@ -34,6 +34,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import com.janilla.cms.CmsPersistence;
 import com.janilla.database.Database;
@@ -85,7 +86,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(Database database, Iterable<Class<? extends Entity<?>>> types, TypeResolver typeResolver) {
+	public CustomPersistence(Database database, Set<Class<? extends Entity<?>>> types, TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
 

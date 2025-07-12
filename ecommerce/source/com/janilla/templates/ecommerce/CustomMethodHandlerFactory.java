@@ -23,13 +23,17 @@
  */
 package com.janilla.templates.ecommerce;
 
+import java.util.Comparator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.json.MapAndType;
 import com.janilla.web.MethodHandlerFactory;
+import com.janilla.web.RenderableFactory;
+import com.janilla.web.WebHandlerFactory;
 
 public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
@@ -42,8 +46,14 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
 	public MapAndType.DollarTypeResolver typeResolver;
 
+	public CustomMethodHandlerFactory(Set<Class<?>> types, Function<Class<?>, Object> targetResolver,
+			Comparator<Invocation> invocationComparator, RenderableFactory renderableFactory,
+			WebHandlerFactory rootFactory) {
+		super(types, targetResolver, invocationComparator, renderableFactory, rootFactory);
+	}
+
 	@Override
-	protected void handle(Invocation invocation, HttpExchange exchange) {
+	protected boolean handle(Invocation invocation, HttpExchange exchange) {
 		var rq = exchange.getRequest();
 		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET") && !GUEST_POST.contains(rq.getPath())) {
 			var ex = (CustomHttpExchange) exchange;
@@ -70,8 +80,7 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 //				e.printStackTrace();
 //			}
 
-		super.handle(invocation, exchange);
-
+		return super.handle(invocation, exchange);
 	}
 
 	@Override

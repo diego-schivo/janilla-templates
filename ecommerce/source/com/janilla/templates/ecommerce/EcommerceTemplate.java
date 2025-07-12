@@ -117,12 +117,12 @@ public class EcommerceTemplate {
 
 	public MapAndType.TypeResolver typeResolver;
 
-	public Iterable<Class<?>> types;
+	public Set<Class<?>> types;
 
 	public EcommerceTemplate(Properties configuration) {
 		INSTANCE = this;
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).toList();
+		types = Util.getPackageClasses(getClass().getPackageName()).collect(Collectors.toSet());
 		factory = new Factory(types, this);
 		typeResolver = factory.create(MapAndType.DollarTypeResolver.class);
 		{
@@ -289,7 +289,7 @@ public class EcommerceTemplate {
 					m != null ? r.getScheme() + "://" + r.getAuthority() + m.uri() : null, "og:type", "ecommerce")
 					.iterator();
 			return Stream.<Map.Entry<String, String>>iterate(null,
-					_ -> ss.hasNext() ? new AbstractMap.SimpleEntry<>(ss.next(), ss.next()) : null).skip(1)
+					_ -> ss.hasNext() ? new AbstractMap.SimpleImmutableEntry<>(ss.next(), ss.next()) : null).skip(1)
 					.takeWhile(Objects::nonNull);
 		}
 	}
