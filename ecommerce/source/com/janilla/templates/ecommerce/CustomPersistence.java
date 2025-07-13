@@ -32,16 +32,16 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import com.janilla.cms.CmsPersistence;
 import com.janilla.database.Database;
 import com.janilla.io.IO;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
-import com.janilla.json.MapAndType.TypeResolver;
+import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
@@ -86,7 +86,8 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(Database database, Set<Class<? extends Entity<?>>> types, TypeResolver typeResolver) {
+	public CustomPersistence(Database database, Collection<Class<? extends Entity<?>>> types,
+			TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
 

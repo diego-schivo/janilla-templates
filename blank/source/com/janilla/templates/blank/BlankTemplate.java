@@ -26,12 +26,12 @@ package com.janilla.templates.blank;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 
@@ -39,14 +39,16 @@ import com.janilla.cms.Cms;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
-import com.janilla.json.MapAndType;
+import com.janilla.json.DollarTypeResolver;
+import com.janilla.json.TypeResolver;
 import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Factory;
 import com.janilla.util.Util;
-import com.janilla.web.ApplicationHandlerBuilder;
+import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
+import com.janilla.web.NotFoundException;
 import com.janilla.web.Render;
 import com.janilla.web.RenderableFactory;
 
@@ -100,16 +102,16 @@ public class BlankTemplate {
 
 	public RenderableFactory renderableFactory;
 
-	public MapAndType.TypeResolver typeResolver;
+	public TypeResolver typeResolver;
 
-	public Set<Class<?>> types;
+	public List<Class<?>> types;
 
 	public BlankTemplate(Properties configuration) {
 		INSTANCE = this;
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).collect(Collectors.toSet());
+		types = Util.getPackageClasses(getClass().getPackageName()).toList();
 		factory = new Factory(types, this);
-		typeResolver = factory.create(MapAndType.DollarTypeResolver.class);
+		typeResolver = factory.create(DollarTypeResolver.class);
 		{
 			var p = configuration.getProperty("blank-template.database.file");
 			if (p.startsWith("~"))
@@ -119,7 +121,16 @@ public class BlankTemplate {
 			persistence = pb.build();
 		}
 		renderableFactory = new RenderableFactory();
-		handler = factory.create(ApplicationHandlerBuilder.class).build();
+
+		{
+			var f = factory.create(ApplicationHandlerFactory.class);
+			handler = x -> {
+				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
+				if (h == null)
+					throw new NotFoundException(x.request().getMethod() + " " + x.request().getTarget());
+				return h.handle(x);
+			};
+		}
 	}
 
 	public BlankTemplate application() {
@@ -131,7 +142,7 @@ public class BlankTemplate {
 		switch (path) {
 		case "/admin":
 			if (exchange.sessionEmail() == null) {
-				var rs = exchange.getResponse();
+				var rs = exchange.response();
 				rs.setStatus(307);
 				rs.setHeaderValue("cache-control", "no-cache");
 				rs.setHeaderValue("location", "/admin/login");
@@ -139,7 +150,7 @@ public class BlankTemplate {
 			}
 		case "/admin/login":
 			if (persistence.crud(User.class).count() == 0) {
-				var rs = exchange.getResponse();
+				var rs = exchange.response();
 				rs.setStatus(307);
 				rs.setHeaderValue("cache-control", "no-cache");
 				rs.setHeaderValue("location", "/admin/create-first-user");

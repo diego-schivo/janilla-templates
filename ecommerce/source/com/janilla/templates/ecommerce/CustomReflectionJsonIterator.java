@@ -30,13 +30,14 @@ import com.janilla.persistence.Persistence;
 
 public class CustomReflectionJsonIterator extends CmsReflectionJsonIterator {
 
-	public CustomReflectionJsonIterator(Persistence persistence) {
-		super(persistence);
+	public CustomReflectionJsonIterator(Object object, boolean includeType, Persistence persistence) {
+		super(object, includeType, persistence);
 	}
 
 	@Override
 	protected List<?> list(List<?> list) {
-		return super.list(list); //.stream()
-				//.map(x -> x instanceof Product y && y.relatedProducts() != null ? y.withRelatedProducts(null) : x).toList();
+		return super.list(list); // .stream()
+		// .map(x -> x instanceof Product y && y.relatedProducts() != null ?
+		// y.withRelatedProducts(null) : x).toList();
 	}
 }

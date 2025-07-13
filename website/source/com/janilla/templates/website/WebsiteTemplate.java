@@ -29,10 +29,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,17 +45,19 @@ import com.janilla.cms.DocumentCrud;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.Json;
-import com.janilla.json.MapAndType;
 import com.janilla.json.ReflectionJsonIterator;
+import com.janilla.json.TypeResolver;
 import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Factory;
 import com.janilla.smtp.SmtpClient;
 import com.janilla.util.Util;
-import com.janilla.web.ApplicationHandlerBuilder;
+import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
+import com.janilla.web.NotFoundException;
 import com.janilla.web.Render;
 import com.janilla.web.RenderableFactory;
 import com.janilla.web.Renderer;
@@ -114,16 +116,16 @@ public class WebsiteTemplate {
 
 	public SmtpClient smtpClient;
 
-	public MapAndType.TypeResolver typeResolver;
+	public TypeResolver typeResolver;
 
-	public Set<Class<?>> types;
+	public List<Class<?>> types;
 
 	public WebsiteTemplate(Properties configuration) {
 		INSTANCE = this;
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).collect(Collectors.toSet());
+		types = Util.getPackageClasses(getClass().getPackageName()).toList();
 		factory = new Factory(types, this);
-		typeResolver = factory.create(MapAndType.DollarTypeResolver.class);
+		typeResolver = factory.create(DollarTypeResolver.class);
 		{
 			var p = configuration.getProperty("website-template.database.file");
 			if (p.startsWith("~"))
@@ -138,7 +140,16 @@ public class WebsiteTemplate {
 						Integer.parseInt(configuration.getProperty("website-template.mail.port")), "username",
 						configuration.getProperty("website-template.mail.username"), "password",
 						configuration.getProperty("website-template.mail.password")));
-		handler = factory.create(ApplicationHandlerBuilder.class).build();
+
+		{
+			var f = factory.create(ApplicationHandlerFactory.class);
+			handler = x -> {
+				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
+				if (h == null)
+					throw new NotFoundException(x.request().getMethod() + " " + x.request().getTarget());
+				return h.handle(x);
+			};
+		}
 	}
 
 	public WebsiteTemplate application() {
@@ -150,7 +161,7 @@ public class WebsiteTemplate {
 		switch (path) {
 		case "/admin":
 			if (exchange.sessionEmail() == null) {
-				var rs = exchange.getResponse();
+				var rs = exchange.response();
 				rs.setStatus(307);
 				rs.setHeaderValue("cache-control", "no-cache");
 				rs.setHeaderValue("location", "/admin/login");
@@ -158,7 +169,7 @@ public class WebsiteTemplate {
 			}
 		case "/admin/login":
 			if (persistence.crud(User.class).count() == 0) {
-				var rs = exchange.getResponse();
+				var rs = exchange.response();
 				rs.setStatus(307);
 				rs.setHeaderValue("cache-control", "no-cache");
 				rs.setHeaderValue("location", "/admin/create-first-user");
@@ -221,7 +232,7 @@ public class WebsiteTemplate {
 		}
 
 		public Stream<Map.@Render(template = "meta") Entry<String, String>> metaEntries() {
-			var r = HttpServer.HTTP_EXCHANGE.get().getRequest();
+			var r = HttpServer.HTTP_EXCHANGE.get().request();
 			var m = meta != null && meta.image() != null ? INSTANCE.persistence.crud(Media.class).read(meta.image())
 					: null;
 			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
@@ -239,10 +250,8 @@ public class WebsiteTemplate {
 
 		@Override
 		public String apply(T value) {
-			var tt = INSTANCE.factory.create(ReflectionJsonIterator.class);
-			tt.setObject(value);
-			tt.setIncludeType(true);
-			return Json.format(tt);
+			return Json.format(INSTANCE.factory.create(ReflectionJsonIterator.class,
+					Map.of("object", value, "includeType", true)));
 		}
 	}
 }

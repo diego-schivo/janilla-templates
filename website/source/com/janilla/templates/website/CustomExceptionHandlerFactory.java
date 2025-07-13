@@ -24,18 +24,18 @@
 package com.janilla.templates.website;
 
 import com.janilla.http.HttpExchange;
+import com.janilla.http.HttpHandlerFactory;
 import com.janilla.web.Error;
 import com.janilla.web.ExceptionHandlerFactory;
 import com.janilla.web.RenderableFactory;
-import com.janilla.web.WebHandlerFactory;
 
 public class CustomExceptionHandlerFactory extends ExceptionHandlerFactory {
 
 	protected final RenderableFactory renderableFactory;
 
-	protected final WebHandlerFactory rootFactory;
+	protected final HttpHandlerFactory rootFactory;
 
-	public CustomExceptionHandlerFactory(RenderableFactory renderableFactory, WebHandlerFactory rootFactory) {
+	public CustomExceptionHandlerFactory(RenderableFactory renderableFactory, HttpHandlerFactory rootFactory) {
 		this.renderableFactory = renderableFactory;
 		this.rootFactory = rootFactory;
 	}
@@ -43,9 +43,9 @@ public class CustomExceptionHandlerFactory extends ExceptionHandlerFactory {
 	@Override
 	protected boolean handle(Error error, HttpExchange exchange) {
 		super.handle(error, exchange);
-		var m = exchange.getException().getMessage();
+		var m = exchange.exception().getMessage();
 		var r = renderableFactory.createRenderable(null, m);
-		var h = rootFactory.createHandler(r, exchange);
+		var h = rootFactory.createHandler(r);
 		return h.handle(exchange);
 	}
 }
