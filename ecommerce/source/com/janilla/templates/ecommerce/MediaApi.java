@@ -36,7 +36,7 @@ public class MediaApi extends CollectionApi<Long, Media> {
 	public Properties configuration;
 
 	public MediaApi() {
-		super(Media.class, EcommerceTemplate.DRAFTS);
+		super(Media.class, EcommerceTemplate.INSTANCE.get().drafts);
 	}
 
 	@Handle(method = "GET", path = "file/(.+)")

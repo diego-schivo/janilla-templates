@@ -34,7 +34,7 @@ import com.janilla.web.Handle;
 public class PostApi extends CollectionApi<Long, Post> {
 
 	public PostApi() {
-		super(Post.class, WebsiteTemplate.DRAFTS);
+		super(Post.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override

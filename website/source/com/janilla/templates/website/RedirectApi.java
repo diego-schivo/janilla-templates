@@ -30,6 +30,6 @@ import com.janilla.web.Handle;
 public class RedirectApi extends CollectionApi<Long, Redirect> {
 
 	public RedirectApi() {
-		super(Redirect.class, WebsiteTemplate.DRAFTS);
+		super(Redirect.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 }

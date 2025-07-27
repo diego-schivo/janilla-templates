@@ -30,7 +30,7 @@ import com.janilla.web.Handle;
 public class FooterApi extends GlobalApi<Long, Footer> {
 
 	public FooterApi() {
-		super(Footer.class, EcommerceTemplate.DRAFTS);
+		super(Footer.class, EcommerceTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override

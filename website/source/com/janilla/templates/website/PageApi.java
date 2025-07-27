@@ -34,7 +34,7 @@ import com.janilla.web.Handle;
 public class PageApi extends CollectionApi<Long, Page> {
 
 	public PageApi() {
-		super(Page.class, WebsiteTemplate.DRAFTS);
+		super(Page.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override

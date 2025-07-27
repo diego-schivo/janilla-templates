@@ -42,7 +42,7 @@ import com.janilla.web.Handle;
 public class OrderApi extends CollectionApi<Long, Order> {
 
 	public OrderApi() {
-		super(Order.class, EcommerceTemplate.DRAFTS);
+		super(Order.class, EcommerceTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override
@@ -75,9 +75,9 @@ public class OrderApi extends CollectionApi<Long, Order> {
 		for (;;) {
 			var o = q.poll(5, TimeUnit.SECONDS);
 			if (o != null) {
-//				System.out.println("OutputApi.read, e=" + e);
+//				IO.println("OutputApi.read, e=" + e);
 				var s = format(new Event("order", o));
-//				System.out.println("OutputApi.read, s=" + s);
+//				IO.println("OutputApi.read, s=" + s);
 				ch.write(ByteBuffer.wrap(s.getBytes()));
 			} else
 				ch.write(ByteBuffer.wrap(format(new Event("ping", Map.of("time", new Date()))).getBytes()));
@@ -85,7 +85,7 @@ public class OrderApi extends CollectionApi<Long, Order> {
 	}
 
 	protected static String format(Event event) {
-//		System.out.println("event=" + event);
+//		IO.println("event=" + event);
 		var sb = new StringBuilder();
 		if (event.type() != null)
 			sb.append("event: ").append(event.type()).append("\n");

@@ -30,6 +30,6 @@ import com.janilla.web.Handle;
 public class CategoryApi extends CollectionApi<Long, Category> {
 
 	public CategoryApi() {
-		super(Category.class, WebsiteTemplate.DRAFTS);
+		super(Category.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 }

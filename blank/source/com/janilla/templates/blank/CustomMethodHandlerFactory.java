@@ -23,7 +23,6 @@
  */
 package com.janilla.templates.blank;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Properties;
@@ -34,6 +33,7 @@ import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandlerFactory;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.TypeResolver;
+import com.janilla.reflect.ClassAndMethod;
 import com.janilla.web.HandleException;
 import com.janilla.web.MethodHandlerFactory;
 import com.janilla.web.RenderableFactory;
@@ -47,7 +47,7 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
 	public DollarTypeResolver typeResolver;
 
-	public CustomMethodHandlerFactory(Collection<Method> methods, Function<Class<?>, Object> targetResolver,
+	public CustomMethodHandlerFactory(Collection<ClassAndMethod> methods, Function<Class<?>, Object> targetResolver,
 			Comparator<Invocation> invocationComparator, RenderableFactory renderableFactory,
 			HttpHandlerFactory rootFactory) {
 		super(methods, targetResolver, invocationComparator, renderableFactory, rootFactory);
@@ -55,17 +55,17 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 
 	@Override
 	protected boolean handle(Invocation invocation, HttpExchange exchange) {
-		var rq = exchange.request();
-		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
-			if (!USER_POST.contains(rq.getPath()))
+		var r = exchange.request();
+		if (r.getPath().startsWith("/api/") && !r.getMethod().equals("GET")) {
+			if (!USER_POST.contains(r.getPath()))
 				((CustomHttpExchange) exchange).requireSessionEmail();
 		}
 
 		if (Boolean.parseBoolean(configuration.getProperty("blank-template.live-demo")))
-			if (!rq.getMethod().equals("GET") && !USER_POST.contains(rq.getPath()))
+			if (!r.getMethod().equals("GET") && !USER_POST.contains(r.getPath()))
 				throw new HandleException(new MethodBlockedException());
 
-//		if (rq.getPath().startsWith("/api/"))
+//		if (r.getPath().startsWith("/api/"))
 //			try {
 //				Thread.sleep(500);
 //			} catch (InterruptedException e) {
@@ -76,9 +76,9 @@ public class CustomMethodHandlerFactory extends MethodHandlerFactory {
 	}
 
 	@Override
-	protected TypeResolver resolver(Class<? extends TypeResolver> class0) {
-		if (class0 == DollarTypeResolver.class)
+	protected TypeResolver resolver(Class<? extends TypeResolver> class1) {
+		if (class1 == DollarTypeResolver.class)
 			return typeResolver;
-		return super.resolver(class0);
+		return super.resolver(class1);
 	}
 }

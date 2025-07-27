@@ -38,13 +38,13 @@ import java.util.Properties;
 
 import com.janilla.cms.CmsPersistence;
 import com.janilla.database.Database;
-import com.janilla.io.IO;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
+import com.janilla.zip.Zip;
 
 public class CustomPersistence extends CmsPersistence {
 
@@ -121,9 +121,9 @@ public class CustomPersistence extends CmsPersistence {
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {
 			var s = new String(is.readAllBytes());
 			var o = Json.parse(s);
-//			System.out.println("o=" + o);
+//			IO.println("o=" + o);
 			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
-//			System.out.println("sd=" + sd);
+//			IO.println("sd=" + sd);
 		}
 		for (var x : sd.pages())
 			crud(Page.class).create(x);
@@ -147,7 +147,7 @@ public class CustomPersistence extends CmsPersistence {
 		}
 		if (!u.toString().startsWith("jar:"))
 			u = URI.create("jar:" + u);
-		var s = IO.zipFileSystem(u).getPath("/");
+		var s = Zip.zipFileSystem(u).getPath("/");
 //		var d = Files.createDirectories(databaseFile.getParent().resolve("ecommerce-template-upload"));
 		var ud = configuration.getProperty("ecommerce-template.upload.directory");
 		if (ud.startsWith("~"))

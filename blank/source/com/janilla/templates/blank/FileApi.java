@@ -39,14 +39,20 @@ public class FileApi {
 
 	@Handle(method = "POST", path = "upload")
 	public void create(HttpRequest request) throws IOException {
-		for (var kv : Cms.files(request).entrySet()) {
-			var ud = configuration.getProperty("blank-template.upload.directory");
-			if (ud.startsWith("~"))
-				ud = System.getProperty("user.home") + ud.substring(1);
-			var p = Path.of(ud);
-			if (!Files.exists(p))
-				Files.createDirectories(p);
-			Files.write(p.resolve(kv.getKey()), kv.getValue());
+		var ff = Cms.files(request);
+		for (var x : ff.entrySet()) {
+			Path d;
+			{
+				var y = configuration.getProperty("blank-template.upload.directory");
+				if (y.startsWith("~"))
+					y = System.getProperty("user.home") + y.substring(1);
+				d = Path.of(y);
+			}
+			if (!Files.exists(d))
+				Files.createDirectories(d);
+			var f = d.resolve(x.getKey());
+			var bb = x.getValue();
+			Files.write(f, bb);
 		}
 	}
 }

@@ -36,15 +36,19 @@ public class MediaApi extends CollectionApi<Long, Media> {
 	public Properties configuration;
 
 	public MediaApi() {
-		super(Media.class, BlankTemplate.DRAFTS);
+		super(Media.class, BlankTemplate.INSTANCE.get().drafts);
 	}
 
 	@Handle(method = "GET", path = "file/(.+)")
 	public void file(Path path, HttpResponse response) {
-		var ud = configuration.getProperty("blank-template.upload.directory");
-		if (ud.startsWith("~"))
-			ud = System.getProperty("user.home") + ud.substring(1);
-		var f = Path.of(ud).resolve(path.getFileName());
+		Path d;
+		{
+			var x = configuration.getProperty("blank-template.upload.directory");
+			if (x.startsWith("~"))
+				x = System.getProperty("user.home") + x.substring(1);
+			d = Path.of(x);
+		}
+		var f = d.resolve(path.getFileName());
 		CmsFileHandlerFactory.handle(f, response);
 	}
 }

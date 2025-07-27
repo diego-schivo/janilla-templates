@@ -24,6 +24,7 @@
 package com.janilla.templates.ecommerce;
 
 import java.io.ByteArrayInputStream;
+import java.io.IO;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.channels.Channels;
@@ -45,7 +46,6 @@ import com.janilla.http.HttpRequest;
 import com.janilla.json.Json;
 import com.janilla.net.Net;
 import com.janilla.persistence.Persistence;
-import com.janilla.util.EntryList;
 import com.janilla.web.Handle;
 import com.janilla.web.UnauthorizedException;
 
@@ -76,9 +76,7 @@ public class StripeApi {
 		if (c == null) {
 			var rq = new HttpRequest();
 			rq.setMethod("GET");
-			var el = new EntryList<String, String>();
-			el.add("email", email);
-			rq.setTarget("/v1/customers?" + Net.formatQueryString(el));
+			rq.setTarget(Net.uriString("/v1/customers", Map.entry("email", email)));
 			rq.setScheme("https");
 			rq.setAuthority("api.stripe.com");
 			rq.setHeaderValue("authorization", a);
@@ -91,7 +89,7 @@ public class StripeApi {
 					throw new UncheckedIOException(e);
 				}
 			});
-			System.out.println("m1=" + m1);
+			IO.println("m1=" + m1);
 			@SuppressWarnings("unchecked")
 			var l1 = (List<Object>) m1.get("data");
 			@SuppressWarnings("unchecked")
@@ -106,9 +104,7 @@ public class StripeApi {
 			rq.setScheme("https");
 			rq.setAuthority("api.stripe.com");
 			rq.setHeaderValue("authorization", a);
-			var el = new EntryList<String, String>();
-			el.add("email", email);
-			var bb = Net.formatQueryString(el).getBytes();
+			var bb = Net.uriString(null, Map.entry("email", email)).getBytes();
 			rq.setHeaderValue("content-length", String.valueOf(bb.length));
 			rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
 			rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
@@ -121,7 +117,7 @@ public class StripeApi {
 					throw new UncheckedIOException(e);
 				}
 			});
-			System.out.println("m3=" + m3);
+			IO.println("m3=" + m3);
 			c = (String) m3.get("id");
 		}
 
@@ -139,12 +135,10 @@ public class StripeApi {
 		rq.setScheme("https");
 		rq.setAuthority("api.stripe.com");
 		rq.setHeaderValue("authorization", a);
-		var el = new EntryList<String, String>();
-		el.add("customer", c);
-		el.add("amount", amount.toString());
-		el.add("currency", "usd");
-		el.add("automatic_payment_methods[enabled]", "true");
-		var bb = Net.formatQueryString(el).getBytes();
+		var bb = Net
+				.uriString(null, Map.entry("customer", c), Map.entry("amount", amount.toString()),
+						Map.entry("currency", "usd"), Map.entry("automatic_payment_methods[enabled]", "true"))
+				.getBytes();
 		rq.setHeaderValue("content-length", String.valueOf(bb.length));
 		rq.setHeaderValue("content-type", "application/x-www-form-urlencoded");
 		rq.setBody(Channels.newChannel(new ByteArrayInputStream(bb)));
@@ -157,7 +151,7 @@ public class StripeApi {
 				throw new UncheckedIOException(e);
 			}
 		});
-		System.out.println("m3=" + m3);
+		IO.println("m3=" + m3);
 		return m3;
 	}
 
@@ -166,13 +160,13 @@ public class StripeApi {
 		var b = request.getBody();
 		if (b != null) {
 			var s = new String(Channels.newInputStream((ReadableByteChannel) b).readAllBytes());
-			System.out.println("s=" + s);
+			IO.println("s=" + s);
 			var j = Json.parse(s);
 			var m = Json.asMap(j);
 			var t = m.get("type");
 			if (t.equals("payment_intent.succeeded")) {
 				var m2 = Json.asMap(Json.asMap(m.get("data")).get("object"));
-//				System.out.println("m2=" + m2);
+//				IO.println("m2=" + m2);
 				var uc = persistence.crud(User.class);
 				var u = uc.read(uc.filter("stripeCustomerId", (String) m2.get("customer")).getFirst());
 				var o = persistence.crud(Order.class).create(new Order(null, u.id(), (String) m2.get("id"),

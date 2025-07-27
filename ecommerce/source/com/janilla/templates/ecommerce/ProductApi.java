@@ -39,7 +39,7 @@ public class ProductApi extends CollectionApi<Long, Product> {
 	public static ProductApi INSTANCE;
 
 	public ProductApi() {
-		super(Product.class, EcommerceTemplate.DRAFTS);
+		super(Product.class, EcommerceTemplate.INSTANCE.get().drafts);
 		if (INSTANCE != null)
 			throw new RuntimeException();
 		INSTANCE = this;

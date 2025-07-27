@@ -28,11 +28,14 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,6 +48,7 @@ import com.janilla.cms.DocumentCrud;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.java.Java;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.Json;
 import com.janilla.json.ReflectionJsonIterator;
@@ -52,9 +56,9 @@ import com.janilla.json.TypeResolver;
 import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
+import com.janilla.reflect.ClassAndMethod;
 import com.janilla.reflect.Factory;
 import com.janilla.smtp.SmtpClient;
-import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
 import com.janilla.web.NotFoundException;
@@ -64,9 +68,7 @@ import com.janilla.web.Renderer;
 
 public class WebsiteTemplate {
 
-	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
-
-	public static WebsiteTemplate INSTANCE;
+	public static final AtomicReference<WebsiteTemplate> INSTANCE = new AtomicReference<>();
 
 	protected static final Pattern ADMIN = Pattern.compile("/admin(/.*)?");
 
@@ -74,75 +76,91 @@ public class WebsiteTemplate {
 
 	public static void main(String[] args) {
 		try {
-			var pp = new Properties();
-			try (var s1 = WebsiteTemplate.class.getResourceAsStream("configuration.properties")) {
-				pp.load(s1);
+			WebsiteTemplate a;
+			{
+				var c = new Properties();
+				try (var x = WebsiteTemplate.class.getResourceAsStream("configuration.properties")) {
+					c.load(x);
+				}
 				if (args.length > 0) {
-					var p = args[0];
-					if (p.startsWith("~"))
-						p = System.getProperty("user.home") + p.substring(1);
-					try (var s2 = Files.newInputStream(Path.of(p))) {
-						pp.load(s2);
+					var f = args[0];
+					if (f.startsWith("~"))
+						f = System.getProperty("user.home") + f.substring(1);
+					try (var x = Files.newInputStream(Path.of(f))) {
+						c.load(x);
 					}
 				}
+				a = new WebsiteTemplate(c);
 			}
-			new WebsiteTemplate(pp);
+
 			HttpServer s;
 			{
-				SSLContext sc;
-				try (var is = Net.class.getResourceAsStream("testkeys")) {
-					sc = Net.getSSLContext("JKS", is, "passphrase".toCharArray());
+				SSLContext c;
+				try (var x = Net.class.getResourceAsStream("testkeys")) {
+					c = Net.getSSLContext(Map.entry("JKS", x), "passphrase".toCharArray());
 				}
-				s = INSTANCE.factory.create(HttpServer.class, Map.of("sslContext", sc, "handler", INSTANCE.handler));
+				var p = Integer.parseInt(a.configuration.getProperty("website-template.server.port"));
+				s = a.factory.create(HttpServer.class,
+						Map.of("sslContext", c, "endpoint", new InetSocketAddress(p), "handler", a.handler));
 			}
-			var p = Integer.parseInt(INSTANCE.configuration.getProperty("website-template.server.port"));
-			s.serve(new InetSocketAddress(p));
+			s.serve();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
 
-	public Properties configuration;
+	public final Properties configuration;
 
-	public Path databaseFile;
+	public final Path databaseFile;
 
-	public Factory factory;
+	public final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	public HttpHandler handler;
+	public final Factory factory;
 
-	public Persistence persistence;
+	public final HttpHandler handler;
 
-	public RenderableFactory renderableFactory;
+	public final Persistence persistence;
 
-	public SmtpClient smtpClient;
+	public final RenderableFactory renderableFactory;
 
-	public TypeResolver typeResolver;
+	public final SmtpClient smtpClient;
 
-	public List<Class<?>> types;
+	public final TypeResolver typeResolver;
+
+	public final List<Class<?>> types;
 
 	public WebsiteTemplate(Properties configuration) {
-		INSTANCE = this;
+		if (!INSTANCE.compareAndSet(null, this))
+			throw new IllegalStateException();
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).toList();
+		types = Java.getPackageClasses(WebsiteTemplate.class.getPackageName());
 		factory = new Factory(types, this);
 		typeResolver = factory.create(DollarTypeResolver.class);
-		{
-			var p = configuration.getProperty("website-template.database.file");
-			if (p.startsWith("~"))
-				p = System.getProperty("user.home") + p.substring(1);
-			databaseFile = Path.of(p);
-			var pb = factory.create(ApplicationPersistenceBuilder.class);
-			persistence = pb.build();
-		}
-		renderableFactory = new RenderableFactory();
-		smtpClient = factory.create(SmtpClient.class,
-				Map.of("host", configuration.getProperty("website-template.mail.host"), "port",
-						Integer.parseInt(configuration.getProperty("website-template.mail.port")), "username",
-						configuration.getProperty("website-template.mail.username"), "password",
-						configuration.getProperty("website-template.mail.password")));
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class);
+			var f = configuration.getProperty("website-template.database.file");
+			if (f.startsWith("~"))
+				f = System.getProperty("user.home") + f.substring(1);
+			databaseFile = Path.of(f);
+			var b = factory.create(ApplicationPersistenceBuilder.class);
+			persistence = b.build();
+		}
+
+		renderableFactory = new RenderableFactory();
+		smtpClient = factory.create(SmtpClient.class,
+				Stream.of("host", "port", "username", "password").collect(Collectors.toMap(x -> x, x -> {
+					var y = configuration.getProperty("website-template.mail." + x);
+					return x.equals("port") ? Integer.parseInt(y) : y;
+				})));
+
+		{
+			var f = factory.create(ApplicationHandlerFactory.class,
+					Map.of("methods", types.stream().flatMap(
+							x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
+							.toList(), "files",
+							Stream.of("com.janilla.frontend", WebsiteTemplate.class.getPackageName())
+									.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile))
+									.toList()));
 			handler = x -> {
 				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
 				if (h == null)
@@ -158,35 +176,48 @@ public class WebsiteTemplate {
 
 	@Handle(method = "GET", path = "((?!/api/)/[\\w\\d/-]*)")
 	public Index index(String path, CustomHttpExchange exchange) {
-		switch (path) {
-		case "/admin":
-			if (exchange.sessionEmail() == null) {
-				var rs = exchange.response();
-				rs.setStatus(307);
-				rs.setHeaderValue("cache-control", "no-cache");
-				rs.setHeaderValue("location", "/admin/login");
-				return null;
+		if (path.equals("/admin") || path.startsWith("/admin/")) {
+			switch (path) {
+			case "/admin/login":
+				if (persistence.crud(User.class).count() == 0) {
+					var rs = exchange.response();
+					rs.setStatus(307);
+					rs.setHeaderValue("cache-control", "no-cache");
+					rs.setHeaderValue("location", "/admin/create-first-user");
+					return null;
+				}
+				break;
+			case "/admin/create-first-user":
+				break;
+			default:
+				if (exchange.sessionEmail() == null) {
+					var rs = exchange.response();
+					rs.setStatus(307);
+					rs.setHeaderValue("cache-control", "no-cache");
+					rs.setHeaderValue("location", "/admin/login");
+					return null;
+				} else if (!Set.of("/admin/logout", "/admin/unauthorized").contains(path)) {
+					if (exchange.sessionUser() == null || !exchange.sessionUser().hasRole(User.Role.ADMIN)) {
+						var rs = exchange.response();
+						rs.setStatus(307);
+						rs.setHeaderValue("cache-control", "no-cache");
+						rs.setHeaderValue("location", "/admin/unauthorized");
+						return null;
+					}
+				}
+				break;
 			}
-		case "/admin/login":
-			if (persistence.crud(User.class).count() == 0) {
-				var rs = exchange.response();
-				rs.setStatus(307);
-				rs.setHeaderValue("cache-control", "no-cache");
-				rs.setHeaderValue("location", "/admin/create-first-user");
-				return null;
-			}
-		}
-		var m = ADMIN.matcher(path);
-		if (m.matches())
 			return new Index("/admin.css", null, Map.of());
-		m = POSTS.matcher(path);
+		}
+
 		Meta m2;
-		Map<String, Object> m3 = new LinkedHashMap<>();
+		var m3 = new LinkedHashMap<String, Object>();
 		m3.put("/api/redirects", persistence.crud(Redirect.class).read(persistence.crud(Redirect.class).list()));
 		m3.put("/api/header", persistence.crud(Header.class).read(1L));
+		var m = POSTS.matcher(path);
 		if (m.matches()) {
 			var c = ((DocumentCrud<Long, Post>) persistence.crud(Post.class));
-			var d = DRAFTS.test(exchange);
+			var d = drafts.test(exchange);
 			if (m.groupCount() == 1) {
 				var pp = c.read(c.list(), d);
 				m2 = null;
@@ -197,16 +228,22 @@ public class WebsiteTemplate {
 				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
 				m3.put("/api/posts?slug=" + s, pp);
 			}
-		} else {
-			var c = ((DocumentCrud<Long, Page>) persistence.crud(Page.class));
-			var d = DRAFTS.test(exchange);
-			var s = path.substring(1);
-			if (s.isEmpty())
-				s = "home";
-			var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
-			m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
-			m3.put("/api/pages?slug=" + s, pp);
-		}
+		} else
+			switch (path) {
+			case "/account":
+				m2 = null;
+				break;
+			default:
+				var c = (DocumentCrud<Long, Page>) persistence.crud(Page.class);
+				var d = drafts.test(exchange);
+				var s = path.substring(1);
+				if (s.isEmpty())
+					s = "home";
+				var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
+				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
+				m3.put("/api/pages?slug=" + s, pp);
+				break;
+			}
 		m3.put("/api/footer", persistence.crud(Footer.class).read(1L));
 		return new Index("/style.css", m2, m3);
 	}
@@ -233,7 +270,8 @@ public class WebsiteTemplate {
 
 		public Stream<Map.@Render(template = "meta") Entry<String, String>> metaEntries() {
 			var r = HttpServer.HTTP_EXCHANGE.get().request();
-			var m = meta != null && meta.image() != null ? INSTANCE.persistence.crud(Media.class).read(meta.image())
+			var m = meta != null && meta.image() != null
+					? INSTANCE.get().persistence.crud(Media.class).read(meta.image())
 					: null;
 			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
 					"og:description", meta != null ? meta.description() : null, "og:url",
@@ -250,7 +288,7 @@ public class WebsiteTemplate {
 
 		@Override
 		public String apply(T value) {
-			return Json.format(INSTANCE.factory.create(ReflectionJsonIterator.class,
+			return Json.format(INSTANCE.get().factory.create(ReflectionJsonIterator.class,
 					Map.of("object", value, "includeType", true)));
 		}
 	}

@@ -21,9 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.blank;
+package com.janilla.templates.ecommerce;
 
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,13 +30,15 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import com.janilla.http.HttpHandlerFactory;
+import com.janilla.reflect.ClassAndMethod;
 import com.janilla.reflect.Factory;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.FileHandlerFactory;
 
-public class CustomHandlerBuilder extends ApplicationHandlerFactory {
+public class CustomHandlerFactory extends ApplicationHandlerFactory {
 
-	public CustomHandlerBuilder(Factory factory, Collection<Method> methods, Collection<Path> files) {
+	public CustomHandlerFactory(Factory factory, Collection<ClassAndMethod> methods,
+			Collection<Path> files) {
 		super(factory, methods, files);
 	}
 

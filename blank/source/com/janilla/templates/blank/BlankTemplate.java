@@ -26,12 +26,15 @@ package com.janilla.templates.blank;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
@@ -39,13 +42,14 @@ import com.janilla.cms.Cms;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.java.Java;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.TypeResolver;
 import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
+import com.janilla.reflect.ClassAndMethod;
 import com.janilla.reflect.Factory;
-import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
 import com.janilla.web.NotFoundException;
@@ -54,76 +58,90 @@ import com.janilla.web.RenderableFactory;
 
 public class BlankTemplate {
 
-	public static BlankTemplate INSTANCE;
-
-	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
+	public static final AtomicReference<BlankTemplate> INSTANCE = new AtomicReference<>();
 
 	protected static final Pattern ADMIN = Pattern.compile("/admin(/.*)?");
 
 	public static void main(String[] args) {
 		try {
-			var pp = new Properties();
-			try (var s1 = BlankTemplate.class.getResourceAsStream("configuration.properties")) {
-				pp.load(s1);
+			BlankTemplate a;
+			{
+				var c = new Properties();
+				try (var x = BlankTemplate.class.getResourceAsStream("configuration.properties")) {
+					c.load(x);
+				}
 				if (args.length > 0) {
-					var p = args[0];
-					if (p.startsWith("~"))
-						p = System.getProperty("user.home") + p.substring(1);
-					try (var s2 = Files.newInputStream(Path.of(p))) {
-						pp.load(s2);
+					var f = args[0];
+					if (f.startsWith("~"))
+						f = System.getProperty("user.home") + f.substring(1);
+					try (var x = Files.newInputStream(Path.of(f))) {
+						c.load(x);
 					}
 				}
+				a = new BlankTemplate(c);
 			}
-			new BlankTemplate(pp);
+
 			HttpServer s;
 			{
-				SSLContext sc;
-				try (var is = Net.class.getResourceAsStream("testkeys")) {
-					sc = Net.getSSLContext("JKS", is, "passphrase".toCharArray());
+				SSLContext c;
+				try (var x = Net.class.getResourceAsStream("testkeys")) {
+					c = Net.getSSLContext(Map.entry("JKS", x), "passphrase".toCharArray());
 				}
-				s = INSTANCE.factory.create(HttpServer.class, Map.of("sslContext", sc, "handler", INSTANCE.handler));
+				var p = Integer.parseInt(a.configuration.getProperty("blank-template.server.port"));
+				s = a.factory.create(HttpServer.class,
+						Map.of("sslContext", c, "endpoint", new InetSocketAddress(p), "handler", a.handler));
 			}
-			var p = Integer.parseInt(INSTANCE.configuration.getProperty("blank-template.server.port"));
-			s.serve(new InetSocketAddress(p));
+			s.serve();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
 
-	public Properties configuration;
+	public final Properties configuration;
 
-	public Path databaseFile;
+	public final Path databaseFile;
 
-	public Factory factory;
+	public final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	public HttpHandler handler;
+	public final Factory factory;
 
-	public Persistence persistence;
+	public final HttpHandler handler;
 
-	public RenderableFactory renderableFactory;
+	public final Persistence persistence;
 
-	public TypeResolver typeResolver;
+	public final RenderableFactory renderableFactory;
 
-	public List<Class<?>> types;
+	public final TypeResolver typeResolver;
+
+	public final List<Class<?>> types;
 
 	public BlankTemplate(Properties configuration) {
-		INSTANCE = this;
+		if (!INSTANCE.compareAndSet(null, this))
+			throw new IllegalStateException();
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).toList();
+		types = Java.getPackageClasses(BlankTemplate.class.getPackageName());
 		factory = new Factory(types, this);
 		typeResolver = factory.create(DollarTypeResolver.class);
+
 		{
-			var p = configuration.getProperty("blank-template.database.file");
-			if (p.startsWith("~"))
-				p = System.getProperty("user.home") + p.substring(1);
-			databaseFile = Path.of(p);
-			var pb = factory.create(ApplicationPersistenceBuilder.class);
-			persistence = pb.build();
+			var f = configuration.getProperty("blank-template.database.file");
+			if (f.startsWith("~"))
+				f = System.getProperty("user.home") + f.substring(1);
+			databaseFile = Path.of(f);
+			var b = factory.create(ApplicationPersistenceBuilder.class);
+			persistence = b.build();
 		}
+
 		renderableFactory = new RenderableFactory();
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class);
+			var f = factory.create(ApplicationHandlerFactory.class,
+					Map.of("methods", types.stream().flatMap(
+							x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
+							.toList(), "files",
+							Stream.of("com.janilla.frontend", BlankTemplate.class.getPackageName())
+									.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile))
+									.toList()));
 			handler = x -> {
 				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
 				if (h == null)
@@ -157,10 +175,7 @@ public class BlankTemplate {
 				return null;
 			}
 		}
-		var m = ADMIN.matcher(path);
-		if (m.matches())
-			return new Index("/admin.css");
-		return new Index("/style.css");
+		return new Index(ADMIN.matcher(path).matches() ? "/admin.css" : "/style.css");
 	}
 
 	@Handle(method = "GET", path = "/api/schema")

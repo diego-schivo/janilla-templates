@@ -28,12 +28,14 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,7 @@ import com.janilla.cms.DocumentCrud;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.java.Java;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.Json;
 import com.janilla.json.ReflectionJsonIterator;
@@ -54,9 +57,9 @@ import com.janilla.json.TypeResolver;
 import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
+import com.janilla.reflect.ClassAndMethod;
 import com.janilla.reflect.Factory;
 import com.janilla.smtp.SmtpClient;
-import com.janilla.util.Util;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
 import com.janilla.web.NotFoundException;
@@ -66,9 +69,7 @@ import com.janilla.web.Renderer;
 
 public class EcommerceTemplate {
 
-	public static final Predicate<HttpExchange> DRAFTS = x -> ((CustomHttpExchange) x).sessionUser() != null;
-
-	public static EcommerceTemplate INSTANCE;
+	public static final AtomicReference<EcommerceTemplate> INSTANCE = new AtomicReference<>();
 
 	protected static final Pattern PRODUCTS = Pattern.compile("/products(/.*)?");
 
@@ -76,75 +77,91 @@ public class EcommerceTemplate {
 
 	public static void main(String[] args) {
 		try {
-			var pp = new Properties();
-			try (var s1 = EcommerceTemplate.class.getResourceAsStream("configuration.properties")) {
-				pp.load(s1);
+			EcommerceTemplate a;
+			{
+				var c = new Properties();
+				try (var x = EcommerceTemplate.class.getResourceAsStream("configuration.properties")) {
+					c.load(x);
+				}
 				if (args.length > 0) {
-					var p = args[0];
-					if (p.startsWith("~"))
-						p = System.getProperty("user.home") + p.substring(1);
-					try (var s2 = Files.newInputStream(Path.of(p))) {
-						pp.load(s2);
+					var f = args[0];
+					if (f.startsWith("~"))
+						f = System.getProperty("user.home") + f.substring(1);
+					try (var x = Files.newInputStream(Path.of(f))) {
+						c.load(x);
 					}
 				}
+				a = new EcommerceTemplate(c);
 			}
-			new EcommerceTemplate(pp);
+
 			HttpServer s;
 			{
-				SSLContext sc;
-				try (var is = Net.class.getResourceAsStream("testkeys")) {
-					sc = Net.getSSLContext("JKS", is, "passphrase".toCharArray());
+				SSLContext c;
+				try (var x = Net.class.getResourceAsStream("testkeys")) {
+					c = Net.getSSLContext(Map.entry("JKS", x), "passphrase".toCharArray());
 				}
-				s = INSTANCE.factory.create(HttpServer.class, Map.of("sslContext", sc, "handler", INSTANCE.handler));
+				var p = Integer.parseInt(a.configuration.getProperty("ecommerce-template.server.port"));
+				s = a.factory.create(HttpServer.class,
+						Map.of("sslContext", c, "endpoint", new InetSocketAddress(p), "handler", a.handler));
 			}
-			var p = Integer.parseInt(INSTANCE.configuration.getProperty("ecommerce-template.server.port"));
-			s.serve(new InetSocketAddress(p));
+			s.serve();
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
 
-	public Properties configuration;
+	public final Properties configuration;
 
-	public Path databaseFile;
+	public final Path databaseFile;
 
-	public Factory factory;
+	public final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	public HttpHandler handler;
+	public final Factory factory;
 
-	public Persistence persistence;
+	public final HttpHandler handler;
 
-	public RenderableFactory renderableFactory;
+	public final Persistence persistence;
 
-	public SmtpClient smtpClient;
+	public final RenderableFactory renderableFactory;
 
-	public TypeResolver typeResolver;
+	public final SmtpClient smtpClient;
 
-	public List<Class<?>> types;
+	public final TypeResolver typeResolver;
+
+	public final List<Class<?>> types;
 
 	public EcommerceTemplate(Properties configuration) {
-		INSTANCE = this;
+		if (!INSTANCE.compareAndSet(null, this))
+			throw new IllegalStateException();
 		this.configuration = configuration;
-		types = Util.getPackageClasses(getClass().getPackageName()).toList();
+		types = Java.getPackageClasses(EcommerceTemplate.class.getPackageName());
 		factory = new Factory(types, this);
 		typeResolver = factory.create(DollarTypeResolver.class);
-		{
-			var p = configuration.getProperty("ecommerce-template.database.file");
-			if (p.startsWith("~"))
-				p = System.getProperty("user.home") + p.substring(1);
-			databaseFile = Path.of(p);
-			var pb = factory.create(ApplicationPersistenceBuilder.class);
-			persistence = pb.build();
-		}
-		renderableFactory = new RenderableFactory();
-		smtpClient = factory.create(SmtpClient.class,
-				Map.of("host", configuration.getProperty("ecommerce-template.mail.host"), "port",
-						Integer.parseInt(configuration.getProperty("ecommerce-template.mail.port")), "username",
-						configuration.getProperty("ecommerce-template.mail.username"), "password",
-						configuration.getProperty("ecommerce-template.mail.password")));
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class);
+			var f = configuration.getProperty("ecommerce-template.database.file");
+			if (f.startsWith("~"))
+				f = System.getProperty("user.home") + f.substring(1);
+			databaseFile = Path.of(f);
+			var b = factory.create(ApplicationPersistenceBuilder.class);
+			persistence = b.build();
+		}
+
+		renderableFactory = new RenderableFactory();
+		smtpClient = factory.create(SmtpClient.class,
+				Stream.of("host", "port", "username", "password").collect(Collectors.toMap(x -> x, x -> {
+					var y = configuration.getProperty("ecommerce-template.mail." + x);
+					return x.equals("port") ? Integer.parseInt(y) : y;
+				})));
+
+		{
+			var f = factory.create(ApplicationHandlerFactory.class,
+					Map.of("methods", types.stream().flatMap(
+							x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
+							.toList(), "files",
+							Stream.of("com.janilla.frontend", EcommerceTemplate.class.getPackageName())
+									.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile))
+									.toList()));
 			handler = x -> {
 				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
 				if (h == null)
@@ -210,7 +227,7 @@ public class EcommerceTemplate {
 		Matcher m;
 		if ((m = PRODUCTS.matcher(path)).matches()) {
 			var c = ((DocumentCrud<Long, Product>) persistence.crud(Product.class));
-			var d = DRAFTS.test(exchange);
+			var d = INSTANCE.get().drafts.test(exchange);
 			if (m.groupCount() == 1) {
 				var pp = c.read(c.list(), d);
 				m2 = null;
@@ -252,12 +269,12 @@ public class EcommerceTemplate {
 //			}
 //				break;
 			default:
-				var pc = (DocumentCrud<Long, Page>) persistence.crud(Page.class);
-				var d = DRAFTS.test(exchange);
+				var c = (DocumentCrud<Long, Page>) persistence.crud(Page.class);
+				var d = drafts.test(exchange);
 				var s = path.substring(1);
 				if (s.isEmpty())
 					s = "home";
-				var pp = pc.read(pc.filter(d ? "slugDraft" : "slug", s), d);
+				var pp = c.read(c.filter(d ? "slugDraft" : "slug", s), d);
 				m2 = !pp.isEmpty() ? pp.get(0).meta() : null;
 				m3.put("/api/pages?slug=" + s, pp);
 				break;
@@ -293,7 +310,8 @@ public class EcommerceTemplate {
 
 		public Stream<Map.@Render(template = "meta") Entry<String, String>> metaEntries() {
 			var r = HttpServer.HTTP_EXCHANGE.get().request();
-			var m = meta != null && meta.image() != null ? INSTANCE.persistence.crud(Media.class).read(meta.image())
+			var m = meta != null && meta.image() != null
+					? INSTANCE.get().persistence.crud(Media.class).read(meta.image())
 					: null;
 			var ss = Stream.of("description", meta != null ? meta.description() : null, "og:title", title(),
 					"og:description", meta != null ? meta.description() : null, "og:url",
@@ -310,7 +328,7 @@ public class EcommerceTemplate {
 
 		@Override
 		public String apply(T value) {
-			return Json.format(INSTANCE.factory.create(ReflectionJsonIterator.class,
+			return Json.format(INSTANCE.get().factory.create(ReflectionJsonIterator.class,
 					Map.of("object", value, "includeType", true)));
 		}
 	}

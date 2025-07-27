@@ -42,7 +42,6 @@ import com.janilla.cms.CmsPersistence;
 import com.janilla.cms.Document;
 import com.janilla.cms.Types;
 import com.janilla.database.Database;
-import com.janilla.io.IO;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.TypeResolver;
@@ -50,6 +49,7 @@ import com.janilla.persistence.Crud;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
+import com.janilla.zip.Zip;
 
 public class CustomPersistence extends CmsPersistence {
 
@@ -182,7 +182,7 @@ public class CustomPersistence extends CmsPersistence {
 		}
 		if (!u.toString().startsWith("jar:"))
 			u = URI.create("jar:" + u);
-		var s = IO.zipFileSystem(u).getPath("/");
+		var s = Zip.zipFileSystem(u).getPath("/");
 //		var d = Files.createDirectories(databaseFile.getParent().resolve("website-template-upload"));
 		var ud = configuration.getProperty("website-template.upload.directory");
 		if (ud.startsWith("~"))

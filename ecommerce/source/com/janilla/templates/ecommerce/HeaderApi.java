@@ -30,7 +30,7 @@ import com.janilla.web.Handle;
 public class HeaderApi extends GlobalApi<Long, Header> {
 
 	public HeaderApi() {
-		super(Header.class, EcommerceTemplate.DRAFTS);
+		super(Header.class, EcommerceTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override

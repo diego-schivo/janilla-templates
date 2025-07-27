@@ -35,7 +35,7 @@ import com.janilla.web.Handle;
 public class SearchResultApi extends CollectionApi<Long, SearchResult> {
 
 	public SearchResultApi() {
-		super(SearchResult.class, WebsiteTemplate.DRAFTS);
+		super(SearchResult.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override

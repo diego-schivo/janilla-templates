@@ -38,7 +38,7 @@ public class FormSubmissionApi extends CollectionApi<Long, FormSubmission> {
 	public SmtpClient smtpClient;
 
 	public FormSubmissionApi(SmtpClient smtpClient) {
-		super(FormSubmission.class, WebsiteTemplate.DRAFTS);
+		super(FormSubmission.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 
 	private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(.*?)\\}");

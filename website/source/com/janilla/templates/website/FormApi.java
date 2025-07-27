@@ -30,6 +30,6 @@ import com.janilla.web.Handle;
 public class FormApi extends CollectionApi<Long, Form> {
 
 	public FormApi() {
-		super(Form.class, WebsiteTemplate.DRAFTS);
+		super(Form.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 }

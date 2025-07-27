@@ -30,7 +30,7 @@ import com.janilla.web.Handle;
 public class FooterApi extends GlobalApi<Long, Footer> {
 
 	public FooterApi() {
-		super(Footer.class, WebsiteTemplate.DRAFTS);
+		super(Footer.class, WebsiteTemplate.INSTANCE.get().drafts);
 	}
 
 	@Override
