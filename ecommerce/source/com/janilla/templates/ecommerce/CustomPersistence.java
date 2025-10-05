@@ -38,13 +38,13 @@ import java.util.Properties;
 
 import com.janilla.cms.CmsPersistence;
 import com.janilla.database.Database;
+import com.janilla.java.Java;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
-import com.janilla.zip.Zip;
 
 public class CustomPersistence extends CmsPersistence {
 
@@ -147,7 +147,7 @@ public class CustomPersistence extends CmsPersistence {
 		}
 		if (!u.toString().startsWith("jar:"))
 			u = URI.create("jar:" + u);
-		var s = Zip.zipFileSystem(u).getPath("/");
+		var s = Java.zipFileSystem(u).getPath("/");
 //		var d = Files.createDirectories(databaseFile.getParent().resolve("ecommerce-template-upload"));
 		var ud = configuration.getProperty("ecommerce-template.upload.directory");
 		if (ud.startsWith("~"))

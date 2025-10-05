@@ -134,7 +134,7 @@ public class WebsiteTemplate {
 			throw new IllegalStateException();
 		this.configuration = configuration;
 		types = Java.getPackageClasses(WebsiteTemplate.class.getPackageName());
-		factory = new Factory(types, this);
+		factory = new Factory(types, INSTANCE::get);
 		typeResolver = factory.create(DollarTypeResolver.class);
 
 		{
@@ -154,13 +154,11 @@ public class WebsiteTemplate {
 				})));
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class,
-					Map.of("methods", types.stream().flatMap(
-							x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
-							.toList(), "files",
-							Stream.of("com.janilla.frontend", WebsiteTemplate.class.getPackageName())
-									.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile))
-									.toList()));
+			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods",
+					types.stream().flatMap(x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
+							.toList(),
+					"files", Stream.of("com.janilla.frontend", WebsiteTemplate.class.getPackageName())
+							.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile)).toList()));
 			handler = x -> {
 				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));
 				if (h == null)
