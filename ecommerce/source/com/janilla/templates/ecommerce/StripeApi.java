@@ -162,10 +162,12 @@ public class StripeApi {
 			var s = new String(Channels.newInputStream((ReadableByteChannel) b).readAllBytes());
 			IO.println("s=" + s);
 			var j = Json.parse(s);
-			var m = Json.asMap(j);
+			@SuppressWarnings("unchecked")
+			var m = (Map<String, Object>) j;
 			var t = m.get("type");
 			if (t.equals("payment_intent.succeeded")) {
-				var m2 = Json.asMap(Json.asMap(m.get("data")).get("object"));
+				@SuppressWarnings("unchecked")
+				var m2 = (Map<String, Object>) ((Map<String, Object>) m.get("data")).get("object");
 //				IO.println("m2=" + m2);
 				var uc = persistence.crud(User.class);
 				var u = uc.read(uc.filter("stripeCustomerId", (String) m2.get("customer")).getFirst());

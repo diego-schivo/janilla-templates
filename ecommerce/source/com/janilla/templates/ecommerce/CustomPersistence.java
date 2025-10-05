@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Properties;
 
 import com.janilla.cms.CmsPersistence;
-import com.janilla.database.Database;
 import com.janilla.java.Java;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
@@ -45,6 +44,7 @@ import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
+import com.janilla.sqlite.SQLiteDatabase;
 
 public class CustomPersistence extends CmsPersistence {
 
@@ -86,7 +86,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(Database database, Collection<Class<? extends Entity<?>>> types,
+	public CustomPersistence(SQLiteDatabase database, Collection<Class<? extends Entity<?>>> types,
 			TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
@@ -106,15 +106,16 @@ public class CustomPersistence extends CmsPersistence {
 	public void seed() throws IOException {
 		for (var t : List.of(Page.class, Product.class, Media.class, Category.class, User.class, Header.class,
 				Footer.class)) {
-			database.perform((ss, _) -> {
-				var c = crud(t);
-				c.delete(c.list());
-				ss.perform(t.getSimpleName(), s -> {
-					s.getAttributes().clear();
-					return null;
-				});
-				return null;
-			}, true);
+//			database.perform((ss, _) -> {
+//				var c = crud(t);
+//				c.delete(c.list());
+//				ss.perform(t.getSimpleName(), s -> {
+//					s.getAttributes().clear();
+//					return null;
+//				});
+//				return null;
+//			}, true);
+			throw new RuntimeException();
 		}
 
 		SeedData sd;
