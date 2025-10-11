@@ -134,18 +134,12 @@ public class CustomPersistence extends CmsPersistence {
 
 	public void seed() throws IOException {
 		for (var t : List.of(Category.class, Footer.class, Form.class, FormSubmission.class, Header.class, Media.class,
-				Page.class, Post.class, Redirect.class, SearchResult.class, User.class)) {
-//			database.perform((ss, _) -> {
-//				var c = crud(t);
-//				c.delete(c.list());
-//				ss.perform(t.getSimpleName(), s -> {
-//					s.getAttributes().clear();
-//					return null;
-//				});
-//				return null;
-//			}, true);
-			throw new RuntimeException();
-		}
+				Page.class, Post.class, Redirect.class, SearchResult.class, User.class))
+			database.perform(() -> {
+				var c = crud(t);
+				c.delete(c.list());
+				return null;
+			}, true);
 
 		SeedData sd;
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {
