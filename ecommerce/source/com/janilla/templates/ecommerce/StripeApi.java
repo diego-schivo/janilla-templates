@@ -24,7 +24,6 @@
 package com.janilla.templates.ecommerce;
 
 import java.io.ByteArrayInputStream;
-import java.io.IO;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.channels.Channels;

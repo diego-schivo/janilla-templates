@@ -23,6 +23,7 @@
  */
 package com.janilla.templates.blank;
 
+import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -135,10 +136,11 @@ public class BlankTemplate {
 		renderableFactory = new RenderableFactory();
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods",
-					types.stream().flatMap(x -> Arrays.stream(x.getMethods()).map(y -> new ClassAndMethod(x, y)))
-							.toList(),
-					"files", Stream.of("com.janilla.frontend", BlankTemplate.class.getPackageName())
+			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods", types.stream()
+					.flatMap(x -> Arrays.stream(x.getMethods()).filter(y -> !Modifier.isStatic(y.getModifiers()))
+							.map(y -> new ClassAndMethod(x, y)))
+					.toList(), "files",
+					Stream.of("com.janilla.frontend", BlankTemplate.class.getPackageName())
 							.flatMap(x -> Java.getPackagePaths(x).stream().filter(Files::isRegularFile)).toList()));
 			handler = x -> {
 				var h = f.createHandler(Objects.requireNonNullElse(x.exception(), x.request()));

@@ -42,13 +42,14 @@ import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
+import com.janilla.persistence.CrudObserver;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
-import com.janilla.sqlite.SQLiteDatabase;
+import com.janilla.sqlite.SqliteDatabase;
 
 public class CustomPersistence extends CmsPersistence {
 
-	protected static final Crud.Observer PRODUCT_OBSERVER = new Crud.Observer() {
+	protected static final CrudObserver PRODUCT_OBSERVER = new CrudObserver() {
 
 		@Override
 		public <E> E beforeCreate(E entity) {
@@ -63,7 +64,7 @@ public class CustomPersistence extends CmsPersistence {
 		}
 	};
 
-	protected static final Crud.Observer USER_OBSERVER = new Crud.Observer() {
+	protected static final CrudObserver USER_OBSERVER = new CrudObserver() {
 
 		@Override
 		public <E> E beforeCreate(E entity) {
@@ -86,7 +87,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Factory factory;
 
-	public CustomPersistence(SQLiteDatabase database, Collection<Class<? extends Entity<?>>> types,
+	public CustomPersistence(SqliteDatabase database, Collection<Class<? extends Entity<?>>> types,
 			TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
@@ -105,18 +106,12 @@ public class CustomPersistence extends CmsPersistence {
 
 	public void seed() throws IOException {
 		for (var t : List.of(Page.class, Product.class, Media.class, Category.class, User.class, Header.class,
-				Footer.class)) {
-//			database.perform((ss, _) -> {
-//				var c = crud(t);
-//				c.delete(c.list());
-//				ss.perform(t.getSimpleName(), s -> {
-//					s.getAttributes().clear();
-//					return null;
-//				});
-//				return null;
-//			}, true);
-			throw new RuntimeException();
-		}
+				Footer.class))
+			database.perform(() -> {
+				var c = crud(t);
+				c.delete(c.list());
+				return null;
+			}, true);
 
 		SeedData sd;
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {

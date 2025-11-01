@@ -46,27 +46,28 @@ import com.janilla.json.Converter;
 import com.janilla.json.Json;
 import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
+import com.janilla.persistence.CrudObserver;
 import com.janilla.persistence.Entity;
 import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
-import com.janilla.sqlite.SQLiteDatabase;
+import com.janilla.sqlite.SqliteDatabase;
 
 public class CustomPersistence extends CmsPersistence {
 
-	private Crud.Observer searchObserver;
+	private CrudObserver searchObserver;
 
 	public Properties configuration;
 
 	public Factory factory;
 
-	public CustomPersistence(SQLiteDatabase database, Collection<Class<? extends Entity<?>>> types,
+	public CustomPersistence(SqliteDatabase database, Collection<Class<? extends Entity<?>>> types,
 			TypeResolver typeResolver) {
 		super(database, types, typeResolver);
 	}
 
-	protected Crud.Observer searchObserver() {
+	protected CrudObserver searchObserver() {
 		if (searchObserver == null)
-			searchObserver = new Crud.Observer() {
+			searchObserver = new CrudObserver() {
 
 				private List<Class<?>> types = Arrays.stream(Reflection.property(SearchResult.class, "document")
 						.annotatedType().getAnnotation(Types.class).value()).toList();
