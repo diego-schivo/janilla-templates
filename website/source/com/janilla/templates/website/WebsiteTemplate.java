@@ -30,8 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -79,19 +80,14 @@ public class WebsiteTemplate {
 		try {
 			WebsiteTemplate a;
 			{
-				var c = new Properties();
-				try (var x = WebsiteTemplate.class.getResourceAsStream("configuration.properties")) {
-					c.load(x);
-				}
-				if (args.length > 0) {
-					var f = args[0];
-					if (f.startsWith("~"))
-						f = System.getProperty("user.home") + f.substring(1);
-					try (var x = Files.newInputStream(Path.of(f))) {
-						c.load(x);
-					}
-				}
-				a = new WebsiteTemplate(c);
+				var f = new Factory(Java.getPackageClasses(WebsiteTemplate.class.getPackageName()),
+						WebsiteTemplate.INSTANCE::get);
+				a = f.create(WebsiteTemplate.class,
+						Java.hashMap("factory", f, "configurationFile",
+								args.length > 0 ? Path.of(
+										args[0].startsWith("~") ? System.getProperty("user.home") + args[0].substring(1)
+												: args[0])
+										: null));
 			}
 
 			HttpServer s;
@@ -110,32 +106,29 @@ public class WebsiteTemplate {
 		}
 	}
 
-	public final Properties configuration;
+	protected final Properties configuration;
 
-	public final Path databaseFile;
+	protected final Path databaseFile;
 
-	public final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
+	protected final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	public final Factory factory;
+	protected final Factory factory;
 
-	public final HttpHandler handler;
+	protected final HttpHandler handler;
 
-	public final Persistence persistence;
+	protected final Persistence persistence;
 
-	public final RenderableFactory renderableFactory;
+	protected final RenderableFactory renderableFactory;
 
-	public final SmtpClient smtpClient;
+	protected final SmtpClient smtpClient;
 
-	public final TypeResolver typeResolver;
+	protected final TypeResolver typeResolver;
 
-	public final List<Class<?>> types;
-
-	public WebsiteTemplate(Properties configuration) {
+	public WebsiteTemplate(Factory factory, Path configurationFile) {
+		this.factory = factory;
 		if (!INSTANCE.compareAndSet(null, this))
 			throw new IllegalStateException();
-		this.configuration = configuration;
-		types = Java.getPackageClasses(WebsiteTemplate.class.getPackageName());
-		factory = new Factory(types, INSTANCE::get);
+		configuration = factory.create(Properties.class, Collections.singletonMap("file", configurationFile));
 		typeResolver = factory.create(DollarTypeResolver.class);
 
 		{
@@ -155,7 +148,7 @@ public class WebsiteTemplate {
 				})));
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods", types.stream()
+			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods", types().stream()
 					.flatMap(x -> Arrays.stream(x.getMethods()).filter(y -> !Modifier.isStatic(y.getModifiers()))
 							.map(y -> new ClassAndMethod(x, y)))
 					.toList(), "files",
@@ -172,6 +165,38 @@ public class WebsiteTemplate {
 
 	public WebsiteTemplate application() {
 		return this;
+	}
+
+	public Properties configuration() {
+		return configuration;
+	}
+
+	public Path databaseFile() {
+		return databaseFile;
+	}
+
+	public Factory factory() {
+		return factory;
+	}
+
+	public HttpHandler handler() {
+		return handler;
+	}
+
+	public Persistence persistence() {
+		return persistence;
+	}
+
+	public RenderableFactory renderableFactory() {
+		return renderableFactory;
+	}
+
+	public TypeResolver typeResolver() {
+		return typeResolver;
+	}
+
+	public Collection<Class<?>> types() {
+		return factory.types();
 	}
 
 	@Handle(method = "GET", path = "((?!/api/)/[\\w\\d/-]*)")
