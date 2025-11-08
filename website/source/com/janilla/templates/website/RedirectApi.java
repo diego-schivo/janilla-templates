@@ -23,13 +23,17 @@
  */
 package com.janilla.templates.website;
 
+import java.util.function.Predicate;
+
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/redirects")
 public class RedirectApi extends CollectionApi<Long, Redirect> {
 
-	public RedirectApi() {
-		super(Redirect.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public RedirectApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Redirect.class, drafts, persistence);
 	}
 }

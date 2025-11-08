@@ -31,22 +31,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpResponse;
 import com.janilla.json.Json;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/orders")
 public class OrderApi extends CollectionApi<Long, Order> {
 
-	public OrderApi() {
-		super(Order.class, EcommerceTemplate.INSTANCE.get().drafts);
+	public OrderApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Order.class, drafts, persistence);
 	}
 
 	@Override
-	public List<Order> read() {
+	public List<Order> read(Long skip, Long limit) {
 		throw new UnsupportedOperationException();
 	}
 

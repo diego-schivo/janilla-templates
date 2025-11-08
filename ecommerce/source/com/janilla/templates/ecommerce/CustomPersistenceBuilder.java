@@ -29,16 +29,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import com.janilla.ioc.DependencyInjector;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
-import com.janilla.reflect.Factory;
 
 public class CustomPersistenceBuilder extends ApplicationPersistenceBuilder {
 
 	public Properties configuration;
 
-	public CustomPersistenceBuilder(Path databaseFile, Factory factory) {
-		super(databaseFile, factory);
+	public CustomPersistenceBuilder(Path databaseFile, DependencyInjector injector) {
+		super(databaseFile, injector);
 	}
 
 	@Override

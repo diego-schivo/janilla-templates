@@ -23,13 +23,17 @@
  */
 package com.janilla.templates.website;
 
+import java.util.function.Predicate;
+
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/categories")
 public class CategoryApi extends CollectionApi<Long, Category> {
 
-	public CategoryApi() {
-		super(Category.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public CategoryApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Category.class, drafts, persistence);
 	}
 }

@@ -23,6 +23,7 @@
  */
 package com.janilla.templates.blank;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import com.janilla.web.UnauthorizedException;
 
 public class CustomHttpExchange extends HttpExchange.Base {
 
+	private static final String SESSION_COOKIE = "janilla-blank-template-token";
+
 	public Properties configuration;
 
 	public Persistence persistence;
@@ -52,7 +55,7 @@ public class CustomHttpExchange extends HttpExchange.Base {
 	public String sessionEmail() {
 		if (!session.containsKey("sessionEmail")) {
 			var t = request().getHeaderValues("cookie").map(HttpCookie::parse)
-					.filter(x -> x.name().equals("blank-template-token")).findFirst().orElse(null);
+					.filter(x -> x.name().equals(SESSION_COOKIE)).findFirst().orElse(null);
 			Map<String, ?> p;
 			try {
 				p = t != null ? Jwt.verifyToken(t.value(), configuration.getProperty("blank-template.jwt.key")) : null;
@@ -79,12 +82,11 @@ public class CustomHttpExchange extends HttpExchange.Base {
 	}
 
 	public void setSessionCookie(String value) {
-		var c = HttpCookie.of("blank-template-token", value).withPath("/").withHttpOnly(true).withSameSite("Lax");
-		if (value != null && !value.isEmpty())
-			c = c.withExpires(ZonedDateTime.now(ZoneOffset.UTC).plusHours(2));
-		else
-			c = c.withMaxAge(0);
-		response().setHeaderValue("set-cookie", c.format());
+		response().setHeaderValue("set-cookie",
+				HttpCookie.of(SESSION_COOKIE, value).withPath("/").withHttpOnly(true).withSameSite("Lax")
+						.withExpires(value != null && !value.isEmpty() ? ZonedDateTime.now(ZoneOffset.UTC).plusHours(2)
+								: ZonedDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC))
+						.format());
 	}
 
 	@Override

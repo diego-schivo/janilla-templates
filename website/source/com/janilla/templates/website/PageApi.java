@@ -24,21 +24,23 @@
 package com.janilla.templates.website;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/pages")
 public class PageApi extends CollectionApi<Long, Page> {
 
-	public PageApi() {
-		super(Page.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public PageApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Page.class, drafts, persistence);
 	}
 
 	@Override
-	public List<Page> read() {
+	public List<Page> read(Long skip, Long limit) {
 		throw new UnsupportedOperationException();
 	}
 

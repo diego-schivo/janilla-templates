@@ -25,13 +25,21 @@ package com.janilla.templates.blank;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
 import com.janilla.json.Jwt;
+import com.janilla.persistence.Persistence;
+import com.janilla.reflect.Reflection;
 import com.janilla.web.BadRequestException;
+import com.janilla.web.Bind;
 import com.janilla.web.ForbiddenException;
 import com.janilla.web.Handle;
 import com.janilla.web.UnauthorizedException;
@@ -41,8 +49,13 @@ public class UserApi extends CollectionApi<Long, User> {
 
 	public Properties configuration;
 
-	public UserApi() {
-		super(User.class, BlankTemplate.INSTANCE.get().drafts);
+	public UserApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(User.class, drafts, persistence);
+	}
+
+	@Handle(method = "PUT", path = "(\\d+)")
+	public User update(long id, User entity, Boolean draft, Boolean autosave, String password) {
+		return super.update(id, entity.withPassword(password), draft, autosave);
 	}
 
 	@Handle(method = "POST", path = "login")
@@ -129,6 +142,42 @@ public class UserApi extends CollectionApi<Long, User> {
 		var t = Jwt.generateToken(h, p, configuration.getProperty("blank-template.jwt.key"));
 		exchange.setSessionCookie(t);
 		return u;
+	}
+
+	@Override
+	public User delete(Long id) {
+		throw new RuntimeException();
+	}
+
+	@Handle(method = "DELETE", path = "(\\d+)")
+	public User delete(Long id, CustomHttpExchange exchange) {
+		var u = exchange.sessionUser();
+		var x = super.delete(id);
+		if (id == u.id())
+			logout(exchange);
+		return x;
+	}
+
+	@Override
+	public List<User> delete(List<Long> ids) {
+		throw new RuntimeException();
+	}
+
+	@Handle(method = "DELETE")
+	public List<User> delete(@Bind("id") List<Long> ids, CustomHttpExchange exchange) {
+		var u = exchange.sessionUser();
+		var x = super.delete(ids);
+		if (ids.contains(u.id()))
+			logout(exchange);
+		return x;
+	}
+
+	@Override
+	protected Set<String> updateInclude(User entity) {
+		var nn = Set.of("salt", "hash");
+		return entity.salt() == null
+				? Reflection.propertyNames(User.class).filter(x -> !nn.contains(x)).collect(Collectors.toSet())
+				: null;
 	}
 
 //	private static void mail(Data d) {

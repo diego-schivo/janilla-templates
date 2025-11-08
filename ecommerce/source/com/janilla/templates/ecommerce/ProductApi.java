@@ -25,11 +25,13 @@ package com.janilla.templates.ecommerce;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
 import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
@@ -38,15 +40,15 @@ public class ProductApi extends CollectionApi<Long, Product> {
 
 	public static ProductApi INSTANCE;
 
-	public ProductApi() {
-		super(Product.class, EcommerceTemplate.INSTANCE.get().drafts);
+	public ProductApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Product.class, drafts, persistence);
 		if (INSTANCE != null)
 			throw new RuntimeException();
 		INSTANCE = this;
 	}
 
 	@Override
-	public List<Product> read() {
+	public List<Product> read(Long skip, Long limit) {
 		throw new UnsupportedOperationException();
 	}
 

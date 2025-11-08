@@ -1,4 +1,13 @@
 page-element {
+
+  &[data-slug="home"] {
+    margin-top: 4rem;
+  }
+
+  p {
+    margin-top: 1.25rem;
+  }
+
   /*
   main {
     display: flex;

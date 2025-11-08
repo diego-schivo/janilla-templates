@@ -21,33 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.website;
+package com.janilla.templates.blank;
 
-import java.nio.file.Path;
-import java.util.Properties;
-import java.util.function.Predicate;
+import com.janilla.web.Render;
 
-import com.janilla.cms.CollectionApi;
-import com.janilla.http.HttpExchange;
-import com.janilla.http.HttpResponse;
-import com.janilla.persistence.Persistence;
-import com.janilla.web.Handle;
+@Render(template = "index.html")
+public record Index(String path) {
 
-@Handle(path = "/api/media")
-public class MediaApi extends CollectionApi<Long, Media> {
+	public static final String SITE_NAME = "Janilla Blank Template";
 
-	public Properties configuration;
-
-	public MediaApi(Predicate<HttpExchange> drafts, Persistence persistence) {
-		super(Media.class, drafts, persistence);
+	public String title() {
+		return path.equals("/admin/create-first-user") ? "Create first user - Janilla" : "Janilla Blank Template";
 	}
 
-	@Handle(method = "GET", path = "file/(.+)")
-	public void file(Path path, HttpResponse response) {
-		var ud = configuration.getProperty("website-template.upload.directory");
-		if (ud.startsWith("~"))
-			ud = System.getProperty("user.home") + ud.substring(1);
-		var f = Path.of(ud).resolve(path.getFileName());
-		CmsFileHandlerFactory.handle(f, response);
+	public String stylesheetHref() {
+		return BlankTemplate.ADMIN.matcher(path).matches() ? "/admin.css" : "/style.css";
 	}
 }

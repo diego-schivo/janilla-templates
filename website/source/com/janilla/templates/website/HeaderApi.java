@@ -23,14 +23,18 @@
  */
 package com.janilla.templates.website;
 
+import java.util.function.Predicate;
+
 import com.janilla.cms.GlobalApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/header")
 public class HeaderApi extends GlobalApi<Long, Header> {
 
-	public HeaderApi() {
-		super(Header.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public HeaderApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Header.class, drafts, persistence);
 	}
 
 	@Override

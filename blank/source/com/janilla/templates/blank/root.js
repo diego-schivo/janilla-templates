@@ -65,15 +65,29 @@ export default class Root extends WebComponent {
 		this.requestDisplay();
 	}
 
+	async computeState() {
+		const s = this.state;
+		const nn = ["user"];
+		nn.forEach(x => delete s[x]);
+		const kkvv = await Promise.all(nn.map(x => this.fetchData(`/api/${x === "user" ? "users/me" : x}`).then(y => ([x, y]))));
+		for (const [k, v] of kkvv)
+			s[k] = v;
+		if (s.user)
+			s.user.roles = [{ name: "ADMIN" }];
+		this.requestDisplay();
+	}
+
 	async updateDisplay() {
 		const s = this.state;
+		s.computeState ??= this.computeState();
+
 		const m = location.pathname.match(adminRegex);
 		if (m) {
 			this.appendChild(this.interpolateDom({
 				$template: "",
 				admin: {
 					$template: "admin",
-					email: this.querySelector("cms-admin")?.state?.me?.email,
+					email: this.state?.user?.email,
 					path: m[1] ?? "/"
 				}
 			}));
@@ -89,6 +103,17 @@ export default class Root extends WebComponent {
 				})()
 			}
 		}));
+	}
+
+	async fetchData(key) {
+		/*
+		if (Object.hasOwn(this.#serverData, key)) {
+			const v = this.#serverData[key];
+			delete this.#serverData[key];
+			return v;
+		}
+		*/
+		return await (await fetch(key)).json();
 	}
 
 	notFound() {

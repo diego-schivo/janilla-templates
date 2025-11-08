@@ -24,22 +24,25 @@
 package com.janilla.templates.website;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Bind;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/search-results")
 public class SearchResultApi extends CollectionApi<Long, SearchResult> {
 
-	public SearchResultApi() {
-		super(SearchResult.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public SearchResultApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(SearchResult.class, drafts, persistence);
 	}
 
 	@Override
-	public List<SearchResult> read() {
+	public List<SearchResult> read(Long skip, Long limit) {
 		throw new UnsupportedOperationException();
 	}
 

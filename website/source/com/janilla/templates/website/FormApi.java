@@ -23,13 +23,17 @@
  */
 package com.janilla.templates.website;
 
+import java.util.function.Predicate;
+
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.web.Handle;
 
 @Handle(path = "/api/forms")
 public class FormApi extends CollectionApi<Long, Form> {
 
-	public FormApi() {
-		super(Form.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public FormApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(Form.class, drafts, persistence);
 	}
 }

@@ -44,6 +44,7 @@ import com.janilla.cms.Cms;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.ioc.DependencyInjector;
 import com.janilla.java.Java;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.TypeResolver;
@@ -51,11 +52,9 @@ import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.ClassAndMethod;
-import com.janilla.reflect.Factory;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
 import com.janilla.web.NotFoundException;
-import com.janilla.web.Render;
 import com.janilla.web.RenderableFactory;
 
 public class BlankTemplate {
@@ -68,7 +67,7 @@ public class BlankTemplate {
 		try {
 			BlankTemplate a;
 			{
-				var f = new Factory(Java.getPackageClasses(BlankTemplate.class.getPackageName()),
+				var f = new DependencyInjector(Java.getPackageClasses(BlankTemplate.class.getPackageName()),
 						BlankTemplate.INSTANCE::get);
 				a = f.create(BlankTemplate.class, Java.hashMap("factory", f, "configurationFile", args.length > 0 ? Path
 						.of(args[0].startsWith("~") ? System.getProperty("user.home") + args[0].substring(1) : args[0])
@@ -82,7 +81,7 @@ public class BlankTemplate {
 					c = Net.getSSLContext(Map.entry("JKS", x), "passphrase".toCharArray());
 				}
 				var p = Integer.parseInt(a.configuration.getProperty("blank-template.server.port"));
-				s = a.factory.create(HttpServer.class,
+				s = a.injector.create(HttpServer.class,
 						Map.of("sslContext", c, "endpoint", new InetSocketAddress(p), "handler", a.handler));
 			}
 			s.serve();
@@ -97,7 +96,7 @@ public class BlankTemplate {
 
 	protected final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	protected final Factory factory;
+	protected final DependencyInjector injector;
 
 	protected final HttpHandler handler;
 
@@ -107,26 +106,26 @@ public class BlankTemplate {
 
 	protected final TypeResolver typeResolver;
 
-	public BlankTemplate(Factory factory, Path configurationFile) {
-		this.factory = factory;
+	public BlankTemplate(DependencyInjector injector, Path configurationFile) {
+		this.injector = injector;
 		if (!INSTANCE.compareAndSet(null, this))
 			throw new IllegalStateException();
-		configuration = factory.create(Properties.class, Collections.singletonMap("file", configurationFile));
-		typeResolver = factory.create(DollarTypeResolver.class);
+		configuration = injector.create(Properties.class, Collections.singletonMap("file", configurationFile));
+		typeResolver = injector.create(DollarTypeResolver.class);
 
 		{
 			var f = configuration.getProperty("blank-template.database.file");
 			if (f.startsWith("~"))
 				f = System.getProperty("user.home") + f.substring(1);
 			databaseFile = Path.of(f);
-			var b = factory.create(ApplicationPersistenceBuilder.class);
+			var b = injector.create(ApplicationPersistenceBuilder.class);
 			persistence = b.build();
 		}
 
 		renderableFactory = new RenderableFactory();
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods", types().stream()
+			var f = injector.create(ApplicationHandlerFactory.class, Map.of("methods", types().stream()
 					.flatMap(x -> Arrays.stream(x.getMethods()).filter(y -> !Modifier.isStatic(y.getModifiers()))
 							.map(y -> new ClassAndMethod(x, y)))
 					.toList(), "files",
@@ -153,8 +152,8 @@ public class BlankTemplate {
 		return databaseFile;
 	}
 
-	public Factory factory() {
-		return factory;
+	public DependencyInjector injector() {
+		return injector;
 	}
 
 	public HttpHandler handler() {
@@ -174,7 +173,7 @@ public class BlankTemplate {
 	}
 
 	public Collection<Class<?>> types() {
-		return factory.types();
+		return injector.types();
 	}
 
 	@Handle(method = "GET", path = "((?!/api/)/[\\w\\d/-]*)")
@@ -197,15 +196,11 @@ public class BlankTemplate {
 				return null;
 			}
 		}
-		return new Index(ADMIN.matcher(path).matches() ? "/admin.css" : "/style.css");
+		return new Index(path);
 	}
 
 	@Handle(method = "GET", path = "/api/schema")
 	public Map<String, Map<String, Map<String, Object>>> schema() {
 		return Cms.schema(Data.class);
-	}
-
-	@Render(template = "index.html")
-	public record Index(String href) {
 	}
 }

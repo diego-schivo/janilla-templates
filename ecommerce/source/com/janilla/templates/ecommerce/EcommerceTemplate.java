@@ -51,6 +51,7 @@ import com.janilla.cms.DocumentCrud;
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandler;
 import com.janilla.http.HttpServer;
+import com.janilla.ioc.DependencyInjector;
 import com.janilla.java.Java;
 import com.janilla.json.DollarTypeResolver;
 import com.janilla.json.Json;
@@ -60,7 +61,6 @@ import com.janilla.net.Net;
 import com.janilla.persistence.ApplicationPersistenceBuilder;
 import com.janilla.persistence.Persistence;
 import com.janilla.reflect.ClassAndMethod;
-import com.janilla.reflect.Factory;
 import com.janilla.smtp.SmtpClient;
 import com.janilla.web.ApplicationHandlerFactory;
 import com.janilla.web.Handle;
@@ -81,7 +81,7 @@ public class EcommerceTemplate {
 		try {
 			EcommerceTemplate a;
 			{
-				var f = new Factory(Java.getPackageClasses(EcommerceTemplate.class.getPackageName()),
+				var f = new DependencyInjector(Java.getPackageClasses(EcommerceTemplate.class.getPackageName()),
 						EcommerceTemplate.INSTANCE::get);
 				a = f.create(EcommerceTemplate.class,
 						Java.hashMap("factory", f, "configurationFile",
@@ -98,7 +98,7 @@ public class EcommerceTemplate {
 					c = Net.getSSLContext(Map.entry("JKS", x), "passphrase".toCharArray());
 				}
 				var p = Integer.parseInt(a.configuration.getProperty("ecommerce-template.server.port"));
-				s = a.factory.create(HttpServer.class,
+				s = a.injector.create(HttpServer.class,
 						Map.of("sslContext", c, "endpoint", new InetSocketAddress(p), "handler", a.handler));
 			}
 			s.serve();
@@ -113,7 +113,7 @@ public class EcommerceTemplate {
 
 	protected final Predicate<HttpExchange> drafts = x -> ((CustomHttpExchange) x).sessionUser() != null;
 
-	protected final Factory factory;
+	protected final DependencyInjector injector;
 
 	protected final HttpHandler handler;
 
@@ -125,31 +125,31 @@ public class EcommerceTemplate {
 
 	protected final TypeResolver typeResolver;
 
-	public EcommerceTemplate(Factory factory, Path configurationFile) {
-		this.factory = factory;
+	public EcommerceTemplate(DependencyInjector injector, Path configurationFile) {
+		this.injector = injector;
 		if (!INSTANCE.compareAndSet(null, this))
 			throw new IllegalStateException();
-		configuration = factory.create(Properties.class, Collections.singletonMap("file", configurationFile));
-		typeResolver = factory.create(DollarTypeResolver.class);
+		configuration = injector.create(Properties.class, Collections.singletonMap("file", configurationFile));
+		typeResolver = injector.create(DollarTypeResolver.class);
 
 		{
 			var f = configuration.getProperty("ecommerce-template.database.file");
 			if (f.startsWith("~"))
 				f = System.getProperty("user.home") + f.substring(1);
 			databaseFile = Path.of(f);
-			var b = factory.create(ApplicationPersistenceBuilder.class);
+			var b = injector.create(ApplicationPersistenceBuilder.class);
 			persistence = b.build();
 		}
 
 		renderableFactory = new RenderableFactory();
-		smtpClient = factory.create(SmtpClient.class,
+		smtpClient = injector.create(SmtpClient.class,
 				Stream.of("host", "port", "username", "password").collect(Collectors.toMap(x -> x, x -> {
 					var y = configuration.getProperty("ecommerce-template.mail." + x);
 					return x.equals("port") ? Integer.parseInt(y) : y;
 				})));
 
 		{
-			var f = factory.create(ApplicationHandlerFactory.class, Map.of("methods", types().stream()
+			var f = injector.create(ApplicationHandlerFactory.class, Map.of("methods", types().stream()
 					.flatMap(x -> Arrays.stream(x.getMethods()).filter(y -> !Modifier.isStatic(y.getModifiers()))
 							.map(y -> new ClassAndMethod(x, y)))
 					.toList(), "files",
@@ -176,8 +176,8 @@ public class EcommerceTemplate {
 		return databaseFile;
 	}
 
-	public Factory factory() {
-		return factory;
+	public DependencyInjector injector() {
+		return injector;
 	}
 
 	public HttpHandler handler() {
@@ -197,7 +197,7 @@ public class EcommerceTemplate {
 	}
 
 	public Collection<Class<?>> types() {
-		return factory.types();
+		return injector.types();
 	}
 
 	@Handle(method = "GET", path = "((?!/api/)/[\\w\\d/-]*)")
@@ -353,7 +353,7 @@ public class EcommerceTemplate {
 
 		@Override
 		public String apply(T value) {
-			return Json.format(INSTANCE.get().factory.create(ReflectionJsonIterator.class,
+			return Json.format(INSTANCE.get().injector.create(ReflectionJsonIterator.class,
 					Map.of("object", value, "includeType", true)));
 		}
 	}

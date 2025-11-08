@@ -29,10 +29,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
 import com.janilla.json.Jwt;
+import com.janilla.persistence.Persistence;
 import com.janilla.reflect.Reflection;
 import com.janilla.web.BadRequestException;
 import com.janilla.web.ForbiddenException;
@@ -44,8 +47,8 @@ public class UserApi extends CollectionApi<Long, User> {
 
 	public Properties configuration;
 
-	public UserApi() {
-		super(User.class, EcommerceTemplate.INSTANCE.get().drafts);
+	public UserApi(Predicate<HttpExchange> drafts, Persistence persistence) {
+		super(User.class, drafts, persistence);
 	}
 
 	@Handle(method = "PUT", path = "(\\d+)")

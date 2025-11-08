@@ -25,10 +25,13 @@ package com.janilla.templates.website;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.janilla.cms.CollectionApi;
+import com.janilla.http.HttpExchange;
+import com.janilla.persistence.Persistence;
 import com.janilla.smtp.SmtpClient;
 import com.janilla.web.Handle;
 
@@ -37,8 +40,8 @@ public class FormSubmissionApi extends CollectionApi<Long, FormSubmission> {
 
 	public SmtpClient smtpClient;
 
-	public FormSubmissionApi(SmtpClient smtpClient) {
-		super(FormSubmission.class, WebsiteTemplate.INSTANCE.get().drafts);
+	public FormSubmissionApi(Predicate<HttpExchange> drafts, Persistence persistence, SmtpClient smtpClient) {
+		super(FormSubmission.class, drafts, persistence);
 	}
 
 	private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(.*?)\\}");

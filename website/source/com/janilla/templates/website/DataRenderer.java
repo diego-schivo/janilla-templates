@@ -23,31 +23,17 @@
  */
 package com.janilla.templates.website;
 
-import java.nio.file.Path;
-import java.util.Properties;
-import java.util.function.Predicate;
+import java.util.Map;
 
-import com.janilla.cms.CollectionApi;
-import com.janilla.http.HttpExchange;
-import com.janilla.http.HttpResponse;
-import com.janilla.persistence.Persistence;
-import com.janilla.web.Handle;
+import com.janilla.json.Json;
+import com.janilla.json.ReflectionJsonIterator;
+import com.janilla.web.Renderer;
 
-@Handle(path = "/api/media")
-public class MediaApi extends CollectionApi<Long, Media> {
+public class DataRenderer<T> extends Renderer<T> {
 
-	public Properties configuration;
-
-	public MediaApi(Predicate<HttpExchange> drafts, Persistence persistence) {
-		super(Media.class, drafts, persistence);
-	}
-
-	@Handle(method = "GET", path = "file/(.+)")
-	public void file(Path path, HttpResponse response) {
-		var ud = configuration.getProperty("website-template.upload.directory");
-		if (ud.startsWith("~"))
-			ud = System.getProperty("user.home") + ud.substring(1);
-		var f = Path.of(ud).resolve(path.getFileName());
-		CmsFileHandlerFactory.handle(f, response);
+	@Override
+	public String apply(T value) {
+		return Json.format(WebsiteTemplate.INSTANCE.get().injector.create(ReflectionJsonIterator.class,
+				Map.of("object", value, "includeType", true)));
 	}
 }

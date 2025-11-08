@@ -41,6 +41,7 @@ import java.util.Set;
 import com.janilla.cms.CmsPersistence;
 import com.janilla.cms.Document;
 import com.janilla.cms.Types;
+import com.janilla.ioc.DependencyInjector;
 import com.janilla.java.Java;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
@@ -48,7 +49,6 @@ import com.janilla.json.TypeResolver;
 import com.janilla.persistence.Crud;
 import com.janilla.persistence.CrudObserver;
 import com.janilla.persistence.Entity;
-import com.janilla.reflect.Factory;
 import com.janilla.reflect.Reflection;
 import com.janilla.sqlite.SqliteDatabase;
 
@@ -58,7 +58,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Properties configuration;
 
-	public Factory factory;
+	public DependencyInjector injector;
 
 	public CustomPersistence(SqliteDatabase database, Collection<Class<? extends Entity<?>>> types,
 			TypeResolver typeResolver) {
@@ -146,7 +146,7 @@ public class CustomPersistence extends CmsPersistence {
 		try (var is = getClass().getResourceAsStream("seed-data.json")) {
 			var s = new String(is.readAllBytes());
 			var o = Json.parse(s);
-			sd = (SeedData) factory.create(Converter.class).convert(o, SeedData.class);
+			sd = (SeedData) injector.create(Converter.class).convert(o, SeedData.class);
 		}
 		for (var x : sd.categories())
 			crud(Category.class).create(x);
