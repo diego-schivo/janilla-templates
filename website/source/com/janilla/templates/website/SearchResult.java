@@ -27,13 +27,15 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentReference;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.cms.Types;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-public record SearchResult(Long id, @Index Document.@Types( {
-		Post.class }) Reference<?, ?> document, String title, String slug, Meta meta,
-		List<@Types(Category.class) Long> categories, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
-		Instant publishedAt) implements Document<Long> {
+public record SearchResult(Long id, @Index @Types( {
+		Post.class }) DocumentReference<?, ?> document, String title, String slug, Meta meta,
+		List<@Types(Category.class) Long> categories, Instant createdAt, Instant updatedAt,
+		DocumentStatus documentStatus, Instant publishedAt) implements Document<Long>{
 }

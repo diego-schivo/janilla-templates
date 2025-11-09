@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.janilla.cms.CmsPersistence;
-import com.janilla.ioc.DependencyInjector;
+import com.janilla.ioc.DiFactory;
 import com.janilla.java.Java;
 import com.janilla.json.Converter;
 import com.janilla.json.Json;
@@ -85,7 +85,7 @@ public class CustomPersistence extends CmsPersistence {
 
 	public Properties configuration;
 
-	public DependencyInjector injector;
+	public DiFactory diFactory;
 
 	public CustomPersistence(SqliteDatabase database, Collection<Class<? extends Entity<?>>> types,
 			TypeResolver typeResolver) {
@@ -118,7 +118,7 @@ public class CustomPersistence extends CmsPersistence {
 			var s = new String(is.readAllBytes());
 			var o = Json.parse(s);
 //			IO.println("o=" + o);
-			sd = (SeedData) injector.create(Converter.class).convert(o, SeedData.class);
+			sd = (SeedData) diFactory.create(Converter.class).convert(o, SeedData.class);
 //			IO.println("sd=" + sd);
 		}
 		for (var x : sd.pages())

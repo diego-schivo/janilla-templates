@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.cms.Types;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
@@ -35,7 +36,7 @@ import com.janilla.persistence.Store;
 @Index(sort = "-createdAt")
 public record Order(Long id, @Index(sort = "-createdAt") @Types(User.class) Long orderedBy,
 		String stripePaymentIntentId, Long total, String currency, List<Item> items, Status status, Instant createdAt,
-		Instant updatedAt, Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
+		Instant updatedAt, DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
 
 	public record Item(String id, Long product, String variant, Integer quantity) {
 	}

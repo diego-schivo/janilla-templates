@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.cms.Types;
 import com.janilla.cms.Versions;
 import com.janilla.persistence.Index;
@@ -38,7 +39,7 @@ import com.janilla.persistence.Store;
 public record Post(Long id, String title, @Types(Media.class) Long heroImage, List<@Types( {
 		Banner.class, MediaBlock.class, RichText.class }) Object> content, List<@Types(Post.class) Long> relatedPosts,
 		List<@Types(Category.class) Long> categories, Meta meta, @Index String slug,
-		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
+		List<@Types(User.class) Long> authors, Instant createdAt, Instant updatedAt, DocumentStatus documentStatus,
 		Instant publishedAt) implements Document<Long> {
 
 	public Post withRelatedPosts(List<Long> relatedPosts) {

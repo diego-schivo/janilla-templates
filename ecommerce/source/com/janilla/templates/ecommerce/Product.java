@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.cms.Types;
 import com.janilla.cms.Versions;
 import com.janilla.persistence.Index;
@@ -42,7 +43,7 @@ public record Product(Long id, String title, String description, List<@Types(Med
 		Boolean enableVariants, List<@Types( {
 				Fabric.class, Size.class, Color.class }) Object> variantOptions,
 		List<Variant> variants, Long stock, BigDecimal price, @Index List<@Types(Category.class) Long> categories,
-		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, Document.Status documentStatus,
+		Meta meta, @Index String slug, Instant createdAt, Instant updatedAt, DocumentStatus documentStatus,
 		Instant publishedAt) implements Document<Long>{
 
 	public Product withVariants(List<Variant> variants) {

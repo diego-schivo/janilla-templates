@@ -33,7 +33,7 @@ public class DataRenderer<T> extends Renderer<T> {
 
 	@Override
 	public String apply(T value) {
-		return Json.format(WebsiteTemplate.INSTANCE.get().injector.create(ReflectionJsonIterator.class,
+		return Json.format(WebsiteTemplate.INSTANCE.get().diFactory.create(ReflectionJsonIterator.class,
 				Map.of("object", value, "includeType", true)));
 	}
 }

@@ -26,10 +26,11 @@ package com.janilla.templates.website;
 import java.time.Instant;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
 public record Redirect(Long id, @Index String from, String to, Instant createdAt, Instant updatedAt,
-		Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
+		DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
 }

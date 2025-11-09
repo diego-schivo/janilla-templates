@@ -27,12 +27,13 @@ import java.time.Instant;
 import java.util.List;
 
 import com.janilla.cms.Document;
+import com.janilla.cms.DocumentStatus;
 import com.janilla.persistence.Store;
 
 @Store
 public record Form(Long id, String title, List<Field> fields, String submitButtonLabel,
 		ConfirmationType confirmationType, String confirmationMessage, String redirect, List<Email> emails,
-		Instant createdAt, Instant updatedAt, Document.Status documentStatus, Instant publishedAt) implements Document<Long> {
+		Instant createdAt, Instant updatedAt, DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
 
 	public enum ConfirmationType {
 
