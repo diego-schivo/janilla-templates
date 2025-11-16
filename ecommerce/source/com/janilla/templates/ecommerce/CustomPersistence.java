@@ -52,14 +52,12 @@ public class CustomPersistence extends CmsPersistence {
 	protected static final CrudObserver PRODUCT_OBSERVER = new CrudObserver() {
 
 		@Override
-		public <E> E beforeCreate(E entity) {
-			@SuppressWarnings("unchecked")
-			var e = (E) ((Product) entity).withNonNullVariantIds();
-			return e;
+		public Entity beforeCreate(Entity entity) {
+			return ((Product) entity).withNonNullVariantIds();
 		}
 
 		@Override
-		public <E> E beforeUpdate(E entity) {
+		public Entity beforeUpdate(Entity entity) {
 			return beforeCreate(entity);
 		}
 	};
@@ -67,18 +65,18 @@ public class CustomPersistence extends CmsPersistence {
 	protected static final CrudObserver USER_OBSERVER = new CrudObserver() {
 
 		@Override
-		public <E> E beforeCreate(E entity) {
+		public Entity beforeCreate(Entity entity) {
 			var u = (User) entity;
 			var c = u.cart();
 			if (c != null)
 				c = c.withNonNullItemIds();
 			@SuppressWarnings("unchecked")
-			var e = (E) (c != u.cart() ? u.withCart(c) : u);
+			var e = c != u.cart() ? u.withCart(c) : u;
 			return e;
 		}
 
 		@Override
-		public <E> E beforeUpdate(E entity) {
+		public Entity beforeUpdate(Entity entity) {
 			return beforeCreate(entity);
 		}
 	};

@@ -75,7 +75,7 @@ public class CustomPersistence extends CmsPersistence {
 						.annotatedType().getAnnotation(Types.class).value()).toList();
 
 				@Override
-				public <E> void afterCreate(E entity) {
+				public void afterCreate(Entity entity) {
 					var d = (Document<?>) entity;
 					var dc = d.getClass();
 					if (types.contains(dc) && d.documentStatus() == DocumentStatus.PUBLISHED)
@@ -87,7 +87,7 @@ public class CustomPersistence extends CmsPersistence {
 				}
 
 				@Override
-				public <E> void afterUpdate(E entity1, E entity2) {
+				public void afterUpdate(Entity entity1, Entity entity2) {
 					var d1 = (Document<?>) entity1;
 					var d2 = (Document<?>) entity2;
 					var dc = d1.getClass();
@@ -115,7 +115,7 @@ public class CustomPersistence extends CmsPersistence {
 				}
 
 				@Override
-				public <E> void afterDelete(E entity) {
+				public void afterDelete(Entity entity) {
 					var d = (Document<?>) entity;
 					var dc = d.getClass();
 					if (types.contains(dc) && d.documentStatus() == DocumentStatus.PUBLISHED) {
