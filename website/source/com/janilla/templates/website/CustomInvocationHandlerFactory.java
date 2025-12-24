@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.blank;
+package com.janilla.templates.website;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,22 +37,25 @@ import com.janilla.java.Converter;
 import com.janilla.java.DollarTypeResolver;
 import com.janilla.java.NullTypeResolver;
 import com.janilla.java.TypeResolver;
+import com.janilla.web.ForbiddenException;
 import com.janilla.web.HandleException;
 import com.janilla.web.Invocable;
 import com.janilla.web.Invocation;
 import com.janilla.web.InvocationHandlerFactory;
 import com.janilla.web.RenderableFactory;
 
-public class CustomMethodHandlerFactory extends InvocationHandlerFactory {
+public class CustomInvocationHandlerFactory extends InvocationHandlerFactory {
 
-	protected static final Set<String> USER_POST = Set.of("/api/users/first-register", "/api/users/forgot-password",
-			"/api/users/login", "/api/users/reset-password");
+	protected static final Set<String> GUEST_POST = Set.of("/api/form-submissions", "/api/users/first-register",
+			"/api/users/forgot-password", "/api/users/login", "/api/users/reset-password");
+
+	protected static final Set<String> USER_LOGIN_LOGOUT = Set.of("/api/users/login", "/api/users/logout");
 
 	protected final Properties configuration;
 
 	protected final DiFactory diFactory;
 
-	public CustomMethodHandlerFactory(List<Invocable> invocables, Function<Class<?>, Object> instanceResolver,
+	public CustomInvocationHandlerFactory(List<Invocable> invocables, Function<Class<?>, Object> instanceResolver,
 			Comparator<Invocation> invocationComparator, RenderableFactory renderableFactory,
 			HttpHandlerFactory rootFactory, Properties configuration, DiFactory diFactory) {
 		super(invocables, instanceResolver, invocationComparator, renderableFactory, rootFactory);
@@ -62,17 +65,19 @@ public class CustomMethodHandlerFactory extends InvocationHandlerFactory {
 
 	@Override
 	protected boolean handle(Invocation invocation, HttpExchange exchange) {
-		var r = exchange.request();
-		if (r.getPath().startsWith("/api/") && !r.getMethod().equals("GET")) {
-			if (!USER_POST.contains(r.getPath()))
+		var rq = exchange.request();
+		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET")) {
+			if (rq.getPath().startsWith("/api/search-results"))
+				throw new ForbiddenException("Forbidden");
+			else if (!GUEST_POST.contains(rq.getPath()))
 				((CustomHttpExchange) exchange).requireSessionEmail();
 		}
 
-		if (Boolean.parseBoolean(configuration.getProperty("blank-template.live-demo")))
-			if (!r.getMethod().equals("GET") && !USER_POST.contains(r.getPath()))
+		if (Boolean.parseBoolean(configuration.getProperty("website-template.live-demo")))
+			if (!rq.getMethod().equals("GET") && !USER_LOGIN_LOGOUT.contains(rq.getPath()))
 				throw new HandleException(new MethodBlockedException());
 
-//		if (r.getPath().startsWith("/api/"))
+//		if (rq.getPath().startsWith("/api/"))
 //			try {
 //				Thread.sleep(500);
 //			} catch (InterruptedException e) {

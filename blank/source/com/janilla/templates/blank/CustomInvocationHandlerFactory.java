@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.janilla.templates.ecommerce;
+package com.janilla.templates.blank;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import com.janilla.http.HttpExchange;
 import com.janilla.http.HttpHandlerFactory;
@@ -38,23 +37,22 @@ import com.janilla.java.Converter;
 import com.janilla.java.DollarTypeResolver;
 import com.janilla.java.NullTypeResolver;
 import com.janilla.java.TypeResolver;
+import com.janilla.web.HandleException;
 import com.janilla.web.Invocable;
 import com.janilla.web.Invocation;
 import com.janilla.web.InvocationHandlerFactory;
 import com.janilla.web.RenderableFactory;
 
-public class CustomMethodHandlerFactory extends InvocationHandlerFactory {
+public class CustomInvocationHandlerFactory extends InvocationHandlerFactory {
 
-	protected static final Set<String> GUEST_POST = Set.of("/api/form-submissions", "/api/users/first-register",
-			"/api/users/forgot-password", "/api/users/login", "/api/users/reset-password", "/api/stripe/webhooks");
-
-	protected static final Set<String> USER_LOGIN_LOGOUT = Set.of("/api/users/login", "/api/users/logout");
+	protected static final Set<String> USER_POST = Set.of("/api/users/first-register", "/api/users/forgot-password",
+			"/api/users/login", "/api/users/reset-password");
 
 	protected final Properties configuration;
 
 	protected final DiFactory diFactory;
 
-	public CustomMethodHandlerFactory(List<Invocable> invocables, Function<Class<?>, Object> instanceResolver,
+	public CustomInvocationHandlerFactory(List<Invocable> invocables, Function<Class<?>, Object> instanceResolver,
 			Comparator<Invocation> invocationComparator, RenderableFactory renderableFactory,
 			HttpHandlerFactory rootFactory, Properties configuration, DiFactory diFactory) {
 		super(invocables, instanceResolver, invocationComparator, renderableFactory, rootFactory);
@@ -64,26 +62,17 @@ public class CustomMethodHandlerFactory extends InvocationHandlerFactory {
 
 	@Override
 	protected boolean handle(Invocation invocation, HttpExchange exchange) {
-		var rq = exchange.request();
-		if (rq.getPath().startsWith("/api/") && !rq.getMethod().equals("GET") && !GUEST_POST.contains(rq.getPath())) {
-			var ex = (CustomHttpExchange) exchange;
-			if (rq.getPath().equals("/api/users/logout"))
-				ex.requireSessionEmail();
-			else {
-				var m = Pattern.compile("/api/users/(\\d+)").matcher(rq.getPath());
-				var u = ex.sessionUser();
-				if (m.matches() && u != null && u.id().equals(Long.parseLong(m.group(1))))
-					;
-				else
-					ex.requireSessionRole(User.Role.ADMIN);
-			}
+		var r = exchange.request();
+		if (r.getPath().startsWith("/api/") && !r.getMethod().equals("GET")) {
+			if (!USER_POST.contains(r.getPath()))
+				((CustomHttpExchange) exchange).requireSessionEmail();
 		}
 
-//		if (Boolean.parseBoolean(configuration.getProperty("ecommerce-template.live-demo")))
-//			if (!rq.getMethod().equals("GET") && !USER_LOGIN_LOGOUT.contains(rq.getPath()))
-//				throw new HandleException(new MethodBlockedException());
+		if (Boolean.parseBoolean(configuration.getProperty("blank-template.live-demo")))
+			if (!r.getMethod().equals("GET") && !USER_POST.contains(r.getPath()))
+				throw new HandleException(new MethodBlockedException());
 
-//		if (rq.getPath().startsWith("/api/"))
+//		if (r.getPath().startsWith("/api/"))
 //			try {
 //				Thread.sleep(500);
 //			} catch (InterruptedException e) {
