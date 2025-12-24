@@ -31,7 +31,6 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Index(sort = "title")
 public record Category(Long id, String title, @Index String slug, Instant createdAt, Instant updatedAt,
 		DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
 }

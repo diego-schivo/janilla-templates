@@ -37,7 +37,6 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Index(sort = "title")
 @Versions(drafts = true)
 public record Product(Long id, String title, String description, List<@Types(Media.class) Long> gallery,
 		Boolean enableVariants, List<@Types( {

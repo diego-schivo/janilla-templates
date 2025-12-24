@@ -33,10 +33,9 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Index(sort = "-createdAt")
-public record Order(Long id, @Index(sort = "-createdAt") @Types(User.class) Long orderedBy,
-		String stripePaymentIntentId, Long total, String currency, List<Item> items, Status status, Instant createdAt,
-		Instant updatedAt, DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
+public record Order(Long id, @Index @Types(User.class) Long orderedBy, String stripePaymentIntentId, Long total,
+		String currency, List<Item> items, Status status, Instant createdAt, Instant updatedAt,
+		DocumentStatus documentStatus, Instant publishedAt) implements Document<Long> {
 
 	public record Item(String id, Long product, String variant, Integer quantity) {
 	}

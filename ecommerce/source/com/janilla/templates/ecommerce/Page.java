@@ -34,7 +34,6 @@ import com.janilla.persistence.Index;
 import com.janilla.persistence.Store;
 
 @Store
-@Index(sort = "-createdAt")
 @Versions(drafts = true)
 public record Page(Long id, String title, Hero hero, List<@Types( {
 		CallToAction.class, Content.class, MediaBlock.class }) Object> layout, Meta meta, @Index String slug,
